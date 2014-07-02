@@ -15,7 +15,7 @@ import lfocc.framework.util.XML;
 public class SampleFeature implements Feature {
 	
 	public static final String FEATURE_CONFIGURATION_SCHEMA =
-			"features/bsc_weber/features/samplefeature/schema.xsd";
+			"features/lfocc/features/samplefeature/schema.xsd";
 	
 	private String option1;
 	private String option2;

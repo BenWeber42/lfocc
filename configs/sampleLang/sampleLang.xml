@@ -5,4 +5,5 @@
 	<feature name="SyntaxBase" />
 	<feature name="GlobalScope" />
 	<feature name="Classes" />
+	<feature name="Variables" config="Variables.xml" />
 </LanguageConfiguration>

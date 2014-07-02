@@ -37,7 +37,10 @@ public class LanguageConfigurationLoader {
 				Logger.error(String.format("Feature '%s' mentioned twice in LanguageConfiguration file!", name));
 			} else {
 				Node config = f.getAttributes().getNamedItem("config");
-				featureConfigurations.put(name,  new File(file.getParent() + "/" + (config != null ? config.getTextContent() : null)));
+				if (config != null)
+					featureConfigurations.put(name,  new File(file.getParent() + "/" + config.getTextContent() ));
+				else
+					featureConfigurations.put(name, null);
 			}
 		}
 		
