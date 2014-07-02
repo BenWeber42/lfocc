@@ -4,10 +4,8 @@ import java.io.File;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
-import lfocc.framework.feature.FeatureHelper;
-import lfocc.framework.feature.service.ServiceProvider;
 
-public class SyntaxBase implements Feature {
+public class SyntaxBase extends Feature {
 	
 	private static final String SYNTAX_BASE_LEXER_NAME = "BaseLexer";
 	private static final String SYNTAX_BASE_LEXER_FILE =
@@ -16,15 +14,6 @@ public class SyntaxBase implements Feature {
 	@Override
 	public String getName() {
 		return "SyntaxBase";
-	}
-
-
-	@Override
-	public void setup(FeatureHelper helper) {}
-
-	
-	@Override
-	public void setupFeatureArrangements(ServiceProvider provider) {
 	}
 
 	@Override

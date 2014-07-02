@@ -25,11 +25,11 @@ import lfocc.framework.feature.service.ServiceProvider;
  * </br>
  * Warning: Every feature must have a constructor without parameters!</br>
  */
-public interface Feature {
+public abstract class Feature {
 	/**
 	 * @return name of the feature
 	 */
-	public String getName(); // TODO: should probably be static
+	public abstract String getName(); // TODO: should probably be static
 	/**
 	 * This should:
 	 * - configure the feature (FeatureHelper.getConfiguration)
@@ -37,11 +37,12 @@ public interface Feature {
 	 * - declare all dependencies (FeatureHelper.depends)
 	 * - register all services provided by this feature (FeatureHelper.registerService)
 	 */
-	public void setup(FeatureHelper helper);
+	public void setup(FeatureHelper helper) {}
 	/**
 	 * This should setup all inter-feature arrangements
 	 * (Those will mainly work via services)
 	 */
-	public void setupFeatureArrangements(ServiceProvider provider);
-	public void setupCompilerGenerator(CompilerGenerator cg);
+	public void setupFeatureArrangements(ServiceProvider provider) {}
+	public void setupCompilerGenerator(CompilerGenerator cg) {}
+
 }

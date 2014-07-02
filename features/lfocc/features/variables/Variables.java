@@ -3,18 +3,14 @@ package lfocc.features.variables;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import org.w3c.dom.Document;
 
-import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
-import lfocc.framework.feature.service.ServiceProvider;
-import lfocc.framework.util.Logger;
 import lfocc.framework.util.XML;
 
-public class Variables implements Feature {
+public class Variables extends Feature {
 	
 	public static final String VARIABLES_CONFIGURATION_SCHEMA =
 			"./features/lfocc/features/variables/configSchema.xsd";
@@ -53,17 +49,6 @@ public class Variables implements Feature {
 	public void setup(FeatureHelper helper) {
 		configure(helper.getConfiguration());
 		helper.printConfiguration(getConfiguration());
-	}
-
-	@Override
-	public void setupCompilerGenerator(CompilerGenerator cg) {
-		// TODO Auto-generated method stub
-	}
-
-	
-	@Override
-	public void setupFeatureArrangements(ServiceProvider provider) {
-		// TODO Auto-generated method stub
 	}
 
 }

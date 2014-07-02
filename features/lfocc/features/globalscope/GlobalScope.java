@@ -9,9 +9,8 @@ import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.service.Service;
-import lfocc.framework.feature.service.ServiceProvider;
 
-public class GlobalScope implements Feature {
+public class GlobalScope extends Feature {
 	
 	List<String> choice = new ArrayList<String>();
 	
@@ -30,9 +29,6 @@ public class GlobalScope implements Feature {
 		helper.registerService(service);
 	}
 
-
-	@Override
-	public void setupFeatureArrangements(ServiceProvider provider) {}
 
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {

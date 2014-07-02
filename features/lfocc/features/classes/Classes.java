@@ -11,7 +11,7 @@ import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.service.ServiceProvider;
 
-public class Classes implements Feature {
+public class Classes extends Feature {
 	
 	private Set<String> rules = new HashSet<String>();
 
