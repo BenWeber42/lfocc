@@ -5,10 +5,10 @@ import lfocc.framework.feature.service.Service;
 
 public class GlobalScopeService implements Service {
 	
-	private GlobalScope feature;
+	private GlobalScope globalScope;
 	
 	public GlobalScopeService(GlobalScope feature) {
-		this.feature = feature;
+		globalScope = feature;
 	}
 	
 	/**
@@ -21,12 +21,12 @@ public class GlobalScopeService implements Service {
 	 * semantic checking stage
 	 */
 	public void addSyntaxRule(String rule) {
-		feature.addSyntaxRule(rule);
+		globalScope.addSyntaxRule(rule);
 	}
 
 	@Override
 	public String getFeature() {
-		return "GlobalScope";
+		return globalScope.getName();
 	}
 
 	@Override

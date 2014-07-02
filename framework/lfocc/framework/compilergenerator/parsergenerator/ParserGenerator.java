@@ -109,8 +109,8 @@ public class ParserGenerator {
 		return Command.execute(
 				"java -jar ./lib/antlr-3.4.jar" + 
 				" -fo " + path.getPath() +
-				" " + path.getPath() + "/Root.g" +
-				" " + path.getPath() + "/RootWalker.g"
+				" " + path.getPath() + "/Root.g"/* +
+				" " + path.getPath() + "/RootWalker.g"*/
 				);
 		
 	}

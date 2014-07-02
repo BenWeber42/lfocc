@@ -239,6 +239,7 @@ public class Application implements CompilerGenerator {
 		// Imports
 		///////////////////////////////////////////////////////////////////////
 		app.addImport(String.format("lfocc.compilers.%s.parser.RootParser", cfg.name()));
+		app.addImport(String.format("lfocc.compilers.%s.parser.RootLexer", cfg.name()));
 		app.emitLn();
 		
 		app.startClass("public", "Application");
@@ -261,6 +262,41 @@ public class Application implements CompilerGenerator {
 		// run()
 		///////////////////////////////////////////////////////////////////////
 		app.startMethod("public", "void", "run");
+		app.emitLn("parse();");
+		app.emitLn("semantics();");
+		app.emitLn("transform();");
+		app.emitLn("generate();");
+		app.endMethod();
+		app.emitLn();
+		
+		///////////////////////////////////////////////////////////////////////
+		// parse()
+		///////////////////////////////////////////////////////////////////////
+		app.startMethod("private", "void", "parse");
+		app.emitLn("// TODO");
+		app.endMethod();
+		app.emitLn();
+		
+		///////////////////////////////////////////////////////////////////////
+		// semantics()
+		///////////////////////////////////////////////////////////////////////
+		app.startMethod("private", "void", "semantics");
+		app.emitLn("// TODO");
+		app.endMethod();
+		app.emitLn();
+
+		///////////////////////////////////////////////////////////////////////
+		// transform()
+		///////////////////////////////////////////////////////////////////////
+		app.startMethod("private", "void", "transform");
+		app.emitLn("// TODO");
+		app.endMethod();
+		app.emitLn();
+
+		///////////////////////////////////////////////////////////////////////
+		// generate()
+		///////////////////////////////////////////////////////////////////////
+		app.startMethod("private", "void", "generate");
 		app.emitLn("// TODO");
 		app.endMethod();
 		app.emitLn();
@@ -292,7 +328,7 @@ public class Application implements CompilerGenerator {
 				" lfocc.compilers." + cfg.name() + ".Main" +
 				" " + compilerArgs;
 
-		
+		// TODO: set current directory to compiler's directory for compiler
 		if (!Command.execute(command, true)) {
 			Logger.error("Failed to execute compiler!");
 			exit(-1);

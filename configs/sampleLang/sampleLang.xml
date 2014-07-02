@@ -2,6 +2,7 @@
 <LanguageConfiguration>
 	<name>SampleLanguage</name>
 
+	<feature name="SyntaxBase" />
 	<feature name="GlobalScope" />
 	<feature name="Classes" />
 </LanguageConfiguration>

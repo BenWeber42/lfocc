@@ -3,6 +3,7 @@ package lfocc.features.classes;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +13,8 @@ import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.service.ServiceManager;
 
 public class Classes implements Feature {
+	
+	private Set<String> rules = new HashSet<String>();
 
 	@Override
 	public String getName() {
@@ -35,15 +38,20 @@ public class Classes implements Feature {
 		source += "   Class;\n";
 		source += "}\n";
 		source += "\n";
-		source += "classDecl : ClassKeyWord -> Class ;";
+		source += "classDecl : 'class' Identifier '{' \n";
+		
+		Iterator<String> it = rules.iterator();
+		if (it.hasNext()) {
+			source += "   (\n";
+			source += "      " + it.next() + "\n";
+			while (it.hasNext())
+				source += "      | " + it.next() + "\n";
+			source += "   )*\n";
+		}
+		
+		source += "   '}' ;\n";
 		cg.getParserGenerator().addParserGrammar(getName(), source, "ClassesParser");
 		
-		source = "";
-		source += "lexer grammar ClassesLexer;\n";
-		source += "\n";
-		source += "ClassKeyWord : 'class' ;";
-
-		cg.getParserGenerator().addParserGrammar(getName(), source, "ClassesLexer");
 	}
 
 	@Override
@@ -53,7 +61,9 @@ public class Classes implements Feature {
 
 	@Override
 	public Set<String> getDependencies() {
-		return new HashSet<String>(Arrays.asList("GlobalScope"));
+		return new HashSet<String>(Arrays.asList(
+				"GlobalScope",
+				"SyntaxBase"));
 	}
 
 	@Override
@@ -66,6 +76,10 @@ public class Classes implements Feature {
 				serviceManager.getService("GlobalScope", "GlobalScopeManager");
 		globalScope.addSyntaxRule("ClassDecl");
 
+	}
+	
+	public void addSyntaxRule(String rule) {
+		rules.add(rule);
 	}
 
 }

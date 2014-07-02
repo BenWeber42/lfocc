@@ -1,0 +1,52 @@
+package lfocc.features.syntaxbase;
+
+import java.io.File;
+import java.util.List;
+import java.util.Set;
+
+import lfocc.framework.compilergenerator.CompilerGenerator;
+import lfocc.framework.feature.Feature;
+import lfocc.framework.feature.service.ServiceManager;
+
+public class SyntaxBase implements Feature {
+	
+	private static final String SYNTAX_BASE_LEXER_NAME = "BaseLexer";
+	private static final String SYNTAX_BASE_LEXER_FILE =
+			"features/lfocc/features/syntaxbase/BaseLexer.g";
+
+	@Override
+	public String getName() {
+		return "SyntaxBase";
+	}
+
+	@Override
+	public void configure(File config) {}
+
+	@Override
+	public List<String> getConfiguration() {
+		return null;
+	}
+
+	@Override
+	public void setup() {}
+
+	@Override
+	public Set<String> getDependencies() {
+		return null;
+	}
+
+	@Override
+	public void registerServices(ServiceManager serviceManager) {
+	}
+
+	@Override
+	public void setupFeatureArrangements(ServiceManager serviceManager) {
+	}
+
+	@Override
+	public void setupCompilerGenerator(CompilerGenerator cg) {
+		cg.getParserGenerator().addParserGrammar(
+				getName(), new File(SYNTAX_BASE_LEXER_FILE), SYNTAX_BASE_LEXER_NAME);
+	}
+
+}
