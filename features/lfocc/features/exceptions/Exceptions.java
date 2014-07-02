@@ -1,12 +1,9 @@
 package lfocc.features.exceptions;
 
-import java.io.File;
-import java.util.List;
-import java.util.Set;
-
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
-import lfocc.framework.feature.service.ServiceManager;
+import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.service.ServiceProvider;
 
 public class Exceptions implements Feature {
 
@@ -17,45 +14,21 @@ public class Exceptions implements Feature {
 	}
 
 	@Override
-	public void configure(File config) {
+	public void setup(FeatureHelper helper) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-	public void setup() {
+	public void setupFeatureArrangements(ServiceProvider provider) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public List<String> getConfiguration() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<String> getDependencies() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void registerServices(ServiceManager serviceManager) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setupFeatureArrangements(ServiceManager serviceManager) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

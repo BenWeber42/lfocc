@@ -9,7 +9,8 @@ import org.w3c.dom.Document;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
-import lfocc.framework.feature.service.ServiceManager;
+import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.util.Logger;
 import lfocc.framework.util.XML;
 
@@ -28,7 +29,6 @@ public class Variables implements Feature {
 		return "Variables";
 	}
 
-	@Override
 	public void configure(File config) {
 		if (config == null)
 			return;
@@ -40,19 +40,6 @@ public class Variables implements Feature {
 		classMembers = cfg.getElementsByTagName("ClassMembers").item(0).getTextContent().equals("true");
 	}
 
-	@Override
-	public void setup() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setupCompilerGenerator(CompilerGenerator cg) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public List<String> getConfiguration() {
 		return Arrays.asList(
 				"FunctionParameters = " + funcParams,
@@ -63,21 +50,20 @@ public class Variables implements Feature {
 	}
 
 	@Override
-	public Set<String> getDependencies() {
-		// TODO Auto-generated method stub
-		return null;
+	public void setup(FeatureHelper helper) {
+		configure(helper.getConfiguration());
+		helper.printConfiguration(getConfiguration());
 	}
 
 	@Override
-	public void registerServices(ServiceManager serviceManager) {
+	public void setupCompilerGenerator(CompilerGenerator cg) {
 		// TODO Auto-generated method stub
-		
 	}
 
+	
 	@Override
-	public void setupFeatureArrangements(ServiceManager serviceManager) {
+	public void setupFeatureArrangements(ServiceProvider provider) {
 		// TODO Auto-generated method stub
-		
 	}
 
 }

@@ -1,16 +1,15 @@
 package lfocc.features.classes;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import lfocc.features.globalscope.services.GlobalScopeService;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
-import lfocc.framework.feature.service.ServiceManager;
+import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.service.ServiceProvider;
 
 public class Classes implements Feature {
 	
@@ -21,12 +20,24 @@ public class Classes implements Feature {
 		return "Classes";
 	}
 
-	@Override
-	public void configure(File config) {
+	public Set<String> getDependencies() {
+		return new HashSet<String>(Arrays.asList(
+				"GlobalScope",
+				"SyntaxBase"));
 	}
 
 	@Override
-	public void setup() {
+	public void setup(FeatureHelper helper) {
+		helper.depends(getDependencies());
+	}
+
+
+	@Override
+	public void setupFeatureArrangements(ServiceProvider serviceManager) {
+		GlobalScopeService globalScope = (GlobalScopeService)
+				serviceManager.getService("GlobalScope", "GlobalScopeManager");
+		globalScope.addSyntaxRule("ClassDecl");
+
 	}
 
 	@Override
@@ -52,30 +63,6 @@ public class Classes implements Feature {
 		source += "   '}' ;\n";
 		cg.getParserGenerator().addParserGrammar(getName(), source, "ClassesParser");
 		
-	}
-
-	@Override
-	public List<String> getConfiguration() {
-		return null;
-	}
-
-	@Override
-	public Set<String> getDependencies() {
-		return new HashSet<String>(Arrays.asList(
-				"GlobalScope",
-				"SyntaxBase"));
-	}
-
-	@Override
-	public void registerServices(ServiceManager serviceManager) {
-	}
-
-	@Override
-	public void setupFeatureArrangements(ServiceManager serviceManager) {
-		GlobalScopeService globalScope = (GlobalScopeService)
-				serviceManager.getService("GlobalScope", "GlobalScopeManager");
-		globalScope.addSyntaxRule("ClassDecl");
-
 	}
 	
 	public void addSyntaxRule(String rule) {

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,27 +13,31 @@ import lfocc.framework.compilergenerator.parsergenerator.ParserGenerator;
 import lfocc.framework.config.GlobalConfiguration;
 import lfocc.framework.config.LanguageConfigurationLoader;
 import lfocc.framework.feature.Feature;
+import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.FeatureLoader;
-import lfocc.framework.feature.service.ServiceManager;
+import lfocc.framework.feature.service.Service;
+import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.util.Command;
 import lfocc.framework.util.FileSystem;
 import lfocc.framework.util.JavaCodeGen;
 import lfocc.framework.util.JavaCompiler;
 import lfocc.framework.util.Logger;
 
-public class Application implements CompilerGenerator {
+public class Application implements CompilerGenerator, FeatureHelper, ServiceProvider {
 	
 	private String[] args;
 	private String compilerArgs = new String();
 	private Map<String, Feature> features = new HashMap<String, Feature>();
 	private LanguageConfigurationLoader configLoader = new LanguageConfigurationLoader();
-	GlobalConfiguration cfg;
-	private ServiceManager serviceManager = new ServiceManager();
+	private GlobalConfiguration cfg;
+	private Map<String, Map<String, Service>> services = new HashMap<String, Map<String, Service>>();
 	private ParserGenerator parserGenerator = new ParserGenerator();
 	private File outputFolder = null;
 	private File srcFolder = null;
 	private File parserFolder = null;
 	private File binFolder = null;
+	private String currentFeature = null; // relevant for the FeatureHelper interface
+	private List<String> currentFeatureConfiguration = null;
 	
 	public Application(String[] args) {
 		this.args = args;
@@ -83,64 +88,10 @@ public class Application implements CompilerGenerator {
 		features = loader.getAllFeatures();
 	}
 	
-	private void configureFeatures() {
-		Iterator<Feature> it = features.values().iterator();
-		while (it.hasNext()) {
-			Feature feature = it.next();
-			feature.configure(configLoader.getConfigurationForFeature(feature.getName()));
-		}
-	}
-	
-	private void printConfigurations() {
-		// TODO: print global configuration:
-		Iterator<Feature> it = features.values().iterator();
-		while (it.hasNext()) {
-			Feature feature = it.next();
-			
-			Logger.info(String.format("Successfully loaded feature '%s' with configuration: ", feature.getName()));
-			
-			if (feature.getConfiguration() == null) {
-				Logger.info("- No configuration available.");
-				continue;
-			}
-
-			Iterator<String> config = feature.getConfiguration().iterator();
-
-			while (config.hasNext()) {
-				Logger.info(String.format("- %s", config.next()));
-			}
-		}
-	}
-
-	private void checkDependencies() {
-		Iterator<Feature> it = features.values().iterator();
-		while (it.hasNext()) {
-			Feature feature = it.next();
-			Set<String> dependencies = feature.getDependencies();
-			if (dependencies != null && !features.keySet().containsAll(dependencies)) {
-				Logger.error(String.format("Unsatisfied dependencies in feature '%s'!", feature.getName()));
-				dependencies.removeAll(features.keySet());
-				Iterator<String> dependency = dependencies.iterator();
-				while (dependency.hasNext()) {
-					Logger.error(String.format("- %s", dependency.next()));
-				}
-				exit(-1);
-			}
-		}
-	}
-	
-	private void collectServices() {
-		Iterator<Feature> it = features.values().iterator();
-		while (it.hasNext()) {
-			Feature feature = it.next();
-			feature.registerServices(serviceManager);
-		}
-	}
-
 	private void setupFeatureArrangements() {
 		Iterator<Feature> it = features.values().iterator();
 		while (it.hasNext()) {
-			it.next().setupFeatureArrangements(serviceManager);
+			it.next().setupFeatureArrangements(this);
 		}
 	}
 
@@ -148,7 +99,22 @@ public class Application implements CompilerGenerator {
 		Iterator<Feature> it = features.values().iterator();
 		while (it.hasNext()) {
 			Feature feature = it.next();
-			feature.setup();
+			currentFeature = feature.getName();
+			currentFeatureConfiguration = null;
+			feature.setup(this);
+			
+			Logger.info(String.format("Successfully setup feature '%s' with configuration: ", feature.getName()));
+			
+			if (currentFeatureConfiguration == null) {
+				Logger.info("- No configuration available.");
+				continue;
+			}
+
+			Iterator<String> config = currentFeatureConfiguration.iterator();
+
+			while (config.hasNext()) {
+				Logger.info(String.format("- %s", config.next()));
+			}
 		}
 	}
 	
@@ -339,12 +305,8 @@ public class Application implements CompilerGenerator {
 		
 		loadConfig();
 		loadFeatures();
-		configureFeatures();
-		printConfigurations();
-		checkDependencies();
-		collectServices();
-		setupFeatureArrangements();
 		setupFeatures();
+		setupFeatureArrangements();
 		setupOutputFolder();
 		setupCompilerGenerator();
 		Logger.info("Compiler successfully setup!");
@@ -366,5 +328,63 @@ public class Application implements CompilerGenerator {
 	@Override
 	public ParserGenerator getParserGenerator() {
 		return parserGenerator;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// FeatureHelper methods:
+	////////////////////////////////////////////////////////////////////////////
+
+	@Override
+	public File getConfiguration() {
+		return configLoader.getConfigurationForFeature(currentFeature);
+	}
+
+	@Override
+	public void printConfiguration(List<String> cfgs) {
+		currentFeatureConfiguration = cfgs;
+	}
+
+	@Override
+	public void depends(String dependency) {
+		if (!features.keySet().contains(dependency)) {
+			Logger.error(String.format("Unsatisfied dependencies in feature '%s'!", currentFeature));
+			Logger.error(String.format("- %s", dependency));
+			exit(-1);
+		}
+	}
+
+	@Override
+	public void depends(Set<String> dependencies) {
+		if (dependencies != null && !features.keySet().containsAll(dependencies)) {
+			Logger.error(String.format("Unsatisfied dependencies in feature '%s'!", currentFeature));
+			dependencies.removeAll(features.keySet());
+			Iterator<String> dependency = dependencies.iterator();
+			while (dependency.hasNext()) {
+				Logger.error(String.format("- %s", dependency.next()));
+			}
+			exit(-1);
+		}
+	}
+
+	@Override
+	public void registerService(Service service) {
+		assert currentFeature.equals(service.getFeature());
+
+		if (!services.containsKey(currentFeature))
+			services.put(currentFeature, new HashMap<String, Service>());
+		
+		services.get(currentFeature).put(service.getServiceName(), service);
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// ServiceProvider methods:
+	////////////////////////////////////////////////////////////////////////////
+
+	@Override
+	public Service getService(String feature, String service) {
+		if (services.containsKey(feature))
+			if (services.get(feature).containsKey(service))
+				return services.get(feature).get(service);
+		return null;
 	}
 }

@@ -1,12 +1,11 @@
 package lfocc.features.syntaxbase;
 
 import java.io.File;
-import java.util.List;
-import java.util.Set;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
-import lfocc.framework.feature.service.ServiceManager;
+import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.service.ServiceProvider;
 
 public class SyntaxBase implements Feature {
 	
@@ -19,28 +18,13 @@ public class SyntaxBase implements Feature {
 		return "SyntaxBase";
 	}
 
-	@Override
-	public void configure(File config) {}
 
 	@Override
-	public List<String> getConfiguration() {
-		return null;
-	}
+	public void setup(FeatureHelper helper) {}
 
+	
 	@Override
-	public void setup() {}
-
-	@Override
-	public Set<String> getDependencies() {
-		return null;
-	}
-
-	@Override
-	public void registerServices(ServiceManager serviceManager) {
-	}
-
-	@Override
-	public void setupFeatureArrangements(ServiceManager serviceManager) {
+	public void setupFeatureArrangements(ServiceProvider provider) {
 	}
 
 	@Override

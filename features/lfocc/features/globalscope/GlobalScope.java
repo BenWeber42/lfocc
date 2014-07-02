@@ -1,16 +1,15 @@
 package lfocc.features.globalscope;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import lfocc.features.globalscope.services.GlobalScopeService;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
+import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.service.Service;
-import lfocc.framework.feature.service.ServiceManager;
+import lfocc.framework.feature.service.ServiceProvider;
 
 public class GlobalScope implements Feature {
 	
@@ -26,10 +25,14 @@ public class GlobalScope implements Feature {
 	}
 
 	@Override
-	public void configure(File config) {}
+	public void setup(FeatureHelper helper) {
+		Service service = new GlobalScopeService(this);
+		helper.registerService(service);
+	}
+
 
 	@Override
-	public void setup() {}
+	public void setupFeatureArrangements(ServiceProvider provider) {}
 
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
@@ -51,24 +54,5 @@ public class GlobalScope implements Feature {
 		cg.getParserGenerator().addParserGrammar(getName(), grammar, "GlobalScope");
 		cg.getParserGenerator().setRootRule("globalScope");
 	}
-
-	@Override
-	public List<String> getConfiguration() {
-		return null;
-	}
-
-	@Override
-	public Set<String> getDependencies() {
-		return null;
-	}
-
-	@Override
-	public void registerServices(ServiceManager serviceManager) {
-		Service service = new GlobalScopeService(this);
-		serviceManager.addService(getName(), service.getServiceName(), service);
-	}
-
-	@Override
-	public void setupFeatureArrangements(ServiceManager serviceManager) {}
 
 }

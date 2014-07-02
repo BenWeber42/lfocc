@@ -1,11 +1,7 @@
 package lfocc.framework.feature;
 
-import java.io.File;
-import java.util.List;
-import java.util.Set;
-
 import lfocc.framework.compilergenerator.CompilerGenerator;
-import lfocc.framework.feature.service.ServiceManager;
+import lfocc.framework.feature.service.ServiceProvider;
 
 /**
  * This is the interface that every feature has to expose to the framework</br>
@@ -33,19 +29,19 @@ public interface Feature {
 	/**
 	 * @return name of the feature
 	 */
-	public String getName();
+	public String getName(); // TODO: should probably be static
 	/**
-	 * Loads the given config
+	 * This should:
+	 * - configure the feature (FeatureHelper.getConfiguration)
+	 * - give information about the loaded configuration (FeatureHelper.printConfiguration)
+	 * - declare all dependencies (FeatureHelper.depends)
+	 * - register all services provided by this feature (FeatureHelper.registerService)
 	 */
-	public void configure(File config);
+	public void setup(FeatureHelper helper);
 	/**
-	 * A set of Strings describing the configuration of the feature,
-	 * so that the user can check that the features was configured correctly.
+	 * This should setup all inter-feature arrangements
+	 * (Those will mainly work via services)
 	 */
-	public List<String> getConfiguration();
-	public void setup();
-	public Set<String> getDependencies();
-	public void registerServices(ServiceManager serviceManager);
-	public void setupFeatureArrangements(ServiceManager serviceManager);
+	public void setupFeatureArrangements(ServiceProvider provider);
 	public void setupCompilerGenerator(CompilerGenerator cg);
 }
