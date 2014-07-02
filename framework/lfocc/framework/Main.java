@@ -1,4 +1,6 @@
-package lfocc.framework.compiler;
+package lfocc.framework;
+
+import lfocc.framework.application.Application;
 
 public class Main {
 

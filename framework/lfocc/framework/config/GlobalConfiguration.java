@@ -14,7 +14,7 @@ public class GlobalConfiguration {
 	// whether debugging information should be printed
 	boolean debug = false;
 	
-	public String getLanguageName() {
+	public String name() {
 		return name;
 	}
 	

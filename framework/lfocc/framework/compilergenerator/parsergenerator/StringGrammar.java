@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 public class StringGrammar extends Grammar {
 	
@@ -20,7 +21,7 @@ public class StringGrammar extends Grammar {
 		if (!destination.exists())
 			destination.createNewFile();
 		
-		BufferedWriter writer = new BufferedWriter(new FileWriter(destination));
+		Writer writer = new BufferedWriter(new FileWriter(destination));
 		writer.write(grammar);
 		writer.close();
 	}

@@ -48,7 +48,7 @@ public class GlobalScope implements Feature {
 		
 		grammar += " )* EOF;";
 
-		cg.getParserGenerator().addGrammar(getName(), grammar, "GlobalScope");
+		cg.getParserGenerator().addParserGrammar(getName(), grammar, "GlobalScope");
 		cg.getParserGenerator().setRootRule("globalScope");
 	}
 

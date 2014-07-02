@@ -9,12 +9,14 @@ import java.util.Set;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.compilergenerator.parsergenerator.ParserGenerator;
+import lfocc.framework.config.GlobalConfiguration;
 import lfocc.framework.config.LanguageConfigurationLoader;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureLoader;
 import lfocc.framework.feature.service.ServiceManager;
 import lfocc.framework.util.Command;
 import lfocc.framework.util.FileSystem;
+import lfocc.framework.util.JavaCodeGen;
 import lfocc.framework.util.JavaCompiler;
 import lfocc.framework.util.Logger;
 
@@ -24,6 +26,7 @@ public class Application implements CompilerGenerator {
 	private String compilerArgs = new String();
 	private Map<String, Feature> features = new HashMap<String, Feature>();
 	private LanguageConfigurationLoader configLoader = new LanguageConfigurationLoader();
+	GlobalConfiguration cfg;
 	private ServiceManager serviceManager = new ServiceManager();
 	private ParserGenerator parserGenerator = new ParserGenerator();
 	private File outputFolder = null;
@@ -34,7 +37,7 @@ public class Application implements CompilerGenerator {
 	public Application(String[] args) {
 		this.args = args;
 		for (int i = 1; i < args.length; ++i) {
-			compilerArgs += args[i];
+			compilerArgs += " " + args[i];
 		}
 	}
 
@@ -54,6 +57,7 @@ public class Application implements CompilerGenerator {
 		}
 
 		configLoader.process(new File(args[0]));
+		cfg = configLoader.getGlobalConfiguration();
 
 	}
 	
@@ -96,7 +100,7 @@ public class Application implements CompilerGenerator {
 			Logger.info(String.format("Successfully loaded feature '%s' with configuration: ", feature.getName()));
 			
 			if (feature.getConfiguration() == null) {
-				Logger.info("- No configuration Available.");
+				Logger.info("- No configuration available.");
 				continue;
 			}
 
@@ -152,7 +156,7 @@ public class Application implements CompilerGenerator {
 		// TODO: parameterize output folders
 		try {
 			outputFolder = FileSystem.createFolder("compilers/" +
-					configLoader.getGlobalConfiguration().getLanguageName()
+					cfg.name()
 					+ "/").toFile();
 			srcFolder = FileSystem.createFolder(outputFolder.getPath() + "/src/").toFile();
 			parserFolder = FileSystem.createFolder(srcFolder.getPath() + "/parser").toFile();
@@ -174,7 +178,7 @@ public class Application implements CompilerGenerator {
 	}
 	
 	private void generateCompiler() {
-		// compiler (runtime & infrastructure
+		// copy runtime & infrastructure
 		if (!FileSystem.copyAll(
 				FileSystem.getFiles("framework/lfocc/framework/compiler/"),
 				srcFolder.getPath())) {
@@ -183,17 +187,87 @@ public class Application implements CompilerGenerator {
 			exit(-1);
 		}
 		
+		// generate files:
+		try {
+			FileSystem.writeTo(generateMainFile(), srcFolder.getPath() + "/Main.java");
+			FileSystem.writeTo(generateApplicationFile(), srcFolder.getPath() + "/Application.java");
+		} catch (IOException e1) {
+			Logger.error("Failed to write main files!");
+			e1.printStackTrace();
+			exit(-1);
+		}
+		
 		// parser generator:
 		try {
-			parserGenerator.copyTo(parserFolder, configLoader.getGlobalConfiguration().getLanguageName());
+			parserGenerator.copyTo(parserFolder, cfg.name());
 		} catch (IOException e) {
 			Logger.error("Failed to copy parser grammar to output folder!");
 			e.printStackTrace();
+			exit(-1);
 		}
 		if (!parserGenerator.generate(parserFolder)) {
 			Logger.error("Failed to generate parser!");
 			exit(-1);
 		}
+	}
+	
+	private String generateMainFile() {
+		JavaCodeGen main = new JavaCodeGen();
+
+		main.setPackage("lfocc.compilers." + cfg.name());
+		main.emitLn();
+		main.addImport("lfocc.compilers." + cfg.name() + ".application.Application");
+		main.emitLn();
+
+		main.startClass("public", "Main");
+		main.startMethod("public static", "void", "main", "String[]", "args");
+		main.emitLn("Application app = new Application(args);");
+		main.emitLn("app.run();");
+		main.endMethod();
+		main.endClass();
+
+		return main.generate();
+	}
+	
+	private String generateApplicationFile() {
+		JavaCodeGen app = new JavaCodeGen();
+		
+		app.setPackage(String.format("lfocc.compilers.%s.application", cfg.name()));
+		app.emitLn();
+
+		///////////////////////////////////////////////////////////////////////
+		// Imports
+		///////////////////////////////////////////////////////////////////////
+		app.addImport(String.format("lfocc.compilers.%s.parser.RootParser", cfg.name()));
+		app.emitLn();
+		
+		app.startClass("public", "Application");
+		
+		///////////////////////////////////////////////////////////////////////
+		// Attributes
+		///////////////////////////////////////////////////////////////////////
+		app.emitLn("private String[] args;");
+		app.emitLn();
+		
+		///////////////////////////////////////////////////////////////////////
+		// Constructor
+		///////////////////////////////////////////////////////////////////////
+		app.startMethod("public", "", "Application", "String[]", "args");
+		app.emitLn("this.args = args;");
+		app.endMethod();
+		app.emitLn();
+		
+		///////////////////////////////////////////////////////////////////////
+		// run()
+		///////////////////////////////////////////////////////////////////////
+		app.startMethod("public", "void", "run");
+		app.emitLn("// TODO");
+		app.endMethod();
+		app.emitLn();
+
+		app.endClass();
+		
+		return app.generate();
 	}
 	
 	private void compileCompiler() {
@@ -210,12 +284,12 @@ public class Application implements CompilerGenerator {
 			Logger.info("Starting compiler now with:");
 			Logger.info("<lfocc> " + compilerArgs);
 		} else {
-			Logger.info("Starting compiler now without arguments.");
+			Logger.info("Starting compiler now without arguments:");
 		}
 
 		String command = "java" + 
 				" -cp lib/antlr-3.4.jar:" + binFolder.getPath() + 
-				" lfocc.framework.compiler.Main" +
+				" lfocc.compilers." + cfg.name() + ".Main" +
 				" " + compilerArgs;
 
 		

@@ -28,15 +28,26 @@ public class Classes implements Feature {
 
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
-		cg.getParserGenerator().addGrammar(getName(),
-				"lexer grammar Classes;\n" +
-				"\n" +
-				"ClassDecl : 'class';", "Classes");
+		String source = "";
+		source += "parser grammar ClassesParser;\n";
+		source += "\n";
+		source += "tokens {\n";
+		source += "   Class;\n";
+		source += "}\n";
+		source += "\n";
+		source += "classDecl : ClassKeyWord -> Class ;";
+		cg.getParserGenerator().addParserGrammar(getName(), source, "ClassesParser");
+		
+		source = "";
+		source += "lexer grammar ClassesLexer;\n";
+		source += "\n";
+		source += "ClassKeyWord : 'class' ;";
+
+		cg.getParserGenerator().addParserGrammar(getName(), source, "ClassesLexer");
 	}
 
 	@Override
 	public List<String> getConfiguration() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
