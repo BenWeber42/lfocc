@@ -4,6 +4,9 @@
 
 	<feature name="SyntaxBase" />
 	<feature name="GlobalScope" />
+	<feature name="CodeBlock" />
+	<feature name="ControlFlow" />
+	<feature name="Functions" />
 	<feature name="Classes" />
 	<feature name="Variables" config="Variables.xml" />
 </LanguageConfiguration>

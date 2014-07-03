@@ -6,24 +6,26 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 
+import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.service.ServiceProvider;
+import lfocc.framework.feature.service.SyntaxExtender;
 import lfocc.framework.util.XML;
 
 public class Variables extends Feature {
 	
+	public static final String VARIABLES_PARSER_FILE =
+			"features/lfocc/features/variables/Variables.g";
+	public static final String VARIABLES_PARSER_NAME = "Variables";
+	
 	public static final String VARIABLES_CONFIGURATION_SCHEMA =
-			"./features/lfocc/features/variables/configSchema.xsd";
+			"features/lfocc/features/variables/configSchema.xsd";
 	
 	private boolean funcParams = false;
 	private boolean funcLocals = false;
 	private boolean globals = false;
 	private boolean classMembers = false;
-
-	@Override
-	public String getName() {
-		return "Variables";
-	}
 
 	public void configure(File config) {
 		if (config == null)
@@ -49,6 +51,45 @@ public class Variables extends Feature {
 	public void setup(FeatureHelper helper) {
 		configure(helper.getConfiguration());
 		helper.printConfiguration(getConfiguration());
+		
+		helper.depends("SyntaxBase");
+		if (classMembers)
+			helper.depends("Classes");
+		
+		if (globals)
+			helper.depends("GlobalScope");
+		
+		if (funcParams || funcLocals)
+			helper.depends("Functions");
+	}
+	
+	@Override
+	public void setupFeatureArrangements(ServiceProvider services) {
+		
+		if (classMembers) {
+			SyntaxExtender classes = (SyntaxExtender) services.getService("Classes", "SyntaxExtender");
+			classes.addSyntaxRule("VariableDeclaration");
+		}
+
+		if (globals) {
+			SyntaxExtender classes = (SyntaxExtender) services.getService("GlobalScope", "SyntaxExtender");
+			classes.addSyntaxRule("VariableDeclaration");
+		}
+		
+		if (funcLocals) {
+			SyntaxExtender classes = (SyntaxExtender) services.getService("CodeBlock", "SyntaxExtender");
+			classes.addSyntaxRule("VariableDeclaration");
+		}
+		
+		// TODO: function parameters
+
+	}
+	
+	@Override
+	public void setupCompilerGenerator(CompilerGenerator cg) {
+		
+		cg.getParserGenerator().addParserGrammar(
+				getName(), new File(VARIABLES_PARSER_FILE), VARIABLES_PARSER_NAME);
 	}
 
 }

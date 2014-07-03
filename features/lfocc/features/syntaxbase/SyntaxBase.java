@@ -12,11 +12,6 @@ public class SyntaxBase extends Feature {
 			"features/lfocc/features/syntaxbase/BaseLexer.g";
 
 	@Override
-	public String getName() {
-		return "SyntaxBase";
-	}
-
-	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		cg.getParserGenerator().addParserGrammar(
 				getName(), new File(SYNTAX_BASE_LEXER_FILE), SYNTAX_BASE_LEXER_NAME);

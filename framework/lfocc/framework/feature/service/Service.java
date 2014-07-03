@@ -1,8 +1,9 @@
 package lfocc.framework.feature.service;
 
-public interface Service {
+public abstract class Service {
 	
-	public String getFeature();
-	public String getServiceName();
-
+	public abstract String getFeature();
+	public String getServiceName() {
+		return this.getClass().getSimpleName();
+	}
 }

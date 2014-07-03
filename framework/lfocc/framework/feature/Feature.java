@@ -6,32 +6,26 @@ import lfocc.framework.feature.service.ServiceProvider;
 /**
  * This is the interface that every feature has to expose to the framework</br>
  * </br>
- * @author ben</br>
- * </br>
  * Feature loading & setup works as follows:</br>
  * </br>
  * 1. The framework loads a given feature.</br>
- * 2. The framework gives the config to the feature (`configure`).</br>
- * </br>
- * 3. The framework asks the feature to setup itself (`setup`).</br>
- * At this point every feature must know its dependencies!</br>
- * (Every feature must be able to setup itself without relying on other features)</br>
- * </br>
- * 4. The framework asks every feature about its dependencies and checks whether
- * they're satisfied.</br>
- * </br>
- * 5. The framework asks every feature to setup the framework. At this point it's ok</br>
- * for features to rely on other features</br>
+ * 2. The framework asks the feature to setup itself (`setup`).</br>
+ * 3. The framework asks the feature to setup inter-feature arrangements (`setupFeatureArrangements`)</br>
+ * 4. The framework asks the feature to setup the compiler generator (`setupCompilerGenerator`)</br>
  * </br>
  * Warning: Every feature must have a constructor without parameters!</br>
+ * </br>
+ * @author ben</br>
  */
-public abstract class Feature {
+public class Feature {
 	/**
 	 * @return name of the feature
 	 */
-	public abstract String getName(); // TODO: should probably be static
+	public String getName() {
+		return this.getClass().getSimpleName();
+	}
 	/**
-	 * This should:
+	 * This should (if necessary):
 	 * - configure the feature (FeatureHelper.getConfiguration)
 	 * - give information about the loaded configuration (FeatureHelper.printConfiguration)
 	 * - declare all dependencies (FeatureHelper.depends)

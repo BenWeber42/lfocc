@@ -19,6 +19,10 @@ public class ParserGenerator {
 	List<Grammar> treeGrammars = new ArrayList<Grammar>();
 	Set<String> tokens = new HashSet<String>();
 	
+	public void addParserGrammar(Grammar grammar) {
+		parserGrammars.add(grammar);
+	}
+
 	public void addParserGrammar(String feature, String grammar, String grammarName) {
 		parserGrammars.add(new StringGrammar(feature, grammar, grammarName));
 	}
@@ -27,6 +31,10 @@ public class ParserGenerator {
 		parserGrammars.add(new FileGrammar(feature, grammar, grammarName));
 	}
 	
+	public void addTreeGrammar(Grammar grammar) {
+		treeGrammars.add(grammar);
+	}
+
 	public void addTreeGrammar(String feature, String grammar, String grammarName) {
 		treeGrammars.add(new StringGrammar(feature, grammar, grammarName));
 	}

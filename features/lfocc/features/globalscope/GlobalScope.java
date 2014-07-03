@@ -1,23 +1,15 @@
 package lfocc.features.globalscope;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
-import lfocc.features.globalscope.services.GlobalScopeService;
 import lfocc.framework.compilergenerator.CompilerGenerator;
-import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.SyntaxExtendable;
 import lfocc.framework.feature.service.Service;
+import lfocc.framework.feature.service.SyntaxExtender;
 
-public class GlobalScope extends Feature {
+public class GlobalScope extends SyntaxExtendable {
 	
-	List<String> choice = new ArrayList<String>();
-	
-	public void addSyntaxRule(String rule) {
-		choice.add(rule);
-	}
-
 	@Override
 	public String getName() {
 		return "GlobalScope";
@@ -25,7 +17,7 @@ public class GlobalScope extends Feature {
 
 	@Override
 	public void setup(FeatureHelper helper) {
-		Service service = new GlobalScopeService(this);
+		Service service = new SyntaxExtender(this);
 		helper.registerService(service);
 	}
 
@@ -35,17 +27,20 @@ public class GlobalScope extends Feature {
 		String grammar = 
 				"parser grammar GlobalScope;\n" +
 				"\n" + 
-				"globalScope : (";
+				"globalScope : \n";
 		
-		Iterator<String> it = choice.iterator();
+		Iterator<String> it = rules.iterator();
 		if (it.hasNext()) {
-			grammar += " " + it.next();
-		}
-		while (it.hasNext()) {
-			grammar += "\n   | " + it.next();
+			grammar += "   (\n";
+			grammar += "   " + it.next() + "\n";
+
+			while (it.hasNext())
+				grammar += "   | " + it.next() + "\n";
+
+			grammar += "   )*\n";
 		}
 		
-		grammar += " )* EOF;";
+		grammar += "   EOF ;";
 
 		cg.getParserGenerator().addParserGrammar(getName(), grammar, "GlobalScope");
 		cg.getParserGenerator().setRootRule("globalScope");
