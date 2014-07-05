@@ -26,6 +26,8 @@ public class Variables extends Feature {
 	private boolean funcLocals = false;
 	private boolean globals = false;
 	private boolean classMembers = false;
+	
+	private boolean expressions;
 
 	public void configure(File config) {
 		if (config == null)
@@ -61,6 +63,8 @@ public class Variables extends Feature {
 		
 		if (funcParams || funcLocals)
 			helper.depends("Functions");
+		
+		expressions = helper.hasFeature("Expressions");
 	}
 	
 	@Override
@@ -68,17 +72,22 @@ public class Variables extends Feature {
 		
 		if (classMembers) {
 			SyntaxExtender classes = (SyntaxExtender) services.getService("Classes", "SyntaxExtender");
-			classes.addSyntaxRule("VariableDeclaration");
+			classes.addSyntaxRule("variableDeclaration");
 		}
 
 		if (globals) {
 			SyntaxExtender classes = (SyntaxExtender) services.getService("GlobalScope", "SyntaxExtender");
-			classes.addSyntaxRule("VariableDeclaration");
+			classes.addSyntaxRule("variableDeclaration");
 		}
 		
 		if (funcLocals) {
 			SyntaxExtender classes = (SyntaxExtender) services.getService("CodeBlock", "SyntaxExtender");
-			classes.addSyntaxRule("VariableDeclaration");
+			classes.addSyntaxRule("variableDeclaration");
+		}
+		
+		if (expressions) {
+			SyntaxExtender classes = (SyntaxExtender) services.getService("Expressions", "SyntaxExtender");
+			classes.addSyntaxRule("variableUse");
 		}
 		
 		// TODO: function parameters

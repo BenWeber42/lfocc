@@ -13,4 +13,5 @@ public interface FeatureHelper {
 	public void depends(String feature);
 	public void depends(Set<String> features);
 	public void registerService(Service service);
+	public boolean hasFeature(String name);
 }

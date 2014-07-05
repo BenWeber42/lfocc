@@ -375,6 +375,11 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		
 		services.get(currentFeature).put(service.getServiceName(), service);
 	}
+	
+	@Override
+	public boolean hasFeature(String name) {
+		return features.containsKey(name);
+	}
 
 	////////////////////////////////////////////////////////////////////////////
 	// ServiceProvider methods:
