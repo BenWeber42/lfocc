@@ -37,6 +37,9 @@ public class ControlFlow extends Feature {
 	public void setup(FeatureHelper helper) {
 		helper.depends("CodeBlock");
 		helper.depends("Expressions");
+		
+		if (forLoop)
+			helper.depends("Statement");
 	}
 	
 	@Override

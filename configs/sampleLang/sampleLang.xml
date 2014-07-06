@@ -7,6 +7,7 @@
 	<feature name="CodeBlock" />
 	<feature name="ControlFlow" />
 	<feature name="Expressions" />
+	<feature name="Statement" />
 	<feature name="Functions" />
 	<feature name="Classes" />
 	<feature name="Variables" config="Variables.xml" />

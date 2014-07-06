@@ -162,7 +162,7 @@ public class ParserGenerator {
 				"}\n\n";
 			
 		// root rule:
-		grammar += "root : " + root + " ;";
+		grammar += "root : " + root + " EOF ;";
 		
 		return grammar;
 	}
