@@ -1,11 +1,6 @@
 package lfocc.features.controlflow;
 
-import java.io.File;
-
 import lfocc.framework.compilergenerator.CompilerGenerator;
-import lfocc.framework.compilergenerator.parsergenerator.Grammar;
-import lfocc.framework.compilergenerator.parsergenerator.StringGrammar;
-import lfocc.framework.compilergenerator.parsergenerator.FileGrammar;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.service.ServiceProvider;
@@ -60,20 +55,17 @@ public class ControlFlow extends Feature {
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		if (ifConditional)
-			cg.getParserGenerator().addParserGrammar(generateIfGrammar());
+			cg.getParserGenerator().addParserSource(getName(), generateIfSource());
 		if (whileLoop)
-			cg.getParserGenerator().addParserGrammar(generateWhileGrammar());
+			cg.getParserGenerator().addParserSource(getName(), generateWhileSource());
 		if (doWhileLoop)
-			cg.getParserGenerator().addParserGrammar(generateDoWhileGrammar());
+			cg.getParserGenerator().addParserSource(getName(), generateDoWhileSource());
 		if (forLoop)
-			cg.getParserGenerator().addParserGrammar(generateForGrammar());
+			cg.getParserGenerator().addParserSource(getName(), generateForGrammar());
 	}
 	
-	private Grammar generateIfGrammar() {
-		String name = "IfConditional";
+	private String generateIfSource() {
 		String src = "";
-		src += "parser grammar " + name + ";\n";
-		src += "\n";
 		src += "ifConditional : \n";
 		if (ifConditional)
 			src += "   'if' '(' expression ')' '{' codeBlock '}' \n";
@@ -83,22 +75,36 @@ public class ControlFlow extends Feature {
 			src += "   'else' '{' codeBlock '}' \n";
 		src += "   ;\n";
 
-		
-		return new StringGrammar(getName(), src, name);
+		return src;
 	}
 	
-	private Grammar generateWhileGrammar() {
-		return new FileGrammar(getName(), new File(CONTROL_FLOW_WHILE_FILE),
-				CONTROL_FLOW_WHILE_NAME);
+	private String generateWhileSource() {
+		String src = "";
+		src += "whileLoop : \n";
+		if (whileLoop)
+			src += "   'while' '(' expression ')' '{' codeBlock '}' \n";
+		src += "   ;\n";
+
+		return src;
 	}
 	
-	private Grammar generateDoWhileGrammar() {
-		return new FileGrammar(getName(), new File(CONTROL_FLOW_DO_WHILE_FILE),
-				CONTROL_FLOW_DO_WHILE_NAME);
+	private String generateDoWhileSource() {
+		String src = "";
+		src += "doWhileLoop : \n";
+		if (doWhileLoop)
+			src += "   'do' '{' codeBlock '}' 'while' '(' expression ')' \n";
+		src += "   ;\n";
+
+		return src;
 	}
 	
-	private Grammar generateForGrammar() {
-		return new FileGrammar(getName(), new File(CONTROL_FLOW_FOR_FILE),
-				CONTROL_FLOW_FOR_NAME);
+	private String generateForGrammar() {
+		String src = "";
+		src += "forLoop : \n";
+		if (forLoop)
+			src += "   'for' '(' statement ';' expression ';' statement ')' '{' codeBlock '}' \n";
+		src += "   ;\n";
+
+		return src;
 	}
 }

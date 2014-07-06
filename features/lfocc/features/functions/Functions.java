@@ -1,11 +1,6 @@
 package lfocc.features.functions;
 
-import java.io.File;
-
 import lfocc.framework.compilergenerator.CompilerGenerator;
-import lfocc.framework.compilergenerator.parsergenerator.Grammar;
-import lfocc.framework.compilergenerator.parsergenerator.FileGrammar;
-import lfocc.framework.compilergenerator.parsergenerator.StringGrammar;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.service.ServiceProvider;
@@ -13,10 +8,6 @@ import lfocc.framework.feature.service.SyntaxExtender;
 
 public class Functions extends Feature {
 	
-	public final static String FUNCTIONS_GRAMMAR_FILE =
-			"features/lfocc/features/functions/Functions.g";
-	public final static String FUNCTIONS_GRAMMAR_NAME = "Functions";
-
 	// TODO: add configurability
 	private boolean global = true; // function declarations in global scope
 	private boolean classes = true; // function declarations as class members
@@ -78,25 +69,33 @@ public class Functions extends Feature {
 		if (!global && !classes)
 			return;
 
-		cg.getParserGenerator().addParserGrammar(generateFunctionGrammar());
-		//cg.getParserGenerator().addParserGrammar(generateReturnGrammar());
+		cg.getParserGenerator().addParserSource(getName(), generateFunctionGrammar());
+		//cg.getParserGenerator().addParserSource(getName(), generateReturnGrammar());
 	}
 	
-	public Grammar generateFunctionGrammar() {
-		return new FileGrammar(getName(), new File(FUNCTIONS_GRAMMAR_FILE),
-				FUNCTIONS_GRAMMAR_NAME);
-	}
-	
-	public Grammar generateReturnGrammar() {
-		String name = "ReturnStmt";
+	public String generateFunctionGrammar() {
 		String src = "";
-		src += "parser grammar " + name + ";\n";
+		src += "// TODO: parameters\n";
+		src += "\n";
+		src += "functionDeclaration :\n";
+		src += "   Identifier Identifier '(' ')'\n";
+		src += "   '{' codeBlock '}'\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "functionCall :\n";
+		src += "	Identifier '(' ')' ;\n";
+		
+		return src;
+	}
+	
+	public String generateReturnGrammar() {
+		String src = "";
 		src += "\n";
 		if (returnExpression)
 			src += "returnStmt : 'return' ( expression )? ';' ;";
 		else
 			src += "returnStmt : 'return' ';' ;";
 		
-		return new StringGrammar(getName(), src, name);
+		return src;
 	}
 }

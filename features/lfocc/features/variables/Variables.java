@@ -15,10 +15,6 @@ import lfocc.framework.util.XML;
 
 public class Variables extends Feature {
 	
-	public static final String VARIABLES_PARSER_FILE =
-			"features/lfocc/features/variables/Variables.g";
-	public static final String VARIABLES_PARSER_NAME = "Variables";
-	
 	public static final String VARIABLES_CONFIGURATION_SCHEMA =
 			"features/lfocc/features/variables/configSchema.xsd";
 	
@@ -97,8 +93,18 @@ public class Variables extends Feature {
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		
-		cg.getParserGenerator().addParserGrammar(
-				getName(), new File(VARIABLES_PARSER_FILE), VARIABLES_PARSER_NAME);
+		cg.getParserGenerator().addParserSource(getName(), generateParserSource());
+	}
+	
+	private String generateParserSource() {
+		String src = "";
+		src += "variableDeclaration : Identifier Identifier ';' ;\n";
+		src += "\n";
+		src += "parameterDeclaration : Identifier Identifier\n";
+		src += "   ( ',' Identifier Identifier )* ;\n";
+		src += "\n";
+		src += "variableUse : Identifier ;\n";
+		return src;
 	}
 
 }

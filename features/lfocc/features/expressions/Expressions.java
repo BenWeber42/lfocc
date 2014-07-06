@@ -1,12 +1,8 @@
 package lfocc.features.expressions;
 
-import java.io.File;
 import java.util.Iterator;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
-import lfocc.framework.compilergenerator.parsergenerator.FileGrammar;
-import lfocc.framework.compilergenerator.parsergenerator.Grammar;
-import lfocc.framework.compilergenerator.parsergenerator.StringGrammar;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.SyntaxExtendable;
 import lfocc.framework.feature.service.SyntaxExtender;
@@ -24,16 +20,12 @@ public class Expressions extends SyntaxExtendable {
 	
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
-		cg.getParserGenerator().addParserGrammar(generateExternalGrammar());
-		cg.getParserGenerator().addParserGrammar(new FileGrammar(
-				getName(), new File(EXPRESSIONS_GRAMMAR_FILE), EXPRESSIONS_GRAMMAR_NAME));
+		cg.getParserGenerator().addParserSource(getName(), generateExternalSource());
+		cg.getParserGenerator().addParserSource(getName(), generateInternalSource());
 	}
 	
-	private Grammar generateExternalGrammar() {
-		String name = "externalExpressions";
+	private String generateExternalSource() {
 		String src = "";
-		src += "parser grammar " + name + ";\n";
-		src += "\n";
 		src += "externalExpression :\n";
 		
 		Iterator<String> it = rules.iterator();
@@ -47,6 +39,43 @@ public class Expressions extends SyntaxExtendable {
 		}
 		src += "   ;\n";
 		
-		return new StringGrammar(getName(), src, name);
+		return src;
+	}
+	
+	private String generateInternalSource() {
+		String src = "";
+		
+		src += "expression :\n";
+		src += "	| internalExpression\n";
+		src += "	| '(' expression ')'\n";
+		src += "	;\n";
+		src += "\n";
+		src += "internalExpression :\n";
+		src += "	comparison\n";
+		src += "	;\n";
+		src += "\n";
+		src += "comparison :\n";
+		src += "	addition (\n";
+		src += "	( '==' | '!=' | '<' | '<=' | '>' | '>='	)\n";
+		src += "	addition )?\n";
+		src += "	;\n";
+		src += "\n";
+		src += "addition :\n";
+		src += "	multiplication (\n";
+		src += "	( '+' | '-' | '||' )\n";
+		src += "	multiplication )?\n";
+		src += "	;\n";
+		src += "\n";
+		src += "multiplication :\n";
+		src += "	unsigned (\n";
+		src += "	( '*' | '/' | '%' | '&&' )\n";
+		src += "	unsigned )?\n";
+		src += "	;\n";
+		src += "\n";
+		src += "unsigned :\n";
+		src += "	( '+' | '-' )? externalExpression\n";
+		src += "	;\n";
+		
+		return src;
 	}
 }

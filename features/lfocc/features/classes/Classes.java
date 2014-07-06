@@ -36,28 +36,26 @@ public class Classes extends SyntaxExtendable {
 
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
-		String source = "";
-		source += "parser grammar ClassesParser;\n";
-		source += "\n";
-		source += "tokens {\n";
-		source += "   Class;\n";
-		source += "}\n";
-		source += "\n";
-		source += "classDecl : 'class' Identifier '{' \n";
+		cg.getParserGenerator().addParserSource(getName(), generateParserSource());
+		
+	}
+	
+	private String generateParserSource() {
+		String src = "";
+		src += "classDecl : 'class' Identifier '{' \n";
 		
 		Iterator<String> it = rules.iterator();
 		if (it.hasNext()) {
-			source += "   (\n";
-			source += "      " + it.next() + "\n";
+			src += "   (\n";
+			src += "      " + it.next() + "\n";
 
 			while (it.hasNext())
-				source += "      | " + it.next() + "\n";
+				src += "      | " + it.next() + "\n";
 
-			source += "   )*\n";
+			src += "   )*\n";
 		}
 		
-		source += "   '}' ;\n";
-		cg.getParserGenerator().addParserGrammar(getName(), source, "ClassesParser");
-		
+		src += "   '}' ;\n";	
+		return src;
 	}
 }

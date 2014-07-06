@@ -24,26 +24,28 @@ public class GlobalScope extends SyntaxExtendable {
 
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
-		String grammar = 
-				"parser grammar GlobalScope;\n" +
-				"\n" + 
-				"globalScope : \n";
+
+		cg.getParserGenerator().addParserSource(getName(), generateParserSource());
+		cg.getParserGenerator().setRootRule("globalScope");
+	}
+	
+	private String generateParserSource() {
+		String src = "";
+		src += "globalScope : \n";
 		
 		Iterator<String> it = rules.iterator();
 		if (it.hasNext()) {
-			grammar += "   (\n";
-			grammar += "   " + it.next() + "\n";
+			src += "   (\n";
+			src += "   " + it.next() + "\n";
 
 			while (it.hasNext())
-				grammar += "   | " + it.next() + "\n";
+				src += "   | " + it.next() + "\n";
 
-			grammar += "   )*\n";
+			src += "   )*\n";
 		}
 		
-		grammar += "   EOF ;";
-
-		cg.getParserGenerator().addParserGrammar(getName(), grammar, "GlobalScope");
-		cg.getParserGenerator().setRootRule("globalScope");
+		src += "   EOF ;";	
+		return src;
 	}
 
 }

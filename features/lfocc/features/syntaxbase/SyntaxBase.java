@@ -1,20 +1,29 @@
 package lfocc.features.syntaxbase;
 
-import java.io.File;
-
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 
 public class SyntaxBase extends Feature {
 	
-	private static final String SYNTAX_BASE_LEXER_NAME = "BaseLexer";
-	private static final String SYNTAX_BASE_LEXER_FILE =
-			"features/lfocc/features/syntaxbase/BaseLexer.g";
-
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
-		cg.getParserGenerator().addParserGrammar(
-				getName(), new File(SYNTAX_BASE_LEXER_FILE), SYNTAX_BASE_LEXER_NAME);
+		cg.getParserGenerator().addParserSource(getName(), generateParserSource());
+	}
+	
+	private String generateParserSource() {
+		String src = "";
+		src += "\n";
+		src += "Identifier : ( 'a'..'z' | 'A'..'Z')\n";
+		src += "   ('a'..'z' | 'A'..'Z' | '0'..'9')*\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "Integer : (\n";
+		src += "   ('1'..'9') ('0'..'9')*\n";
+		src += "   | '0x' ('0'..'9' | 'a'..'f' | 'A'..'F' )*\n";
+		src += "   );\n";
+		src += "\n";
+		src += "Float : ('1'..'9') ('0'..'9')* '.' ('0'..'9')*;\n";
+		return src;
 	}
 
 }

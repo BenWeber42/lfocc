@@ -3,47 +3,44 @@ package lfocc.framework.compilergenerator.parsergenerator;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import lfocc.framework.util.Command;
-import lfocc.framework.util.Logger;
+import lfocc.framework.util.FileSystem;
 
 
 public class ParserGenerator {
 	
 	String root = null;
-	List<Grammar> parserGrammars = new ArrayList<Grammar>();
-	List<Grammar> treeGrammars = new ArrayList<Grammar>();
+	Map<String, List<String>> parserGrammar = new HashMap<String, List<String>>();
+	Map<String, List<String>> walkerGrammar = new HashMap<String, List<String>>();
 	Set<String> tokens = new HashSet<String>();
+	String name;
 	
-	public void addParserGrammar(Grammar grammar) {
-		parserGrammars.add(grammar);
+	public ParserGenerator(String name) {
+		this.name = name;
 	}
 
-	public void addParserGrammar(String feature, String grammar, String grammarName) {
-		parserGrammars.add(new StringGrammar(feature, grammar, grammarName));
+	public void addParserSource(String feature, String source) {
+		if (parserGrammar.get(feature) == null)
+			parserGrammar.put(feature, new ArrayList<String>());
+
+		parserGrammar.get(feature).add(source);
 	}
 
-	public void addParserGrammar(String feature, File grammar, String grammarName) {
-		parserGrammars.add(new FileGrammar(feature, grammar, grammarName));
-	}
-	
-	public void addTreeGrammar(Grammar grammar) {
-		treeGrammars.add(grammar);
+	public void addWalkerSource(String feature, String source) {
+		if (walkerGrammar.get(feature) == null)
+			walkerGrammar.put(feature, new ArrayList<String>());
+
+		walkerGrammar.get(feature).add(source);
 	}
 
-	public void addTreeGrammar(String feature, String grammar, String grammarName) {
-		treeGrammars.add(new StringGrammar(feature, grammar, grammarName));
-	}
-
-	public void addTreeGrammar(String feature, File grammar, String grammarName) {
-		treeGrammars.add(new FileGrammar(feature, grammar, grammarName));
-	}
-	
-	public void addToken(String token) {
+	public void addParserToken(String token) {
 		tokens.add(token);
 	}
 	
@@ -58,57 +55,58 @@ public class ParserGenerator {
 	/**
 	 * Copies all grammars to `path` and creates the root grammar there too.
 	 */
-	public void copyTo(File path, String languageName) throws IOException {
-
-		Grammar root = new StringGrammar("framework", generateRootParser(languageName), "Root");
-		File dest = new File(path, root.getName() + ".g");
-
-		try {
-			root.copyTo(dest);
-		} catch (IOException e) {
-			Logger.error("Failed to copy parser grammar '%s' to '%s' during parser generating!",
-					root.getName(), dest.toString());
-			throw e;
-		}
-
-		Grammar rootWalker = new StringGrammar("framework", generateRootWalker(languageName), "RootWalker");
-		dest = new File(path, rootWalker.getName() + ".g");
-
-		try {
-			rootWalker.copyTo(dest);
-		} catch (IOException e) {
-			Logger.error("Failed to copy tree grammar '%s' to '%s' during parser generating!",
-					rootWalker.getName(), dest.toString());
-			throw e;
-		}
-
-		// copy all parser grammars to the output path
-		Iterator<Grammar> it = parserGrammars.iterator();
+	public void copyTo(File path) throws IOException {
+		
+		StringBuilder sb = new StringBuilder();
+		
+		Iterator<String> it = parserGrammar.keySet().iterator();
 		while (it.hasNext()) {
-			Grammar grammar = it.next();
-			dest = new File(path, grammar.getName() + ".g");
-			try {
-				grammar.copyTo(dest);
-			} catch (IOException e) {
-				Logger.error("Failed to copy parser grammar '%s' to '%s' during parser generating!",
-						grammar.getName(), dest.toString());
-				throw e;
+			String feature = it.next();
+			Iterator<String> src = parserGrammar.get(feature).iterator();
+			
+			if (src.hasNext()) {
+				sb.append(String.format(
+						"\n" +
+						"///////////////////////////////////////////////////\n" +
+						"// Added by feature '%s'\n" +
+						"//////////////////////////////////////////////////\n\n\n",
+						feature));
+				
+				while (src.hasNext()) {
+					sb.append(src.next());
+					sb.append("\n");
+				}
 			}
 		}
 
-		// copy all tree grammars to the output path
-		it = treeGrammars.iterator();
+		sb.insert(0, generateRootParser());
+		FileSystem.writeTo(sb.toString(), path.toString() + "/" + name + ".g");
+		
+		sb = new StringBuilder();
+
+		it = walkerGrammar.keySet().iterator();
 		while (it.hasNext()) {
-			Grammar grammar = it.next();
-			dest = new File(path, grammar.getName() + ".g");
-			try {
-				grammar.copyTo(dest);
-			} catch (IOException e) {
-				Logger.error("Failed to copy tree grammar '%s' to '%s' during parser generating!",
-						grammar.getName(), dest.toString());
-				throw e;
+			String feature = it.next();
+			Iterator<String> src = walkerGrammar.get(feature).iterator();
+			
+			if (src.hasNext()) {
+				sb.append(String.format(
+						"\n" +
+						"///////////////////////////////////////////////////\n" +
+						"// Added by feature '%s'\n" +
+						"//////////////////////////////////////////////////\n\n\n",
+						feature));
+				
+				while (src.hasNext()) {
+					sb.append(src.next());
+					sb.append("\n");
+				}
 			}
 		}
+		
+		sb.insert(0, generateRootWalker());
+		FileSystem.writeTo(parserGrammar.toString(), path.toString() + "/" + name + "Walker.g");
+		
 	}
 	
 	public boolean generate(File path) {
@@ -117,93 +115,69 @@ public class ParserGenerator {
 		return Command.execute(
 				"java -jar ./lib/antlr-3.4.jar" + 
 				" -fo " + path.getPath() +
-				" " + path.getPath() + "/Root.g"/* +
-				" " + path.getPath() + "/RootWalker.g"*/
+				" " + path.getPath() + "/" + name + ".g"/* +
+				" " + path.getPath() + "/" + name + "Walker.g"*/
 				);
 		
 	}
 	
-	private String generateRootParser(String languageName) {
-		String grammar =
-				"grammar Root;\n\n";
+	private String generateRootParser() {
+		String src =
+				"grammar " + name + ";\n\n";
 		
-		// imports:
-		Iterator<Grammar> it = parserGrammars.iterator();
-		if (it.hasNext()) {
-			grammar += "import \n"; 
-			grammar += "   " + it.next().getName();
-
-			while (it.hasNext())
-				grammar +=
-						",\n   " + it.next().getName();
-	
-			grammar +=
-					"\n;\n\n";
-		}
-		
-		grammar +=
+		src +=
 				"tokens {\n";
 		
 		Iterator<String> token = tokens.iterator();
 		while (token.hasNext())
-			grammar += "   " + token.next() + ";\n";
+			src += "   " + token.next() + ";\n";
 				
-		grammar += "}\n\n";
+		src += "}\n\n";
 
 		// settings:
-		grammar += 
+		src += 
 				"@header {\n" +
-				"package lfocc.compilers." + languageName + ".parser;\n" +
+				"package lfocc.compilers." + name + ".parser;\n" +
 				"}\n\n";
 				
-		grammar += 
+		src += 
 				"@lexer::header {\n" +
-				"package lfocc.compilers." + languageName + ".parser;\n" +
+				"package lfocc.compilers." + name + ".parser;\n" +
 				"}\n\n";
 			
 		// root rule:
-		grammar += "root : " + root + " EOF ;";
+		src += "root : " + root + " ;";
+		src += "\n";
+		src += "\n";
 		
-		return grammar;
+		return src;
 	}
 	
-	private String generateRootWalker(String languageName) {
-		String grammar = "";
+	private String generateRootWalker() {
+		String src = "";
 
-		grammar += "tree grammar RootWalker;\n";
-		grammar += "\n";
-
-		Iterator<Grammar> it = treeGrammars.iterator();
-		if (it.hasNext()) {
-			grammar += "import \n";
-			grammar += "   " + it.next().getName();
-
-			while (it.hasNext())
-				grammar += ",\n   " + it.next().getName();
-
-			grammar += ";\n";
-			grammar += "\n";
-		}
+		src += "tree grammar RootWalker;\n";
+		src += "\n";
 		
-		grammar += "options {\n";
-		grammar += "   tokenVocab=Root;\n";
-		grammar += "   ASTLabelType=CommonTree;\n";
-		grammar += "}\n";
-		grammar += "\n";
-		grammar += "@header {\n";
-		grammar += "package lfocc.compilers." + languageName + ".parser;\n";
-		grammar += "\n";
-		grammar += "import lfocc.framework.compiler.ir.ASTNode;\n";
-		grammar += "}\n";
-		grammar += "\n";
-		grammar += "root returns [ASTNode root]\n";
-		grammar += "   : " + root + "=" + root + " { $root = $" + root + "." + root + " }\n";
-		grammar += "   ;\n";
-		grammar += "\n";
-		grammar += "\n";
-		grammar += "\n";
-		grammar += "\n";
+		src += "options {\n";
+		src += "   tokenVocab=Root;\n";
+		src += "   ASTLabelType=CommonTree;\n";
+		src += "}\n";
+		src += "\n";
+		src += "@header {\n";
+		src += "package lfocc.compilers." + name + ".parser;\n";
+		src += "\n";
+		src += "import lfocc.framework.compiler.ir.ASTNode;\n";
+		src += "}\n";
+		src += "\n";
+		src += "root returns [ASTNode root]\n";
+		src += "   : " + root + "=" + root + " { $root = $" + root + "." + root + " }\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "\n";
+		src += "\n";
+		src += "\n";
 		
-		return grammar;
+		return src;
 	}
 }

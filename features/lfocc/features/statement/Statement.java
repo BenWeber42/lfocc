@@ -3,8 +3,6 @@ package lfocc.features.statement;
 import java.util.Iterator;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
-import lfocc.framework.compilergenerator.parsergenerator.Grammar;
-import lfocc.framework.compilergenerator.parsergenerator.StringGrammar;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.SyntaxExtendable;
 import lfocc.framework.feature.service.ServiceProvider;
@@ -39,14 +37,11 @@ public class Statement extends SyntaxExtendable {
 	
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
-		cg.getParserGenerator().addParserGrammar(generateInternalGrammar());
+		cg.getParserGenerator().addParserSource(getName(), generateInternalGrammar());
 	}
 	
-	public Grammar generateInternalGrammar() {
-		String name = "Statement";
+	public String generateInternalGrammar() {
 		String src = "";
-		src += "parser grammar " + name + ";\n";
-		src += "\n";
 		src += "statement : ( internalStatement | externalStatement ) ;\n";
 		src += "\n";
 		src += "\n";
@@ -72,6 +67,6 @@ public class Statement extends SyntaxExtendable {
 		}
 		src += "   ;\n";
 		
-		return new StringGrammar(getName(), src, name);
+		return src;
 	}
 }

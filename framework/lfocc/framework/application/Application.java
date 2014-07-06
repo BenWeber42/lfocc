@@ -31,7 +31,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	private LanguageConfigurationLoader configLoader = new LanguageConfigurationLoader();
 	private GlobalConfiguration cfg;
 	private Map<String, Map<String, Service>> services = new HashMap<String, Map<String, Service>>();
-	private ParserGenerator parserGenerator = new ParserGenerator();
+	private ParserGenerator parserGenerator;
 	private File outputFolder = null;
 	private File srcFolder = null;
 	private File parserFolder = null;
@@ -63,6 +63,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 
 		configLoader.process(new File(args[0]));
 		cfg = configLoader.getGlobalConfiguration();
+		parserGenerator = new ParserGenerator(cfg.name());
 
 	}
 	
@@ -165,7 +166,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		
 		// parser generator:
 		try {
-			parserGenerator.copyTo(parserFolder, cfg.name());
+			parserGenerator.copyTo(parserFolder);
 		} catch (IOException e) {
 			Logger.error("Failed to copy parser grammar to output folder!");
 			e.printStackTrace();
@@ -204,8 +205,8 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		///////////////////////////////////////////////////////////////////////
 		// Imports
 		///////////////////////////////////////////////////////////////////////
-		app.addImport(String.format("lfocc.compilers.%s.parser.RootParser", cfg.name()));
-		app.addImport(String.format("lfocc.compilers.%s.parser.RootLexer", cfg.name()));
+		app.addImport(String.format("lfocc.compilers.%s.parser.%sParser", cfg.name(), cfg.name()));
+		app.addImport(String.format("lfocc.compilers.%s.parser.%sLexer", cfg.name(), cfg.name()));
 		app.emitLn();
 		
 		app.startClass("public", "Application");
