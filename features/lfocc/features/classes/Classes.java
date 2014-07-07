@@ -12,6 +12,9 @@ import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.feature.service.SyntaxExtender;
 
 public class Classes extends SyntaxExtendable {
+	
+	// TODO: add configurability
+	private boolean inheritance = true;
 
 	public Set<String> getDependencies() {
 		return new HashSet<String>(Arrays.asList(
@@ -42,7 +45,10 @@ public class Classes extends SyntaxExtendable {
 	
 	private String generateParserSource() {
 		String src = "";
-		src += "classDecl : 'class' Identifier '{' \n";
+		if (inheritance)
+			src += "classDecl : 'class' Identifier ( 'extends' Identifier )? '{' \n";
+		else
+			src += "classDecl : 'class' Identifier '{' \n";
 		
 		Iterator<String> it = rules.iterator();
 		if (it.hasNext()) {

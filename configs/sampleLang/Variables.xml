@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <VariablesConfiguration>
 
-	<FunctionParameters>false</FunctionParameters>
-	<FunctionLocals>true</FunctionLocals>
+	<FunctionParameters>true</FunctionParameters>
+	<Locals>true</Locals>
 	<Globals>true</Globals>
 	<ClassMembers>true</ClassMembers>
 

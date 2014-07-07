@@ -44,7 +44,7 @@ public class GlobalScope extends SyntaxExtendable {
 			src += "   )*\n";
 		}
 		
-		src += "   EOF ;";	
+		src += "   EOF ;\n";	
 		return src;
 	}
 

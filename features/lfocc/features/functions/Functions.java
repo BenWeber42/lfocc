@@ -1,5 +1,11 @@
 package lfocc.features.functions;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import lfocc.features.functions.services.CallExtender;
+import lfocc.features.functions.services.DeclarationExtender;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
@@ -14,6 +20,17 @@ public class Functions extends Feature {
 	private boolean returnExpression = true; // return value allowed
 	private boolean statement = true; // function call as statement
 	private boolean expression = true; // function call as expression
+	
+	private Set<String> declarationRules = new HashSet<String>();
+	private Set<String> callRules = new HashSet<String>();
+	
+	public void addDeclarationRule(String rule) {
+		declarationRules.add(rule);
+	}
+
+	public void addCallRule(String rule) {
+		callRules.add(rule);
+	}
 
 	public void setup(FeatureHelper helper) {
 		
@@ -30,6 +47,9 @@ public class Functions extends Feature {
 			helper.depends("Expressions");
 		if (statement)
 			helper.depends("Statement");
+		
+		helper.registerService(new DeclarationExtender(this));
+		helper.registerService(new CallExtender(this));
 		
 	}
 	
@@ -75,26 +95,52 @@ public class Functions extends Feature {
 	
 	public String generateFunctionGrammar() {
 		String src = "";
-		src += "// TODO: parameters\n";
-		src += "\n";
 		src += "functionDeclaration :\n";
-		src += "   Identifier Identifier '(' ')'\n";
+		src += "   Identifier Identifier";
+		src += "   '('\n";
+		
+		Iterator<String> it = declarationRules.iterator();
+		if (it.hasNext()) {
+			src += "      (\n";
+			src += "      " + it.next() + "\n";
+			
+			while (it.hasNext())
+				src += "      | " + it.next() + "\n";
+
+			src += "      )?\n";
+		}
+		
+		src += "   ')'\n";
 		src += "   '{' codeBlock '}'\n";
 		src += "   ;\n";
 		src += "\n";
 		src += "functionCall :\n";
-		src += "	Identifier '(' ')' ;\n";
+		src += "   Identifier\n";
+		src += "   '('\n";
+
+		it = callRules.iterator();
+		if (it.hasNext()) {
+			src += "      (\n";
+			src += "      " + it.next() + "\n";
+			
+			while (it.hasNext())
+				src += "      | " + it.next() + "\n";
+
+			src += "      )?\n";
+		}
+	
+		src += "   ')'\n";
+		src += "   ;\n";
 		
 		return src;
 	}
 	
 	public String generateReturnGrammar() {
 		String src = "";
-		src += "\n";
 		if (returnExpression)
-			src += "returnStmt : 'return' ( expression )? ';' ;";
+			src += "returnStmt : 'return' ( expression )? ';' ;\n";
 		else
-			src += "returnStmt : 'return' ';' ;";
+			src += "returnStmt : 'return' ';' ;\n";
 		
 		return src;
 	}

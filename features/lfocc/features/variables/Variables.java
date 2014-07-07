@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 
+import lfocc.features.functions.services.CallExtender;
+import lfocc.features.functions.services.DeclarationExtender;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
@@ -15,11 +17,13 @@ import lfocc.framework.util.XML;
 
 public class Variables extends Feature {
 	
+	// TODO: add support for 'null'
+	
 	public static final String VARIABLES_CONFIGURATION_SCHEMA =
 			"features/lfocc/features/variables/configSchema.xsd";
 	
-	private boolean funcParams = false;
-	private boolean funcLocals = false;
+	private boolean functionParameters = false;
+	private boolean locals = false;
 	private boolean globals = false;
 	private boolean classMembers = false;
 	
@@ -30,16 +34,16 @@ public class Variables extends Feature {
 			return;
 
 		Document cfg = XML.load(config, new File(VARIABLES_CONFIGURATION_SCHEMA));
-		funcParams = cfg.getElementsByTagName("FunctionParameters").item(0).getTextContent().equals("true");
-		funcLocals = cfg.getElementsByTagName("FunctionLocals").item(0).getTextContent().equals("true");
+		functionParameters = cfg.getElementsByTagName("FunctionParameters").item(0).getTextContent().equals("true");
+		locals = cfg.getElementsByTagName("Locals").item(0).getTextContent().equals("true");
 		globals = cfg.getElementsByTagName("Globals").item(0).getTextContent().equals("true");
 		classMembers = cfg.getElementsByTagName("ClassMembers").item(0).getTextContent().equals("true");
 	}
 
 	public List<String> getConfiguration() {
 		return Arrays.asList(
-				"FunctionParameters = " + funcParams,
-				"FunctionLocals = " + funcLocals,
+				"FunctionParameters = " + functionParameters,
+				"FunctionLocals = " + locals,
 				"Globals = " + globals,
 				"ClassMembers = " + classMembers
 				);
@@ -57,8 +61,14 @@ public class Variables extends Feature {
 		if (globals)
 			helper.depends("GlobalScope");
 		
-		if (funcParams || funcLocals)
+		if (locals)
+			helper.depends("Statement");
+
+		if (functionParameters) {
 			helper.depends("Functions");
+			// can't assign function parameters values without expressions
+			helper.depends("Expressions");
+		}
 		
 		expressions = helper.hasFeature("Expressions");
 	}
@@ -67,26 +77,31 @@ public class Variables extends Feature {
 	public void setupFeatureArrangements(ServiceProvider services) {
 		
 		if (classMembers) {
-			SyntaxExtender classes = (SyntaxExtender) services.getService("Classes", "SyntaxExtender");
-			classes.addSyntaxRule("variableDeclaration");
+			SyntaxExtender extender = (SyntaxExtender) services.getService("Classes", "SyntaxExtender");
+			extender.addSyntaxRule("variableDeclaration ';' ");
 		}
 
 		if (globals) {
-			SyntaxExtender classes = (SyntaxExtender) services.getService("GlobalScope", "SyntaxExtender");
-			classes.addSyntaxRule("variableDeclaration");
+			SyntaxExtender extender = (SyntaxExtender) services.getService("GlobalScope", "SyntaxExtender");
+			extender.addSyntaxRule("variableDeclaration ';' ");
 		}
 		
-		if (funcLocals) {
-			SyntaxExtender classes = (SyntaxExtender) services.getService("CodeBlock", "SyntaxExtender");
-			classes.addSyntaxRule("variableDeclaration");
+		if (locals) {
+			SyntaxExtender extender = (SyntaxExtender) services.getService("Statement", "SyntaxExtender");
+			extender.addSyntaxRule("variableDeclaration");
 		}
 		
 		if (expressions) {
-			SyntaxExtender classes = (SyntaxExtender) services.getService("Expressions", "SyntaxExtender");
-			classes.addSyntaxRule("variableUse");
+			SyntaxExtender extender = (SyntaxExtender) services.getService("Expressions", "SyntaxExtender");
+			extender.addSyntaxRule("variableUse");
 		}
 		
-		// TODO: function parameters
+		if (functionParameters) {
+			DeclarationExtender declarationExtender = (DeclarationExtender) services.getService("Functions", "DeclarationExtender");
+			declarationExtender.addSyntaxRule("variableDeclaration ( ',' variableDeclaration )*");
+			CallExtender callExtender = (CallExtender) services.getService("Functions", "CallExtender");
+			callExtender.addSyntaxRule("expression ( ',' expression )*");
+		}
 
 	}
 	
@@ -98,7 +113,7 @@ public class Variables extends Feature {
 	
 	private String generateParserSource() {
 		String src = "";
-		src += "variableDeclaration : Identifier Identifier ';' ;\n";
+		src += "variableDeclaration : Identifier Identifier ;\n";
 		src += "\n";
 		src += "parameterDeclaration : Identifier Identifier\n";
 		src += "   ( ',' Identifier Identifier )* ;\n";

@@ -4,7 +4,7 @@
 	<xsd:element name="VariablesConfiguration"><xsd:complexType><xsd:sequence>
 
 		<xsd:element name="FunctionParameters" type="xsd:boolean" />
-		<xsd:element name="FunctionLocals" type="xsd:boolean" />
+		<xsd:element name="Locals" type="xsd:boolean" />
 		<xsd:element name="Globals" type="xsd:boolean" />
 		<xsd:element name="ClassMembers" type="xsd:boolean" />
 

@@ -9,10 +9,6 @@ import lfocc.framework.feature.service.SyntaxExtender;
 
 public class Expressions extends SyntaxExtendable {
 	
-	public final static String EXPRESSIONS_GRAMMAR_FILE = 
-			"features/lfocc/features/expressions/Expressions.g";
-	public final static String EXPRESSIONS_GRAMMAR_NAME = "Expressions";
-	
 	@Override
 	public void setup(FeatureHelper helper) {
 		helper.registerService(new SyntaxExtender(this));
@@ -46,36 +42,49 @@ public class Expressions extends SyntaxExtendable {
 		String src = "";
 		
 		src += "expression :\n";
-		src += "	internalExpression\n";
-		src += "	| '(' expression ')'\n";
-		src += "	;\n";
-		src += "\n";
-		src += "internalExpression :\n";
-		src += "	comparison\n";
-		src += "	;\n";
+		src += "   comparison\n";
+		src += "   ;\n";
 		src += "\n";
 		src += "comparison :\n";
-		src += "	addition (\n";
-		src += "	( '==' | '!=' | '<' | '<=' | '>' | '>='	)\n";
-		src += "	addition )?\n";
-		src += "	;\n";
+		src += "   addition (\n";
+		src += "   ( '==' | '!=' | '<' | '<=' | '>' | '>='	)\n";
+		src += "   addition )?\n";
+		src += "   ;\n";
 		src += "\n";
 		src += "addition :\n";
-		src += "	multiplication (\n";
-		src += "	( '+' | '-' | '||' )\n";
-		src += "	multiplication )?\n";
-		src += "	;\n";
+		src += "   multiplication (\n";
+		src += "   ( '+' | '-' | '||' )\n";
+		src += "   multiplication )?\n";
+		src += "   ;\n";
 		src += "\n";
 		src += "multiplication :\n";
-		src += "	unsigned (\n";
-		src += "	( '*' | '/' | '%' | '&&' )\n";
-		src += "	unsigned )?\n";
-		src += "	;\n";
+		src += "   unary (\n";
+		src += "   ( '*' | '/' | '%' | '&&' )\n";
+		src += "   unary )?\n";
+		src += "   ;\n";
 		src += "\n";
-		src += "unsigned :\n";
-		src += "	( '+' | '-' )? externalExpression\n";
-		src += "	;\n";
-		
+		src += "unary :\n";
+		src += "   ( '+' | '-' )? leafExpression\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "leafExpression :\n";
+		src += "   (\n";
+		src += "   '(' expression ')'\n";
+		src += "   | Integer\n";
+		src += "   | Float\n";
+		src += "   | Boolean\n";
+		src += "   | externalExpression\n";
+		src += "   )\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "Integer : (\n";
+		src += "   ('1'..'9') ('0'..'9')*\n";
+		src += "   | '0x' ('0'..'9' | 'a'..'f' | 'A'..'F' )*\n";
+		src += "   );\n";
+		src += "\n";
+		src += "Float : ('1'..'9') ('0'..'9')* '.' ('0'..'9')*;\n";
+		src += "\n";
+		src += "Boolean : ( 'true' | 'false' ) ;\n";
 		return src;
 	}
 }
