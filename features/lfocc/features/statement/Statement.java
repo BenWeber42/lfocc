@@ -63,7 +63,7 @@ public class Statement extends SyntaxExtendable {
 			while (it.hasNext())
 				src += "   | " + it.next() + "\n";
 
-			src += "   )*\n";
+			src += "   )\n";
 		}
 		src += "   ;\n";
 		

@@ -35,7 +35,7 @@ public class Expressions extends SyntaxExtendable {
 			while (it.hasNext()) {
 				src += "   | " + it.next() + "\n";
 			}
-			src += "   )*\n";
+			src += "   )\n";
 		}
 		src += "   ;\n";
 		
@@ -46,7 +46,7 @@ public class Expressions extends SyntaxExtendable {
 		String src = "";
 		
 		src += "expression :\n";
-		src += "	| internalExpression\n";
+		src += "	internalExpression\n";
 		src += "	| '(' expression ')'\n";
 		src += "	;\n";
 		src += "\n";

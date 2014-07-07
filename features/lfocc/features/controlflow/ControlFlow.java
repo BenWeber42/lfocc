@@ -7,18 +7,6 @@ import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.feature.service.SyntaxExtender;
 
 public class ControlFlow extends Feature {
-	
-	public static final String CONTROL_FLOW_WHILE_FILE =
-			"features/lfocc/features/controlflow/WhileLoop.g";
-	public static final String CONTROL_FLOW_WHILE_NAME = "WhileLoop";
-
-	public static final String CONTROL_FLOW_DO_WHILE_FILE =
-			"features/lfocc/features/controlflow/DoWhileLoop.g";
-	public static final String CONTROL_FLOW_DO_WHILE_NAME = "DoWhileLoop";
-
-	public static final String CONTROL_FLOW_FOR_FILE =
-			"features/lfocc/features/controlflow/ForLoop.g";
-	public static final String CONTROL_FLOW_FOR_NAME = "ForLoop";
 
 	// TODO: add configurability for the different types:
 	private boolean ifConditional = true;
@@ -26,7 +14,7 @@ public class ControlFlow extends Feature {
 	private boolean elseIfConditional = true;
 	private boolean whileLoop = true;
 	private boolean doWhileLoop = true;
-	private boolean forLoop = false;
+	private boolean forLoop = true;
 	
 	@Override
 	public void setup(FeatureHelper helper) {

@@ -40,7 +40,7 @@ public class Functions extends Feature {
 
 		SyntaxExtender extender = (SyntaxExtender) 
 				services.getService("CodeBlock", "SyntaxExtender");
-		//extender.addSyntaxRule("returnStmt");
+		extender.addSyntaxRule("returnStmt");
 		
 		if (global) {
 			extender = (SyntaxExtender) 
@@ -70,7 +70,7 @@ public class Functions extends Feature {
 			return;
 
 		cg.getParserGenerator().addParserSource(getName(), generateFunctionGrammar());
-		//cg.getParserGenerator().addParserSource(getName(), generateReturnGrammar());
+		cg.getParserGenerator().addParserSource(getName(), generateReturnGrammar());
 	}
 	
 	public String generateFunctionGrammar() {
