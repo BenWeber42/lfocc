@@ -4,11 +4,11 @@ import java.util.Iterator;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
-import lfocc.framework.feature.SyntaxExtendable;
+import lfocc.framework.feature.SingleExtendable;
 import lfocc.framework.feature.service.ServiceProvider;
-import lfocc.framework.feature.service.SyntaxExtender;
+import lfocc.framework.feature.service.ExtenderService;
 
-public class Statement extends SyntaxExtendable {
+public class Statement extends SingleExtendable {
 
 	// TODO: add configurability
 	private boolean assignment = true; // whether to active assingment statements
@@ -24,13 +24,13 @@ public class Statement extends SyntaxExtendable {
 		if (codeblock)
 			helper.depends("CodeBlock");
 		
-		helper.registerService(new SyntaxExtender(this));
+		helper.registerService(getExtender());
 	}
 	
 	@Override
 	public void setupFeatureArrangements(ServiceProvider services) {
 		if (codeblock) {
-			SyntaxExtender extender = (SyntaxExtender) services.getService("CodeBlock", "SyntaxExtender");
+			ExtenderService extender = (ExtenderService) services.getService("CodeBlock", "Extender");
 			extender.addSyntaxRule("statement ';'");
 		}
 	}
@@ -55,7 +55,7 @@ public class Statement extends SyntaxExtendable {
 		src += "\n";
 		src += "externalStatement :\n";
 		
-		Iterator<String> it = rules.iterator();
+		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {
 			src += "   (\n";
 			src += "   " + it.next() + "\n";

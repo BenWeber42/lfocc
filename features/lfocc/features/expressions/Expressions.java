@@ -4,14 +4,13 @@ import java.util.Iterator;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
-import lfocc.framework.feature.SyntaxExtendable;
-import lfocc.framework.feature.service.SyntaxExtender;
+import lfocc.framework.feature.SingleExtendable;
 
-public class Expressions extends SyntaxExtendable {
+public class Expressions extends SingleExtendable {
 	
 	@Override
 	public void setup(FeatureHelper helper) {
-		helper.registerService(new SyntaxExtender(this));
+		helper.registerService(getExtender());
 	}
 	
 	@Override
@@ -24,7 +23,7 @@ public class Expressions extends SyntaxExtendable {
 		String src = "";
 		src += "externalExpression :\n";
 		
-		Iterator<String> it = rules.iterator();
+		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {
 			src += "   (\n";
 			src += "   " + it.next() + "\n";

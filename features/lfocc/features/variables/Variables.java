@@ -6,13 +6,11 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 
-import lfocc.features.functions.services.CallExtender;
-import lfocc.features.functions.services.DeclarationExtender;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.service.ServiceProvider;
-import lfocc.framework.feature.service.SyntaxExtender;
+import lfocc.framework.feature.service.ExtenderService;
 import lfocc.framework.util.XML;
 
 public class Variables extends Feature {
@@ -26,8 +24,10 @@ public class Variables extends Feature {
 	private boolean locals = false;
 	private boolean globals = false;
 	private boolean classMembers = false;
+
 	
 	private boolean expressions;
+	private boolean classes;
 
 	public void configure(File config) {
 		if (config == null)
@@ -66,43 +66,60 @@ public class Variables extends Feature {
 
 		if (functionParameters) {
 			helper.depends("Functions");
-			// can't assign function parameters values without expressions
+			// can't assign function parameter values without expressions
 			helper.depends("Expressions");
 		}
 		
 		expressions = helper.hasFeature("Expressions");
+		classes = helper.hasFeature("Classes");
 	}
 	
 	@Override
 	public void setupFeatureArrangements(ServiceProvider services) {
 		
-		if (classMembers) {
-			SyntaxExtender extender = (SyntaxExtender) services.getService("Classes", "SyntaxExtender");
-			extender.addSyntaxRule("variableDeclaration ';' ");
-		}
-
 		if (globals) {
-			SyntaxExtender extender = (SyntaxExtender) services.getService("GlobalScope", "SyntaxExtender");
+			ExtenderService extender = (ExtenderService) services.getService("GlobalScope", "Extender");
 			extender.addSyntaxRule("variableDeclaration ';' ");
 		}
 		
 		if (locals) {
-			SyntaxExtender extender = (SyntaxExtender) services.getService("Statement", "SyntaxExtender");
+			ExtenderService extender = (ExtenderService) services.getService("Statement", "Extender");
 			extender.addSyntaxRule("variableDeclaration");
 		}
 		
-		if (expressions) {
-			SyntaxExtender extender = (SyntaxExtender) services.getService("Expressions", "SyntaxExtender");
-			extender.addSyntaxRule("variableUse");
-		}
-		
 		if (functionParameters) {
-			DeclarationExtender declarationExtender = (DeclarationExtender) services.getService("Functions", "DeclarationExtender");
-			declarationExtender.addSyntaxRule("variableDeclaration ( ',' variableDeclaration )*");
-			CallExtender callExtender = (CallExtender) services.getService("Functions", "CallExtender");
-			callExtender.addSyntaxRule("expression ( ',' expression )*");
+			ExtenderService extender = (ExtenderService) services.getService("Functions", "DeclarationExtender");
+			extender.addSyntaxRule("variableDeclaration ( ',' variableDeclaration )*");
+			extender = (ExtenderService) services.getService("Functions", "CallExtender");
+			extender.addSyntaxRule("expression ( ',' expression )*");
 		}
 
+		/*
+		 * The Classes featuer will register all ObjectProviders as expressions.
+		 * So if the Classes feature is activeted we don't have to register variable
+		 * usage as expression.
+		 * 
+		 * If the Classes feature is deactivated and the Expressions feature is
+		 * activated, we have to register variable usage as expression ourself.
+		 */
+
+		if (!classes && expressions) {
+			ExtenderService extender = (ExtenderService) services.getService("Expressions", "Extender");
+			extender.addSyntaxRule("variableUse");
+			return;
+		}
+
+		if (classes) {
+			ExtenderService extender = (ExtenderService) services.getService("Classes", "ObjectProvider");
+			extender.addSyntaxRule("variableUse");
+		}
+
+		if (classMembers) {
+			ExtenderService extender = (ExtenderService) services.getService("Classes", "BodyExtender");
+			extender.addSyntaxRule("variableDeclaration ';' ");
+			extender = (ExtenderService) services.getService("Classes", "ObjectMember");
+			extender.addSyntaxRule("variableUse");
+		}
 	}
 	
 	@Override

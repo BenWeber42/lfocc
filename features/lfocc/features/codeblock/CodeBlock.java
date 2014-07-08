@@ -4,13 +4,12 @@ import java.util.Iterator;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
-import lfocc.framework.feature.SyntaxExtendable;
-import lfocc.framework.feature.service.SyntaxExtender;
+import lfocc.framework.feature.SingleExtendable;
 
-public class CodeBlock extends SyntaxExtendable {
+public class CodeBlock extends SingleExtendable {
 	
 	public void setup(FeatureHelper helper) {
-		helper.registerService(new SyntaxExtender(this));
+		helper.registerService(getExtender());
 	}
 	
 	public void setupCompilerGenerator(CompilerGenerator cg) {
@@ -22,7 +21,7 @@ public class CodeBlock extends SyntaxExtendable {
 		
 		src += "codeBlock : \n";
 
-		Iterator<String> it = rules.iterator();
+		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {
 			src += "   (\n";
 			src += "   " + it.next() + "\n";

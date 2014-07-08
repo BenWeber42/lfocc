@@ -7,14 +7,27 @@ import java.util.Set;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
-import lfocc.framework.feature.SyntaxExtendable;
+import lfocc.framework.feature.MultiExtendable;
 import lfocc.framework.feature.service.ServiceProvider;
-import lfocc.framework.feature.service.SyntaxExtender;
+import lfocc.framework.feature.service.ExtenderService;
 
-public class Classes extends SyntaxExtendable {
+public class Classes extends MultiExtendable {
+	
+	// TODO: new operator
 	
 	// TODO: add configurability
 	private boolean inheritance = true;
+	
+	private static final String classBodyExtender = "BodyExtender";
+	private static final String objectProviderExtender = "ObjectProvider";
+	private static final String objectMemberExtender = "ObjectMember";
+	
+	private boolean expressions;
+
+	public Classes() {
+		super(new HashSet<String>(Arrays.asList(
+				classBodyExtender, objectProviderExtender, objectMemberExtender)));
+	}
 
 	public Set<String> getDependencies() {
 		return new HashSet<String>(Arrays.asList(
@@ -25,16 +38,24 @@ public class Classes extends SyntaxExtendable {
 	@Override
 	public void setup(FeatureHelper helper) {
 		helper.depends(getDependencies());
-		helper.registerService(new SyntaxExtender(this));
+		helper.registerService(getExtender(classBodyExtender));
+		helper.registerService(getExtender(objectProviderExtender));
+		helper.registerService(getExtender(objectMemberExtender));
+		expressions = helper.hasFeature("Expressions");
 	}
 
 
 	@Override
 	public void setupFeatureArrangements(ServiceProvider serviceManager) {
-		SyntaxExtender globalScope = (SyntaxExtender)
-				serviceManager.getService("GlobalScope", "SyntaxExtender");
-		globalScope.addSyntaxRule("classDecl");
-
+		ExtenderService extender = (ExtenderService)
+				serviceManager.getService("GlobalScope", "Extender");
+		extender.addSyntaxRule("classDecl");
+		
+		if (expressions && !getExtensions(objectProviderExtender).isEmpty()) {
+			extender = (ExtenderService)
+					serviceManager.getService("Expressions", "Extender");
+			extender.addSyntaxRule(generateExpressionRule());
+		}
 	}
 
 	@Override
@@ -50,7 +71,7 @@ public class Classes extends SyntaxExtendable {
 		else
 			src += "classDecl : 'class' Identifier '{' \n";
 		
-		Iterator<String> it = rules.iterator();
+		Iterator<String> it = getExtensions(classBodyExtender).iterator();
 		if (it.hasNext()) {
 			src += "   (\n";
 			src += "      " + it.next() + "\n";
@@ -63,5 +84,30 @@ public class Classes extends SyntaxExtendable {
 		
 		src += "   '}' ;\n";	
 		return src;
+	}
+	
+	private String generateExpressionRule() {
+
+		String rule = "";
+
+		Iterator<String> it = getExtensions(objectProviderExtender).iterator();
+		if (it.hasNext()) {
+			rule += "( ";
+			rule += it.next();
+			while (it.hasNext())
+				rule += " | " + it.next();
+			rule += " )";
+		}
+		
+		it = getExtensions(objectProviderExtender).iterator();
+		if (it.hasNext()) {
+			rule += " ( '.' (";
+			rule += it.next();
+			while (it.hasNext())
+				rule += " | " + it.next();
+			rule += ") )*";
+		}
+			
+		return rule;
 	}
 }

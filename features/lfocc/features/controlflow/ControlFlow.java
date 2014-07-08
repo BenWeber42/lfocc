@@ -4,7 +4,7 @@ import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.service.ServiceProvider;
-import lfocc.framework.feature.service.SyntaxExtender;
+import lfocc.framework.feature.service.ExtenderService;
 
 public class ControlFlow extends Feature {
 
@@ -27,8 +27,8 @@ public class ControlFlow extends Feature {
 	
 	@Override
 	public void setupFeatureArrangements(ServiceProvider services) {
-		SyntaxExtender codeBlock = (SyntaxExtender) services.getService(
-				"CodeBlock", "SyntaxExtender");
+		ExtenderService codeBlock = (ExtenderService) services.getService(
+				"CodeBlock", "Extender");
 
 		if (ifConditional)
 			codeBlock.addSyntaxRule("ifConditional");

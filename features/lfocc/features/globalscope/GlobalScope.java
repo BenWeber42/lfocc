@@ -4,11 +4,9 @@ import java.util.Iterator;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
-import lfocc.framework.feature.SyntaxExtendable;
-import lfocc.framework.feature.service.Service;
-import lfocc.framework.feature.service.SyntaxExtender;
+import lfocc.framework.feature.SingleExtendable;
 
-public class GlobalScope extends SyntaxExtendable {
+public class GlobalScope extends SingleExtendable {
 	
 	@Override
 	public String getName() {
@@ -17,8 +15,7 @@ public class GlobalScope extends SyntaxExtendable {
 
 	@Override
 	public void setup(FeatureHelper helper) {
-		Service service = new SyntaxExtender(this);
-		helper.registerService(service);
+		helper.registerService(getExtender());
 	}
 
 
@@ -33,7 +30,7 @@ public class GlobalScope extends SyntaxExtendable {
 		String src = "";
 		src += "globalScope : \n";
 		
-		Iterator<String> it = rules.iterator();
+		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {
 			src += "   (\n";
 			src += "   " + it.next() + "\n";

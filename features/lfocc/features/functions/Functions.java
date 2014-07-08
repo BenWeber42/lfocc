@@ -1,92 +1,115 @@
 package lfocc.features.functions;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
-import lfocc.features.functions.services.CallExtender;
-import lfocc.features.functions.services.DeclarationExtender;
 import lfocc.framework.compilergenerator.CompilerGenerator;
-import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.MultiExtendable;
 import lfocc.framework.feature.service.ServiceProvider;
-import lfocc.framework.feature.service.SyntaxExtender;
+import lfocc.framework.feature.service.ExtenderService;
 
-public class Functions extends Feature {
+public class Functions extends MultiExtendable {
 	
 	// TODO: add configurability
 	private boolean global = true; // function declarations in global scope
-	private boolean classes = true; // function declarations as class members
+	private boolean classMembers = true; // function declarations as class members
 	private boolean returnExpression = true; // return value allowed
 	private boolean statement = true; // function call as statement
-	private boolean expression = true; // function call as expression
-	
-	private Set<String> declarationRules = new HashSet<String>();
-	private Set<String> callRules = new HashSet<String>();
-	
-	public void addDeclarationRule(String rule) {
-		declarationRules.add(rule);
-	}
 
-	public void addCallRule(String rule) {
-		callRules.add(rule);
+	private boolean expressions;
+	
+	private boolean classes;
+	
+	private static final String declarationExtender = "DeclarationExtender";
+	private static final String callExtender = "CallExtender";
+	
+	public Functions() {
+		super(new HashSet<String>(Arrays.asList(callExtender, declarationExtender)));
 	}
 
 	public void setup(FeatureHelper helper) {
 		
-		if (!global && !classes)
+		if (!global && !classMembers)
 			return; // function declarations can't occur anywhere, nothing to do
 
 		helper.depends("CodeBlock");
 		
 		if (global)
 			helper.depends("GlobalScope");
-		if (classes)
+		if (classMembers)
 			helper.depends("Classes");
-		if (expression || returnExpression)
+		if (returnExpression)
 			helper.depends("Expressions");
 		if (statement)
 			helper.depends("Statement");
 		
-		helper.registerService(new DeclarationExtender(this));
-		helper.registerService(new CallExtender(this));
+		classes = helper.hasFeature("Classes");
+		expressions = helper.hasFeature("Expressions");
+
+		helper.registerService(getExtender(callExtender));
+		helper.registerService(getExtender(declarationExtender));
 		
 	}
 	
 	public void setupFeatureArrangements(ServiceProvider services) {
 		
-		if (!global && !classes)
+		if (!global && !classMembers)
 			return;
 
-		SyntaxExtender extender = (SyntaxExtender) 
-				services.getService("CodeBlock", "SyntaxExtender");
+		ExtenderService extender = (ExtenderService) 
+				services.getService("CodeBlock", "Extender");
 		extender.addSyntaxRule("returnStmt");
 		
 		if (global) {
-			extender = (SyntaxExtender) 
-					services.getService("GlobalScope", "SyntaxExtender");
+			extender = (ExtenderService) 
+					services.getService("GlobalScope", "Extender");
 			extender.addSyntaxRule("functionDeclaration");
 		}
-		if (classes) {
-			extender = (SyntaxExtender) 
-					services.getService("Classes", "SyntaxExtender");
-			extender.addSyntaxRule("functionDeclaration");
-		}
+
 		if (statement) {
-			extender = (SyntaxExtender) 
-					services.getService("Statement", "SyntaxExtender");
+			extender = (ExtenderService) 
+					services.getService("Statement", "Extender");
 			extender.addSyntaxRule("functionCall");
 		}
-		if (expression) {
-			extender = (SyntaxExtender) 
-					services.getService("Expressions", "SyntaxExtender");
+
+		/*
+		 * 
+		 * The Classes featuer will register all ObjectProviders as expressions.
+		 * So if the Classes feature is activeted we don't have to register variable
+		 * usage as expression.
+		 * 
+		 * If the Classes feature is deactivated and the Expressions feature is
+		 * activated, we have to register variable usage as expression ourself.
+		 */
+
+		if (!classes && expressions) {
+			extender = (ExtenderService) 
+					services.getService("Expressions", "Extender");
 			extender.addSyntaxRule("functionCall");
 		}
+
+		if (classes) {
+			extender = (ExtenderService) 
+					services.getService("Classes", "ObjectProvider");
+			extender.addSyntaxRule("functionDeclaration");
+		}
+
+		if (classMembers) {
+			extender = (ExtenderService) 
+					services.getService("Classes", "BodyExtender");
+			extender.addSyntaxRule("functionDeclaration");
+			extender = (ExtenderService) 
+					services.getService("Classes", "ObjectMember");
+			extender.addSyntaxRule("functionCall");
+		}
+
 	}
 	
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 
-		if (!global && !classes)
+		if (!global && !classMembers)
 			return;
 
 		cg.getParserGenerator().addParserSource(getName(), generateFunctionGrammar());
@@ -99,7 +122,7 @@ public class Functions extends Feature {
 		src += "   Identifier Identifier";
 		src += "   '('\n";
 		
-		Iterator<String> it = declarationRules.iterator();
+		Iterator<String> it = getExtensions(declarationExtender).iterator();
 		if (it.hasNext()) {
 			src += "      (\n";
 			src += "      " + it.next() + "\n";
@@ -118,7 +141,7 @@ public class Functions extends Feature {
 		src += "   Identifier\n";
 		src += "   '('\n";
 
-		it = callRules.iterator();
+		it = getExtensions(callExtender).iterator();
 		if (it.hasNext()) {
 			src += "      (\n";
 			src += "      " + it.next() + "\n";
