@@ -18,10 +18,6 @@ public class Functions extends MultiExtendable {
 	private boolean returnExpression = true; // return value allowed
 	private boolean statement = true; // function call as statement
 
-	private boolean expressions;
-	
-	private boolean classes;
-	
 	private static final String declarationExtender = "DeclarationExtender";
 	private static final String callExtender = "CallExtender";
 	
@@ -45,9 +41,6 @@ public class Functions extends MultiExtendable {
 		if (statement)
 			helper.depends("Statement");
 		
-		classes = helper.hasFeature("Classes");
-		expressions = helper.hasFeature("Expressions");
-
 		helper.registerService(getExtender(callExtender));
 		helper.registerService(getExtender(declarationExtender));
 		
@@ -84,13 +77,13 @@ public class Functions extends MultiExtendable {
 		 * activated, we have to register variable usage as expression ourself.
 		 */
 
-		if (!classes && expressions) {
+		if (!services.hasFeature("Classes") && services.hasFeature("Expressions")) {
 			extender = (ExtenderService) 
 					services.getService("Expressions", "Extender");
 			extender.addSyntaxRule("functionCall");
 		}
 
-		if (classes) {
+		if (!services.hasFeature("Classes")) {
 			extender = (ExtenderService) 
 					services.getService("Classes", "ObjectProvider");
 			extender.addSyntaxRule("functionDeclaration");

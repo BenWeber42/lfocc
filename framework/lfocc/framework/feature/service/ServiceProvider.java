@@ -1,5 +1,7 @@
 package lfocc.framework.feature.service;
 
-public interface ServiceProvider {
+import lfocc.framework.feature.FrameworkInterface;
+
+public interface ServiceProvider extends FrameworkInterface {
 	public Service getService(String feature, String service);
 }

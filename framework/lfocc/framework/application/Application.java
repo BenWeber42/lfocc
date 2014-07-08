@@ -377,11 +377,6 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		services.get(currentFeature).put(service.getServiceName(), service);
 	}
 	
-	@Override
-	public boolean hasFeature(String name) {
-		return features.containsKey(name);
-	}
-
 	////////////////////////////////////////////////////////////////////////////
 	// ServiceProvider methods:
 	////////////////////////////////////////////////////////////////////////////
@@ -392,5 +387,19 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 			if (services.get(feature).containsKey(service))
 				return services.get(feature).get(service);
 		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// FrameworkInterface methods:
+	////////////////////////////////////////////////////////////////////////////
+
+	@Override
+	public boolean hasFeature(String name) {
+		return features.containsKey(name);
+	}
+
+	@Override
+	public String getLanguageName() {
+		return cfg.name();
 	}
 }

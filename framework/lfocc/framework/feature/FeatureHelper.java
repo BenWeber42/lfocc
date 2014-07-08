@@ -6,12 +6,11 @@ import java.util.Set;
 
 import lfocc.framework.feature.service.Service;
 
-public interface FeatureHelper {
+public interface FeatureHelper extends FrameworkInterface {
 
 	public File getConfiguration();
 	public void printConfiguration(List<String> cfgs);
 	public void depends(String feature);
 	public void depends(Set<String> features);
 	public void registerService(Service service);
-	public boolean hasFeature(String name);
 }

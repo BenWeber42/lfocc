@@ -22,8 +22,6 @@ public class Classes extends MultiExtendable {
 	private static final String objectProviderExtender = "ObjectProvider";
 	private static final String objectMemberExtender = "ObjectMember";
 	
-	private boolean expressions;
-
 	public Classes() {
 		super(new HashSet<String>(Arrays.asList(
 				classBodyExtender, objectProviderExtender, objectMemberExtender)));
@@ -41,19 +39,18 @@ public class Classes extends MultiExtendable {
 		helper.registerService(getExtender(classBodyExtender));
 		helper.registerService(getExtender(objectProviderExtender));
 		helper.registerService(getExtender(objectMemberExtender));
-		expressions = helper.hasFeature("Expressions");
 	}
 
 
 	@Override
-	public void setupFeatureArrangements(ServiceProvider serviceManager) {
+	public void setupFeatureArrangements(ServiceProvider services) {
 		ExtenderService extender = (ExtenderService)
-				serviceManager.getService("GlobalScope", "Extender");
+				services.getService("GlobalScope", "Extender");
 		extender.addSyntaxRule("classDecl");
 		
-		if (expressions && !getExtensions(objectProviderExtender).isEmpty()) {
+		if (services.hasFeature("Expressions") && !getExtensions(objectProviderExtender).isEmpty()) {
 			extender = (ExtenderService)
-					serviceManager.getService("Expressions", "Extender");
+					services.getService("Expressions", "Extender");
 			extender.addSyntaxRule(generateExpressionRule());
 		}
 	}

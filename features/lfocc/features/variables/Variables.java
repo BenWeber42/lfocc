@@ -25,10 +25,6 @@ public class Variables extends Feature {
 	private boolean globals = false;
 	private boolean classMembers = false;
 
-	
-	private boolean expressions;
-	private boolean classes;
-
 	public void configure(File config) {
 		if (config == null)
 			return;
@@ -69,9 +65,6 @@ public class Variables extends Feature {
 			// can't assign function parameter values without expressions
 			helper.depends("Expressions");
 		}
-		
-		expressions = helper.hasFeature("Expressions");
-		classes = helper.hasFeature("Classes");
 	}
 	
 	@Override
@@ -103,13 +96,13 @@ public class Variables extends Feature {
 		 * activated, we have to register variable usage as expression ourself.
 		 */
 
-		if (!classes && expressions) {
+		if (!services.hasFeature("Classes") && services.hasFeature("Expressions")) {
 			ExtenderService extender = (ExtenderService) services.getService("Expressions", "Extender");
 			extender.addSyntaxRule("variableUse");
 			return;
 		}
 
-		if (classes) {
+		if (services.hasFeature("Classes")) {
 			ExtenderService extender = (ExtenderService) services.getService("Classes", "ObjectProvider");
 			extender.addSyntaxRule("variableUse");
 		}
