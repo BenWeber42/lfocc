@@ -84,7 +84,6 @@ public class Functions extends MultiExtendable {
 		}
 
 		/*
-		 * 
 		 * The Classes featuer will register all ObjectProviders as expressions.
 		 * So if the Classes feature is activeted we don't have to register variable
 		 * usage as expression.
@@ -102,7 +101,7 @@ public class Functions extends MultiExtendable {
 		if (services.hasFeature("Classes")) {
 			extender = (ExtenderService) 
 					services.getService("Classes", "ObjectProvider");
-			extender.addSyntaxRule("functionDeclaration");
+			extender.addSyntaxRule("functionCall");
 		}
 
 		if (classMembers) {

@@ -104,7 +104,7 @@ public class Classes extends MultiExtendable {
 			rule += " )";
 		}
 		
-		it = getExtensions(objectProviderExtender).iterator();
+		it = getExtensions(objectMemberExtender).iterator();
 		if (it.hasNext()) {
 			rule += " ( '.' (";
 			rule += it.next();
