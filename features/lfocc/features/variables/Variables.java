@@ -18,7 +18,7 @@ public class Variables extends Feature {
 	// TODO: add support for 'null'
 	
 	public static final String VARIABLES_CONFIGURATION_SCHEMA =
-			"features/lfocc/features/variables/configSchema.xsd";
+			"features/lfocc/features/variables/ConfigSchema.xsd";
 	
 	private boolean functionParameters = false;
 	private boolean locals = false;
@@ -30,10 +30,10 @@ public class Variables extends Feature {
 			return;
 
 		Document cfg = XML.load(config, new File(VARIABLES_CONFIGURATION_SCHEMA));
-		functionParameters = cfg.getElementsByTagName("FunctionParameters").item(0).getTextContent().equals("true");
-		locals = cfg.getElementsByTagName("Locals").item(0).getTextContent().equals("true");
-		globals = cfg.getElementsByTagName("Globals").item(0).getTextContent().equals("true");
-		classMembers = cfg.getElementsByTagName("ClassMembers").item(0).getTextContent().equals("true");
+		functionParameters = XML.getBooleanOption(cfg, "FunctionParameters");
+		locals = XML.getBooleanOption(cfg, "Locals");
+		globals = XML.getBooleanOption(cfg, "Globals");
+		classMembers = XML.getBooleanOption(cfg, "ClassMembers");
 	}
 
 	public List<String> getConfiguration() {

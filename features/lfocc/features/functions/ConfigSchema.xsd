@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<xsd:element name="FunctionsConfiguration"><xsd:complexType><xsd:sequence>
+
+		<xsd:element name="Globals" type="xsd:boolean" />
+		<xsd:element name="ClassMembers" type="xsd:boolean" />
+		<xsd:element name="ReturnValue" type="xsd:boolean" />
+
+	</xsd:sequence></xsd:complexType></xsd:element>
+
+</xsd:schema>

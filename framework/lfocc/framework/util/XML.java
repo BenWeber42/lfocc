@@ -47,5 +47,9 @@ public class XML {
 	public static Document load(File xml) {
 		return load(xml, null);
 	}
+	
+	public static boolean getBooleanOption(Document doc, String name) {
+		return doc.getElementsByTagName(name).item(0).getTextContent().equals("true");
+	}
 
 }

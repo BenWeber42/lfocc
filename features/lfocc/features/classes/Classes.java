@@ -1,21 +1,27 @@
 package lfocc.features.classes;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import org.w3c.dom.Document;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.MultiExtendable;
 import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.feature.service.ExtenderService;
+import lfocc.framework.util.XML;
 
 public class Classes extends MultiExtendable {
 	
 	// TODO: new operator
 	
-	// TODO: add configurability
+	public static final String CLASSES_CONFIGURATION_SCHEMA =
+			"features/lfocc/features/classes/ConfigSchema.xsd";
+	
 	private boolean inheritance = true;
 	
 	private static final String classBodyExtender = "BodyExtender";
@@ -27,18 +33,20 @@ public class Classes extends MultiExtendable {
 				classBodyExtender, objectProviderExtender, objectMemberExtender)));
 	}
 
-	public Set<String> getDependencies() {
-		return new HashSet<String>(Arrays.asList(
-				"GlobalScope",
-				"SyntaxBase"));
-	}
-
 	@Override
 	public void setup(FeatureHelper helper) {
-		helper.depends(getDependencies());
+		helper.depends("GlobalScope");
+		helper.depends("SyntaxBase");
 		helper.registerService(getExtender(classBodyExtender));
 		helper.registerService(getExtender(objectProviderExtender));
 		helper.registerService(getExtender(objectMemberExtender));
+		
+		if (helper.getConfiguration() != null) {
+			Document config = XML.load(helper.getConfiguration(),
+					new File(CLASSES_CONFIGURATION_SCHEMA));
+			inheritance = XML.getBooleanOption(config, "Inheritance");
+		}
+		helper.printConfiguration(Arrays.asList("Inheritance = " + inheritance));
 	}
 
 

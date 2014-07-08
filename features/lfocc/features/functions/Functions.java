@@ -1,22 +1,27 @@
 package lfocc.features.functions;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+
+import org.w3c.dom.Document;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.MultiExtendable;
 import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.feature.service.ExtenderService;
+import lfocc.framework.util.XML;
 
 public class Functions extends MultiExtendable {
 	
-	// TODO: add configurability
-	private boolean global = true; // function declarations in global scope
+	public static final String FUNCTIONS_CONFIGURATION_SCHEMA = 
+			"features/lfocc/features/functions/ConfigSchema.xsd";
+
+	private boolean globals = true; // function declarations in global scope
 	private boolean classMembers = true; // function declarations as class members
-	private boolean returnExpression = true; // return value allowed
-	private boolean statement = true; // function call as statement
+	private boolean returnValue = true; // return value allowed
 
 	private static final String declarationExtender = "DeclarationExtender";
 	private static final String callExtender = "CallExtender";
@@ -26,20 +31,31 @@ public class Functions extends MultiExtendable {
 	}
 
 	public void setup(FeatureHelper helper) {
+
+		if (helper.getConfiguration() != null) {
+			Document cfg = XML.load(helper.getConfiguration(),
+					new File(FUNCTIONS_CONFIGURATION_SCHEMA));
+			globals = XML.getBooleanOption(cfg, "Globals");
+			classMembers = XML.getBooleanOption(cfg, "ClassMembers");
+			returnValue = XML.getBooleanOption(cfg, "ReturnValue");
+		}
 		
-		if (!global && !classMembers)
+		helper.printConfiguration(Arrays.asList(
+				"Globals = " + globals,
+				"ClassMembers = " + classMembers,
+				"ReturnValue = " + returnValue));
+		
+		if (!globals && !classMembers)
 			return; // function declarations can't occur anywhere, nothing to do
 
 		helper.depends("CodeBlock");
 		
-		if (global)
+		if (globals)
 			helper.depends("GlobalScope");
 		if (classMembers)
 			helper.depends("Classes");
-		if (returnExpression)
+		if (returnValue)
 			helper.depends("Expressions");
-		if (statement)
-			helper.depends("Statement");
 		
 		helper.registerService(getExtender(callExtender));
 		helper.registerService(getExtender(declarationExtender));
@@ -48,20 +64,20 @@ public class Functions extends MultiExtendable {
 	
 	public void setupFeatureArrangements(ServiceProvider services) {
 		
-		if (!global && !classMembers)
+		if (!globals && !classMembers)
 			return;
 
 		ExtenderService extender = (ExtenderService) 
 				services.getService("CodeBlock", "Extender");
 		extender.addSyntaxRule("returnStmt");
 		
-		if (global) {
+		if (globals) {
 			extender = (ExtenderService) 
 					services.getService("GlobalScope", "Extender");
 			extender.addSyntaxRule("functionDeclaration");
 		}
 
-		if (statement) {
+		if (services.hasFeature("Statement")) {
 			extender = (ExtenderService) 
 					services.getService("Statement", "Extender");
 			extender.addSyntaxRule("functionCall");
@@ -102,7 +118,7 @@ public class Functions extends MultiExtendable {
 	
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 
-		if (!global && !classMembers)
+		if (!globals && !classMembers)
 			return;
 
 		cg.getParserGenerator().addParserSource(getName(), generateFunctionGrammar());
@@ -153,7 +169,7 @@ public class Functions extends MultiExtendable {
 	
 	public String generateReturnGrammar() {
 		String src = "";
-		if (returnExpression)
+		if (returnValue)
 			src += "returnStmt : 'return' ( expression )? ';' ;\n";
 		else
 			src += "returnStmt : 'return' ';' ;\n";

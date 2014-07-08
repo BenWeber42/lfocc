@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<xsd:element name="ControlFlowConfiguration"><xsd:complexType><xsd:sequence>
+
+		<xsd:element name="IfConditional" type="xsd:boolean" />
+		<xsd:element name="ElseConditional" type="xsd:boolean" />
+		<xsd:element name="ElseIfConditional" type="xsd:boolean" />
+		<xsd:element name="WhileLoop" type="xsd:boolean" />
+		<xsd:element name="DoWhileLoop" type="xsd:boolean" />
+		<xsd:element name="ForLoop" type="xsd:boolean" />
+
+	</xsd:sequence></xsd:complexType></xsd:element>
+
+</xsd:schema>

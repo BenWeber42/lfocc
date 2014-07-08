@@ -1,14 +1,22 @@
 package lfocc.features.controlflow;
 
+import java.io.File;
+import java.util.Arrays;
+
+import org.w3c.dom.Document;
+
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.feature.service.ExtenderService;
+import lfocc.framework.util.XML;
 
 public class ControlFlow extends Feature {
+	
+	public static final String CONTROL_FLOW_CONFIGURATION_SCHEMA =
+			"features/lfocc/features/controlflow/ConfigSchema.xsd";
 
-	// TODO: add configurability for the different types:
 	private boolean ifConditional = true;
 	private boolean elseConditional = true;
 	private boolean elseIfConditional = true;
@@ -20,6 +28,25 @@ public class ControlFlow extends Feature {
 	public void setup(FeatureHelper helper) {
 		helper.depends("CodeBlock");
 		helper.depends("Expressions");
+		
+		if (helper.getConfiguration() != null) {
+			Document cfg = XML.load(helper.getConfiguration(),
+					new File(CONTROL_FLOW_CONFIGURATION_SCHEMA));
+			ifConditional = XML.getBooleanOption(cfg, "IfConditional");
+			elseConditional = XML.getBooleanOption(cfg, "ElseConditional");
+			elseIfConditional = XML.getBooleanOption(cfg, "ElseIfConditional");
+			whileLoop = XML.getBooleanOption(cfg, "WhileLoop");
+			doWhileLoop = XML.getBooleanOption(cfg, "DoWhileLoop");
+			forLoop = XML.getBooleanOption(cfg, "ForLoop");
+		}
+		
+		helper.printConfiguration(Arrays.asList(
+				"IfConditional = " + ifConditional,
+				"ElseConditional = " + elseConditional,
+				"ElseIfConditional = " + elseIfConditional,
+				"WhileLoop = " + whileLoop,
+				"DoWhileLoop = " + doWhileLoop,
+				"ForLoop = " + forLoop));
 		
 		if (forLoop)
 			helper.depends("Statement");
