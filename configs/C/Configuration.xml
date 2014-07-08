@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageConfiguration>
+	<name>C</name>
+
+	<feature name="SyntaxBase" />
+	<feature name="GlobalScope" />
+	<feature name="CodeBlock" />
+	<feature name="ControlFlow" config="ControlFlow.xml" />
+	<feature name="Expressions" />
+	<feature name="Statement" config="Statement.xml" />
+	<feature name="Functions" config="Functions.xml" />
+	<feature name="Classes" config="Classes.xml" />
+	<feature name="Variables" config="Variables.xml" />
+</LanguageConfiguration>

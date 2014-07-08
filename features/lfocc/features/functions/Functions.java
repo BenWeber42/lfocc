@@ -99,7 +99,7 @@ public class Functions extends MultiExtendable {
 			extender.addSyntaxRule("functionCall");
 		}
 
-		if (!services.hasFeature("Classes")) {
+		if (services.hasFeature("Classes")) {
 			extender = (ExtenderService) 
 					services.getService("Classes", "ObjectProvider");
 			extender.addSyntaxRule("functionDeclaration");

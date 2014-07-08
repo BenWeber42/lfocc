@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ControlFlowConfiguration>
+
+	<IfConditional>true</IfConditional>
+	<ElseConditional>true</ElseConditional>
+	<ElseIfConditional>false</ElseIfConditional>
+	<WhileLoop>true</WhileLoop>
+	<DoWhileLoop>false</DoWhileLoop>
+	<ForLoop>false</ForLoop>
+
+</ControlFlowConfiguration>

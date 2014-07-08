@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VariablesConfiguration>
+
+	<FunctionParameters>true</FunctionParameters>
+	<Locals>false</Locals>
+	<Globals>false</Globals>
+	<ClassMembers>false</ClassMembers>
+
+</VariablesConfiguration>
