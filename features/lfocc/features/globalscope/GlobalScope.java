@@ -28,20 +28,33 @@ public class GlobalScope extends SingleExtendable {
 	
 	private String generateParserSource() {
 		String src = "";
-		src += "globalScope : \n";
+		// TODO: EOF
+		src += "globalScope ::= \n";
+		src += "   # empty\n";
+		src += "   | _globalScope\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "_globalScope ::= \n";
+		src += "   globalScopeElement\n";
+		src += "   | globalScopeElement _globalScope\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "globalScopeElement ::=\n";
+		src += "\n";
+		src += "\n";
 		
 		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {
-			src += "   (\n";
 			src += "   " + it.next() + "\n";
 
 			while (it.hasNext())
 				src += "   | " + it.next() + "\n";
 
-			src += "   )*\n";
 		}
 		
-		src += "   EOF ;\n";	
+		src += "   ;\n";
+		src += "\n";
+
 		return src;
 	}
 

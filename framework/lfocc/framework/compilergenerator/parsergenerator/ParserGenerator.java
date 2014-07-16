@@ -4,11 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.TreeMap;
 
 import lfocc.framework.util.Command;
 import lfocc.framework.util.FileSystem;
@@ -18,8 +17,8 @@ public class ParserGenerator {
 	
 	String root = null;
 	Map<String, List<String>> parserGrammar = new HashMap<String, List<String>>();
-	Map<String, List<String>> walkerGrammar = new HashMap<String, List<String>>();
-	Set<String> tokens = new HashSet<String>();
+	Map<String, String> tokens = new HashMap<String, String>();
+	Map<Integer, List<String>> precedence = new TreeMap<Integer, List<String>>();
 	String name;
 	
 	public ParserGenerator(String name) {
@@ -33,15 +32,19 @@ public class ParserGenerator {
 		parserGrammar.get(feature).add(source);
 	}
 
-	public void addWalkerSource(String feature, String source) {
-		if (walkerGrammar.get(feature) == null)
-			walkerGrammar.put(feature, new ArrayList<String>());
-
-		walkerGrammar.get(feature).add(source);
+	public void addToken(String name, String regex) {
+		assert !tokens.containsKey(name);
+		
+		// TODO: allow to specify a return value
+		
+		tokens.put(name, regex);
 	}
-
-	public void addParserToken(String token) {
-		tokens.add(token);
+	
+	public void addPrecedence(String name, int level) {
+		if (!precedence.containsKey(level))
+			precedence.put(level, new ArrayList<String>());
+		
+		precedence.get(level).add(name);
 	}
 	
 	public boolean hasRootRule() {
@@ -49,6 +52,8 @@ public class ParserGenerator {
 	}
 
 	public void setRootRule(String root) {
+		assert this.root == null;
+
 		this.root = root;
 	}
 	
@@ -67,9 +72,9 @@ public class ParserGenerator {
 			if (src.hasNext()) {
 				sb.append(String.format(
 						"\n" +
-						"///////////////////////////////////////////////////\n" +
-						"// Added by feature '%s'\n" +
-						"//////////////////////////////////////////////////\n\n\n",
+						"############################################################\n" +
+						"# Added by feature '%s'\n" +
+						"############################################################\n\n\n",
 						feature));
 				
 				while (src.hasNext()) {
@@ -80,104 +85,64 @@ public class ParserGenerator {
 		}
 
 		sb.insert(0, generateRootParser());
-		FileSystem.writeTo(sb.toString(), path.toString() + "/" + name + ".g");
-		
-		sb = new StringBuilder();
-
-		it = walkerGrammar.keySet().iterator();
-		while (it.hasNext()) {
-			String feature = it.next();
-			Iterator<String> src = walkerGrammar.get(feature).iterator();
-			
-			if (src.hasNext()) {
-				sb.append(String.format(
-						"\n" +
-						"///////////////////////////////////////////////////\n" +
-						"// Added by feature '%s'\n" +
-						"//////////////////////////////////////////////////\n\n\n",
-						feature));
-				
-				while (src.hasNext()) {
-					sb.append(src.next());
-					sb.append("\n");
-				}
-			}
-		}
-		
-		sb.insert(0, generateRootWalker());
-		FileSystem.writeTo(parserGrammar.toString(), path.toString() + "/" + name + "Walker.g");
+		FileSystem.writeTo(sb.toString(), path.toString() + "/" + name + ".s");
 		
 	}
 	
 	public boolean generate(File path) {
 
-		// Process with antlr: 
+		// Process with lapg: 
+		// TODO: lapg doesn't seem to respect the -o flag
+		// TODO: abort on conflict warnings
 		return Command.execute(
-				"java -jar ./lib/antlr-3.4.jar" + 
-				" -fo " + path.getPath() +
-				" " + path.getPath() + "/" + name + ".g"/* +
-				" " + path.getPath() + "/" + name + "Walker.g"*/
+				"java -jar ./lib/lapg-1.3.10.jar" + 
+				" -o " + path.getPath() +
+				" " + path.getPath() + "/" + name + ".s"
 				);
 		
 	}
 	
 	private String generateRootParser() {
-		String src =
-				"grammar " + name + ";\n\n";
-		
-		src +=
-				"tokens {\n";
-		
-		Iterator<String> token = tokens.iterator();
-		while (token.hasNext())
-			src += "   " + token.next() + ";\n";
-				
-		src += "}\n\n";
-
-		// settings:
-		src += 
-				"@header {\n" +
-				"package lfocc.compilers." + name + ".parser;\n" +
-				"}\n\n";
-				
-		src += 
-				"@lexer::header {\n" +
-				"package lfocc.compilers." + name + ".parser;\n" +
-				"}\n\n";
-			
-		// root rule:
-		src += "root : " + root + " ;";
-		src += "\n";
-		src += "\n";
-		
-		return src;
-	}
-	
-	private String generateRootWalker() {
 		String src = "";
 
-		src += "tree grammar RootWalker;\n";
+		src += "############################################################\n";
+		src += "# " + name + " grammar\n";
+		src += "############################################################\n";
+		src += "\n";
+		src += "# Configuration\n";
+		src += "\n";
+		src += "prefix = \"" + name + "\"\n";
+		src += "lang = \"java\"\n";
+		src += "\n";
+		src += "# Tokens\n";
 		src += "\n";
 		
-		src += "options {\n";
-		src += "   tokenVocab=Root;\n";
-		src += "   ASTLabelType=CommonTree;\n";
-		src += "}\n";
+		Iterator<Map.Entry<String, String>> it = tokens.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, String> token = it.next();
+			src += String.format("%-10s:      %s\n", token.getKey(), token.getValue());
+		}
+
 		src += "\n";
-		src += "@header {\n";
-		src += "package lfocc.compilers." + name + ".parser;\n";
+		src += "# Grammar\n";
 		src += "\n";
-		src += "import lfocc.framework.compiler.ir.ASTNode;\n";
-		src += "}\n";
+		
+		Iterator<List<String>> _it = precedence.values().iterator();
+		while (_it.hasNext()) {
+			src += "%left";
+
+			Iterator<String> __it = _it.next().iterator();
+			while (__it.hasNext())
+				src += " " + __it.next() + " ";
+
+			src += ";\n";
+		}
+
 		src += "\n";
-		src += "root returns [ASTNode root]\n";
-		src += "   : " + root + "=" + root + " { $root = $" + root + "." + root + " }\n";
-		src += "   ;\n";
-		src += "\n";
-		src += "\n";
-		src += "\n";
+		src += "input ::= " +  root + " ;\n";
 		src += "\n";
 		
 		return src;
+		
 	}
 }

@@ -7,15 +7,13 @@ public class SyntaxBase extends Feature {
 	
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
-		cg.getParserGenerator().addParserSource(getName(), generateParserSource());
+		// -1 do decrease the priority of identifier below default
+		cg.getParserGenerator().addToken("identifier", "/[a-zA-Z][a-zA-Z0-9_]*/ -1");
+		cg.getParserGenerator().addToken("'{'", "/\\{/");
+		cg.getParserGenerator().addToken("'}'", "/\\}/");
+		cg.getParserGenerator().addToken("'('", "/\\(/");
+		cg.getParserGenerator().addToken("')'", "/\\)/");
+		cg.getParserGenerator().addToken("';'", "/;/");
+		cg.getParserGenerator().addToken("','", "/,/");
 	}
-	
-	private String generateParserSource() {
-		String src = "";
-		src += "Identifier : ( 'a'..'z' | 'A'..'Z')\n";
-		src += "   ('a'..'z' | 'A'..'Z' | '0'..'9')*\n";
-		src += "   ;\n";
-		return src;
-	}
-
 }

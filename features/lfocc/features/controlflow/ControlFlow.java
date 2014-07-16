@@ -69,25 +69,48 @@ public class ControlFlow extends Feature {
 	
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
-		if (ifConditional)
+		if (ifConditional) {
 			cg.getParserGenerator().addParserSource(getName(), generateIfSource());
-		if (whileLoop)
+			cg.getParserGenerator().addToken("'if'", "/if/");
+			if (elseConditional | elseIfConditional)
+				cg.getParserGenerator().addToken("'else'", "/else/");
+		}
+		if (whileLoop) {
 			cg.getParserGenerator().addParserSource(getName(), generateWhileSource());
-		if (doWhileLoop)
+			cg.getParserGenerator().addToken("'while'", "/while/");
+		}
+		if (doWhileLoop) {
 			cg.getParserGenerator().addParserSource(getName(), generateDoWhileSource());
-		if (forLoop)
+			cg.getParserGenerator().addToken("'do'", "/do/");
+			if (!whileLoop)
+				cg.getParserGenerator().addToken("'while'", "/while/");
+		}
+		if (forLoop) {
 			cg.getParserGenerator().addParserSource(getName(), generateForGrammar());
+			cg.getParserGenerator().addToken("'for'", "/for/");
+		}
 	}
 	
 	private String generateIfSource() {
 		String src = "";
-		src += "ifConditional : \n";
+		src += "ifConditional ::= \n";
 		if (ifConditional)
-			src += "   'if' '(' expression ')' '{' codeBlock '}' \n";
-		if (elseIfConditional)
-			src += "   'else' 'if' '(' expression ')' '{' codeBlock '}' \n";
-		if (elseConditional)
-			src += "   'else' '{' codeBlock '}' \n";
+			src += "   'if' '(' expression ')' '{' codeBlock '}' ifRest ;\n";
+		src += "\n";
+
+		src += "ifRest ::= \n";
+		src += "   # empty\n";
+		if (elseConditional || elseIfConditional)
+			src += "   | 'else' ifRest2\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "ifRest2 ::=\n";
+		if (elseIfConditional) {
+			src += "   'if' '(' expression ')' '{' codeBlock '}' ifRest\n";
+			src += "   | '{' codeBlock '}'\n";
+		} else if (elseConditional) {
+			src += "   '{' codeBlock '}'\n";
+		}
 		src += "   ;\n";
 
 		return src;
@@ -95,7 +118,7 @@ public class ControlFlow extends Feature {
 	
 	private String generateWhileSource() {
 		String src = "";
-		src += "whileLoop : \n";
+		src += "whileLoop ::= \n";
 		if (whileLoop)
 			src += "   'while' '(' expression ')' '{' codeBlock '}' \n";
 		src += "   ;\n";
@@ -105,7 +128,7 @@ public class ControlFlow extends Feature {
 	
 	private String generateDoWhileSource() {
 		String src = "";
-		src += "doWhileLoop : \n";
+		src += "doWhileLoop ::= \n";
 		if (doWhileLoop)
 			src += "   'do' '{' codeBlock '}' 'while' '(' expression ')' \n";
 		src += "   ;\n";
@@ -115,9 +138,19 @@ public class ControlFlow extends Feature {
 	
 	private String generateForGrammar() {
 		String src = "";
-		src += "forLoop : \n";
+		src += "forLoop ::= \n";
 		if (forLoop)
-			src += "   'for' '(' statement ';' expression ';' statement ')' '{' codeBlock '}' \n";
+			src += "   'for' '(' statementOpt ';' expressionOpt ';' statementOpt ')' '{' codeBlock '}' \n";
+		src += "   ;\n";
+		src += "\n";
+		src += "statementOpt ::=\n";
+		src += "   # empty\n";
+		src += "   | statement\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "expressionOpt ::=\n";
+		src += "   # empty\n";
+		src += "   | expression\n";
 		src += "   ;\n";
 
 		return src;

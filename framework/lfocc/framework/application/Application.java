@@ -205,8 +205,8 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		///////////////////////////////////////////////////////////////////////
 		// Imports
 		///////////////////////////////////////////////////////////////////////
-		app.addImport(String.format("lfocc.compilers.%s.parser.%sParser", cfg.name(), cfg.name()));
-		app.addImport(String.format("lfocc.compilers.%s.parser.%sLexer", cfg.name(), cfg.name()));
+		//app.addImport(String.format("lfocc.compilers.%s.parser.%sParser", cfg.name(), cfg.name()));
+		//app.addImport(String.format("lfocc.compilers.%s.parser.%sLexer", cfg.name(), cfg.name()));
 		app.emitLn();
 		
 		app.startClass("public", "Application");

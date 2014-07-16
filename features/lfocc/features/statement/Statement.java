@@ -35,10 +35,8 @@ public class Statement extends SingleExtendable {
 				"Assignment = " + assignment,
 				"Codeblock = " + codeblock));
 
-		if (assignment) {
+		if (assignment)
 			helper.depends("Expressions");
-			helper.depends("Variables");
-		}
 		
 		if (codeblock)
 			helper.depends("CodeBlock");
@@ -58,33 +56,25 @@ public class Statement extends SingleExtendable {
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		cg.getParserGenerator().addParserSource(getName(), generateInternalGrammar());
+		if (assignment)
+			cg.getParserGenerator().addToken("'='", "/=/");
 	}
 	
 	public String generateInternalGrammar() {
 		String src = "";
-		src += "statement : ( internalStatement | externalStatement ) ;\n";
-		src += "\n";
-		src += "\n";
-		src += "internalStatement :\n";
+		src += "statement ::= \n";
 
-		if (assignment)
-			// TODO: assignment target
-			src += "   '=' expression\n";
-
-		src += "   ;\n";
-		src += "\n";
-		src += "externalStatement :\n";
-		
 		Iterator<String> it = extensions.iterator();
-		if (it.hasNext()) {
-			src += "   (\n";
+
+		if (assignment) {
+			src += "   assignableExpression '=' expression\n";
+		} else if (it.hasNext()) {
 			src += "   " + it.next() + "\n";
-
-			while (it.hasNext())
-				src += "   | " + it.next() + "\n";
-
-			src += "   )\n";
 		}
+		
+		while (it.hasNext())
+			src += "   | " + it.next() + "\n";
+
 		src += "   ;\n";
 		
 		return src;

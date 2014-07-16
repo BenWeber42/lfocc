@@ -19,17 +19,24 @@ public class CodeBlock extends SingleExtendable {
 	public String generateParser() {
 		String src = "";
 		
-		src += "codeBlock : \n";
+		src += "codeBlock ::= \n";
+		src += "   # empty\n";
+		src += "   | _codeBlock\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "_codeBlock ::= \n";
+		src += "   codeBlockElement\n";
+		src += "   | codeBlockElement _codeBlock\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "codeBlockElement ::= \n";
 
 		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {
-			src += "   (\n";
 			src += "   " + it.next() + "\n";
 			
 			while (it.hasNext())
 				src += "   | " + it.next() + "\n";
-
-			src += "   )*\n";
 		}
 		src += "   ;\n";
 		

@@ -49,6 +49,7 @@ public class Functions extends MultiExtendable {
 			return; // function declarations can't occur anywhere, nothing to do
 
 		helper.depends("CodeBlock");
+		helper.depends("SyntaxBase"); // because of '{' or '('
 		
 		if (globals)
 			helper.depends("GlobalScope");
@@ -83,34 +84,22 @@ public class Functions extends MultiExtendable {
 			extender.addSyntaxRule("functionCall");
 		}
 
-		/*
-		 * The Classes featuer will register all ObjectProviders as expressions.
-		 * So if the Classes feature is activeted we don't have to register variable
-		 * usage as expression.
-		 * 
-		 * If the Classes feature is deactivated and the Expressions feature is
-		 * activated, we have to register variable usage as expression ourself.
-		 */
-
-		if (!services.hasFeature("Classes") && services.hasFeature("Expressions")) {
+		if (services.hasFeature("Expressions")) {
 			extender = (ExtenderService) 
-					services.getService("Expressions", "Extender");
-			extender.addSyntaxRule("functionCall");
-		}
-
-		if (services.hasFeature("Classes")) {
-			extender = (ExtenderService) 
-					services.getService("Classes", "ObjectProvider");
+					services.getService("Expressions", "ExpressionExtender");
 			extender.addSyntaxRule("functionCall");
 		}
 
 		if (classMembers) {
 			extender = (ExtenderService) 
-					services.getService("Classes", "BodyExtender");
+					services.getService("Classes", "Extender");
 			extender.addSyntaxRule("functionDeclaration");
-			extender = (ExtenderService) 
-					services.getService("Classes", "ObjectMember");
-			extender.addSyntaxRule("functionCall");
+			
+			if (services.hasFeature("Expressions")) {
+				extender = (ExtenderService) 
+						services.getService("Expressions", "ExpressionExtender");
+				extender.addSyntaxRule("expression '.' functionCall");
+			}
 		}
 
 	}
@@ -122,45 +111,41 @@ public class Functions extends MultiExtendable {
 
 		cg.getParserGenerator().addParserSource(getName(), generateFunctionGrammar());
 		cg.getParserGenerator().addParserSource(getName(), generateReturnGrammar());
+		cg.getParserGenerator().addToken("'return'", "/return/");
 	}
 	
 	public String generateFunctionGrammar() {
 		String src = "";
-		src += "functionDeclaration :\n";
-		src += "   Identifier Identifier";
-		src += "   '('\n";
+		src += "functionDeclaration ::=\n";
+		src += "   identifier identifier '(' parameterDeclaration ')' '{' codeBlock '}'\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "parameterDeclaration ::=\n";
 		
 		Iterator<String> it = getExtensions(declarationExtender).iterator();
 		if (it.hasNext()) {
-			src += "      (\n";
-			src += "      " + it.next() + "\n";
+			src += "   " + it.next() + "\n";
 			
 			while (it.hasNext())
-				src += "      | " + it.next() + "\n";
+				src += "   | " + it.next() + "\n";
 
-			src += "      )?\n";
 		}
-		
-		src += "   ')'\n";
-		src += "   '{' codeBlock '}'\n";
+		src += "   ;\n";
+		src += "functionCall ::=\n";
+		src += "   identifier '(' parameterExpression ')'\n";
 		src += "   ;\n";
 		src += "\n";
-		src += "functionCall :\n";
-		src += "   Identifier\n";
-		src += "   '('\n";
+		src += "parameterExpression ::=\n";
 
 		it = getExtensions(callExtender).iterator();
 		if (it.hasNext()) {
-			src += "      (\n";
 			src += "      " + it.next() + "\n";
 			
 			while (it.hasNext())
 				src += "      | " + it.next() + "\n";
 
-			src += "      )?\n";
 		}
-	
-		src += "   ')'\n";
+
 		src += "   ;\n";
 		
 		return src;
@@ -168,10 +153,12 @@ public class Functions extends MultiExtendable {
 	
 	public String generateReturnGrammar() {
 		String src = "";
-		if (returnValue)
-			src += "returnStmt : 'return' ( expression )? ';' ;\n";
-		else
-			src += "returnStmt : 'return' ';' ;\n";
+		if (returnValue) {
+			src += "returnStmt ::= 'return' expression ';' ;\n";
+			src += "returnStmt ::= 'return' ';' ;\n";
+		} else {
+			src += "returnStmt ::= 'return' ';' ;\n";
+		}
 		
 		return src;
 	}

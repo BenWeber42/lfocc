@@ -82,36 +82,28 @@ public class Variables extends Feature {
 		
 		if (functionParameters) {
 			ExtenderService extender = (ExtenderService) services.getService("Functions", "DeclarationExtender");
-			extender.addSyntaxRule("variableDeclaration ( ',' variableDeclaration )*");
+			extender.addSyntaxRule("variableParameterDeclaration");
 			extender = (ExtenderService) services.getService("Functions", "CallExtender");
-			extender.addSyntaxRule("expression ( ',' expression )*");
+			extender.addSyntaxRule("variableParameterExpression");
 		}
 
-		/*
-		 * The Classes featuer will register all ObjectProviders as expressions.
-		 * So if the Classes feature is activeted we don't have to register variable
-		 * usage as expression.
-		 * 
-		 * If the Classes feature is deactivated and the Expressions feature is
-		 * activated, we have to register variable usage as expression ourself.
-		 */
-
-		if (!services.hasFeature("Classes") && services.hasFeature("Expressions")) {
-			ExtenderService extender = (ExtenderService) services.getService("Expressions", "Extender");
+		if (services.hasFeature("Expressions")) {
+			ExtenderService extender = (ExtenderService) services.getService("Expressions", "ExpressionExtender");
 			extender.addSyntaxRule("variableUse");
-			return;
-		}
-
-		if (services.hasFeature("Classes")) {
-			ExtenderService extender = (ExtenderService) services.getService("Classes", "ObjectProvider");
+			extender = (ExtenderService) services.getService("Expressions", "AssignableExpressionExtender");
 			extender.addSyntaxRule("variableUse");
 		}
 
 		if (classMembers) {
-			ExtenderService extender = (ExtenderService) services.getService("Classes", "BodyExtender");
+			ExtenderService extender = (ExtenderService) services.getService("Classes", "Extender");
 			extender.addSyntaxRule("variableDeclaration ';' ");
-			extender = (ExtenderService) services.getService("Classes", "ObjectMember");
-			extender.addSyntaxRule("variableUse");
+			
+			if (services.hasFeature("Expressions")) {
+				extender = (ExtenderService) services.getService("Expressions", "ExpressionExtender");
+				extender.addSyntaxRule("expression '.' variableUse");
+				extender = (ExtenderService) services.getService("Expressions", "AssignableExpressionExtender");
+				extender.addSyntaxRule("expression '.' variableUse");
+			}
 		}
 	}
 	
@@ -123,12 +115,33 @@ public class Variables extends Feature {
 	
 	private String generateParserSource() {
 		String src = "";
-		src += "variableDeclaration : Identifier Identifier ;\n";
+		src += "variableDeclaration ::= identifier identifier ;\n";
 		src += "\n";
-		src += "parameterDeclaration : Identifier Identifier\n";
-		src += "   ( ',' Identifier Identifier )* ;\n";
+		src += "variableUse ::= identifier ;\n";
 		src += "\n";
-		src += "variableUse : Identifier ;\n";
+		src += "variableParameterDeclaration ::= \n";
+		src += "   # empty\n";
+		src += "   | _variableParameterDeclaration\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "_variableParameterDeclaration ::= \n";
+		src += "   variableParameterDeclarationElement\n";
+		src += "   | variableParameterDeclarationElement ',' _variableParameterDeclaration\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "variableParameterDeclarationElement ::= \n";
+		src += "   identifier identifier\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "variableParameterExpression ::=\n";
+		src += "   # empty\n";
+		src += "   | _variableParameterExpression\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "_variableParameterExpression ::=\n";
+		src += "   expression\n";
+		src += "   | expression ',' _variableParameterExpression\n";
+		src += "   ;\n";
 		return src;
 	}
 
