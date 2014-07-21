@@ -18,7 +18,6 @@ import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.FeatureLoader;
 import lfocc.framework.feature.service.Service;
 import lfocc.framework.feature.service.ServiceProvider;
-import lfocc.framework.util.Command;
 import lfocc.framework.util.FileSystem;
 import lfocc.framework.util.JavaCompiler;
 import lfocc.framework.util.Logger;
@@ -26,7 +25,6 @@ import lfocc.framework.util.Logger;
 public class Application implements CompilerGenerator, FeatureHelper, ServiceProvider {
 	
 	private String[] args;
-	private String compilerArgs = new String();
 	private Map<String, Feature> features = new HashMap<String, Feature>();
 	private LanguageConfigurationLoader configLoader = new LanguageConfigurationLoader();
 	private GlobalConfiguration cfg;
@@ -42,16 +40,12 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	
 	public Application(String[] args) {
 		this.args = args;
-		for (int i = 1; i < args.length; ++i) {
-			compilerArgs += " " + args[i];
-		}
 	}
 
 	public static void printUsage() {
 		System.out.println("Usage: lfocc <langFile> [args]");
 		System.out.println();
 		System.out.println("      <langFile>      LanguageConfiguration file specifying the language.");
-		System.out.println("      [args]          Arguments given to the created compiler.");
 	}
 	
 	private void loadConfig() {
@@ -212,8 +206,10 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		src += "import java.io.FileInputStream;\n";
 		src += "import java.io.File;\n";
 		src += "import java.io.FileNotFoundException;\n";
+		src += "import java.io.IOException;\n";
 		src += "\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Parser;\n";
+		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Parser.ParseException;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Lexer;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Lexer.ErrorReporter;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".options.Options;\n";
@@ -252,10 +248,20 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		src += "   public void parse() {\n";
 		src += "      try {\n";
 		src += "         Reader in = new InputStreamReader(new FileInputStream(new File(options.getInput())));\n";
+		src += "         " + cfg.name() + "Lexer lexer = new " + cfg.name() + "Lexer(in, this);\n";
+		src += "         " + cfg.name() + "Parser parser = new " + cfg.name() + "Parser(this);\n";
+		// TODO: get AST from parser
+		src += "         parser.parse(lexer);\n";
 		src += "      } catch (FileNotFoundException e) {\n";
 		src += "         System.out.println(String.format(\"File '%s' not found!\", options.getInput()));\n";
 		src += "         System.exit(-1);\n";
+		src += "      } catch (IOException e) {\n";
+		src += "         System.out.println(String.format(\"IOException with file '%s'!\", options.getInput()));\n";
+		src += "         System.exit(-1);\n";
+		src += "      } catch (ParseException e) {\n";
+		src += "         System.exit(-1);\n";
 		src += "      }\n";
+		src += "      \n";
 		src += "   }\n";
 		src += "   \n";
 		
@@ -305,27 +311,6 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		
 	}
 	
-	private void startCompiler() {
-
-		if (compilerArgs.length() != 0) {
-			Logger.info("Starting compiler now with:");
-			Logger.info("<lfocc> " + compilerArgs);
-		} else {
-			Logger.info("Starting compiler now without arguments:");
-		}
-
-		String command = "java" + 
-				" -cp lib/antlr-3.4.jar:" + binFolder.getPath() + 
-				" lfocc.compilers." + cfg.name() + ".Main" +
-				" " + compilerArgs;
-
-		// TODO: set current directory to compiler's directory for compiler
-		if (!Command.execute(command, true)) {
-			Logger.error("Failed to execute compiler!");
-			exit(-1);
-		}
-	}
-	
 	public void run() {
 		
 		loadConfig();
@@ -339,7 +324,6 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		Logger.info("Compiler successfully generated!");
 		compileCompiler();
 		Logger.info("Compiler successfully compiled!");
-		startCompiler();
 	}
 	
 	private void exit(int code) {

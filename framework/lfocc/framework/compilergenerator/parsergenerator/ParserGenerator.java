@@ -20,6 +20,7 @@ public class ParserGenerator {
 	String root = null;
 	Map<String, List<String>> parserGrammar = new HashMap<String, List<String>>();
 	Map<String, String> tokens = new HashMap<String, String>();
+	Map<String, String> tokenReturnTypes = new HashMap<String, String>();
 	Map<Integer, List<String>> precedence = new TreeMap<Integer, List<String>>();
 	String name;
 	
@@ -34,12 +35,17 @@ public class ParserGenerator {
 		parserGrammar.get(feature).add(source);
 	}
 
-	public void addToken(String name, String regex) {
+	public void addToken(String name, String rest) {
+		addToken(name, null, rest);
+	}
+
+	public void addToken(String name, String ret, String rest) {
 		assert !tokens.containsKey(name);
 		
-		// TODO: allow to specify a return value
-		
-		tokens.put(name, regex);
+		if (ret != null)
+			tokenReturnTypes.put(name, ret);
+			
+		tokens.put(name, rest);
 	}
 	
 	public void addPrecedence(String name, int level) {
@@ -101,9 +107,14 @@ public class ParserGenerator {
 				" " + path.getPath() + "/" + name + ".s"
 				);
 		
-		if (!output.success())
+		if (!output.success()) {
+			Iterator<String> it = output.output().iterator();
+			while (it.hasNext())
+				Logger.warning(it.next());
+			
 			return false;
-
+		}
+		
 		// FIXME: improve detection of conflicts
 		boolean conflict = false;
 		Iterator<String> it = output.output().iterator();
@@ -145,8 +156,8 @@ public class ParserGenerator {
 		src += "prefix = \"" + name + "\"\n";
 		src += "lang = \"java\"\n";
 		src += "package = \"lfocc.compilers." + name + ".parser\"\n";
-		src += "positions = \"line,offset\"";
-		src += "endpositions = \"offset\"";
+		src += "positions = \"line,offset\"\n";
+		src += "endpositions = \"offset\"\n";
 		src += "\n";
 		src += "# Tokens\n";
 		src += "\n";
@@ -154,7 +165,14 @@ public class ParserGenerator {
 		Iterator<Map.Entry<String, String>> it = tokens.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<String, String> token = it.next();
-			src += String.format("%-10s:      %s\n", token.getKey(), token.getValue());
+			if (tokenReturnTypes.containsKey(token.getKey()))
+				src += String.format("%-20s:      %s\n",
+						String.format("%s(%s)", token.getKey(), tokenReturnTypes.get(token.getKey())),
+						token.getValue());
+			else
+				src += String.format("%-20s:      %s\n", token.getKey(), token.getValue());
+			
+			
 		}
 
 		src += "\n";
