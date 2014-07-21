@@ -9,6 +9,7 @@ import org.w3c.dom.Document;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.FrameworkInterface;
 import lfocc.framework.feature.MultiExtendable;
 import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.feature.service.ExtenderService;
@@ -94,12 +95,6 @@ public class Functions extends MultiExtendable {
 			extender = (ExtenderService) 
 					services.getService("Classes", "Extender");
 			extender.addSyntaxRule("functionDeclaration");
-			
-			if (services.hasFeature("Expressions")) {
-				extender = (ExtenderService) 
-						services.getService("Expressions", "ExpressionExtender");
-				extender.addSyntaxRule("expression '.' functionCall");
-			}
 		}
 
 	}
@@ -109,12 +104,12 @@ public class Functions extends MultiExtendable {
 		if (!globals && !classMembers)
 			return;
 
-		cg.getParserGenerator().addParserSource(getName(), generateFunctionGrammar());
+		cg.getParserGenerator().addParserSource(getName(), generateFunctionGrammar(cg));
 		cg.getParserGenerator().addParserSource(getName(), generateReturnGrammar());
 		cg.getParserGenerator().addToken("'return'", "/return/");
 	}
 	
-	public String generateFunctionGrammar() {
+	public String generateFunctionGrammar(FrameworkInterface framework) {
 		String src = "";
 		src += "functionDeclaration ::=\n";
 		src += "   identifier identifier '(' parameterDeclaration ')' '{' codeBlock '}'\n";
@@ -133,6 +128,8 @@ public class Functions extends MultiExtendable {
 		src += "   ;\n";
 		src += "functionCall ::=\n";
 		src += "   identifier '(' parameterExpression ')'\n";
+		if (classMembers && framework.hasFeature("Expressions"))
+			src += "   | expression '.' identifier '(' parameterExpression ')'\n";
 		src += "   ;\n";
 		src += "\n";
 		src += "parameterExpression ::=\n";
