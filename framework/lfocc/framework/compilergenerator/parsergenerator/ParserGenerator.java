@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import lfocc.framework.util.Command;
+import lfocc.framework.util.Command.CommandOutput;
 import lfocc.framework.util.FileSystem;
+import lfocc.framework.util.Logger;
 
 
 public class ParserGenerator {
@@ -93,13 +95,42 @@ public class ParserGenerator {
 
 		// Process with lapg: 
 		// TODO: lapg doesn't seem to respect the -o flag
-		// TODO: abort on conflict warnings
-		return Command.execute(
+		CommandOutput output = Command.executeWithOutput(
 				"java -jar ./lib/lapg-1.3.10.jar" + 
 				" -o " + path.getPath() +
 				" " + path.getPath() + "/" + name + ".s"
 				);
 		
+		if (!output.success())
+			return false;
+
+		// FIXME: improve detection of conflicts
+		boolean conflict = false;
+		Iterator<String> it = output.output().iterator();
+		while (it.hasNext()) {
+			if (it.next().contains("conflict")) {
+				conflict = true;
+				break;
+			}
+		}
+
+		if (conflict) {
+			Logger.warning("Grammar contains conflicts!");
+
+			it = output.output().iterator();
+			while (it.hasNext())
+				Logger.warning(it.next());
+			
+			return false;
+		}
+		
+		// because lapg doesn't respect the -o flag, we need to manually move it
+		if (!FileSystem.move(name + "Parser.java", path.getPath()))
+			return false;
+		if (!FileSystem.move(name + "Lexer.java", path.getPath()))
+			return false;
+		
+		return true;
 	}
 	
 	private String generateRootParser() {

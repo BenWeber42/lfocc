@@ -85,4 +85,56 @@ public class Command {
 		
 		return output;
 	}
+
+	/**
+	 * Executes `command`
+	 * 
+	 * @param output whether the output should be logged (with info level)
+	 */
+	public static CommandOutput executeWithOutput(String command) {
+
+		Process proc = null;
+		try {
+			proc = Runtime.getRuntime().exec(command);
+		} catch (IOException e1) {
+			Logger.warning("Failed to execute:");
+			Logger.warning(command);
+			return new CommandOutput(-1, null);
+		}
+
+		boolean finished = false;
+
+		while (!finished) {
+			try {
+				proc.waitFor();
+				finished = true;
+			} catch (InterruptedException e) {
+			}
+		}
+	
+		List<String> lines = toStringList(proc.getErrorStream());
+		return new CommandOutput(proc.exitValue(), lines);
+	}
+	
+	public static class CommandOutput {
+		private int exitCode;
+		private List<String> output;
+		
+		private CommandOutput(int exitCode, List<String> output) {
+			this.exitCode = exitCode;
+			this.output = output;
+		}
+		
+		public boolean success() {
+			return exitCode == 0;
+		}
+		
+		public int exitCode() {
+			return exitCode;
+		}
+		
+		public List<String> output() {
+			return output;
+		}
+	}
 }

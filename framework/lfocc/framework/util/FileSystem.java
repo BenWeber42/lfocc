@@ -37,16 +37,17 @@ public class FileSystem {
 	public static boolean copy(String from, String to, boolean replace) {
 		try {
 			File _to = new File(to);
+			File _from = new File(from);
 
 			if (_to.isDirectory()) {
-				_to = new File(_to, (new File(from)).getName());
+				_to = new File(_to, _from.getName());
 			}
 			
 			if (replace) {
-				Files.copy((new File(from)).toPath(), _to.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				Files.copy(_from.toPath(), _to.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} else {
 				
-				Files.copy((new File(from)).toPath(), _to.toPath());
+				Files.copy(_from.toPath(), _to.toPath());
 			}
 		} catch (IOException e) {
 			return false;
@@ -75,6 +76,35 @@ public class FileSystem {
 		}
 		
 		return status;
+	}
+	
+	/**
+	 * Moves file from `target` to `destination`
+	 */ 
+	public static boolean move(String target, String destination, boolean replace) {
+		File from = new File(target);
+		File to = new File(destination);
+		
+		if (to.isDirectory())
+			to = new File(to, from.getName());
+		
+		try {
+			if (replace)
+				Files.move(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			else
+				Files.move(from.toPath(), to.toPath());
+		} catch (IOException e) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Same as move(target, destination, true)
+	 */
+	public static boolean move(String target, String destination) {
+		return move(target, destination, true);
 	}
 
 	/**
