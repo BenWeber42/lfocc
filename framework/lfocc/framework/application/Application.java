@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
+import lfocc.framework.compilergenerator.options.Options;
 import lfocc.framework.compilergenerator.parsergenerator.ParserGenerator;
 import lfocc.framework.config.GlobalConfiguration;
 import lfocc.framework.config.LanguageConfigurationLoader;
@@ -19,7 +20,6 @@ import lfocc.framework.feature.service.Service;
 import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.util.Command;
 import lfocc.framework.util.FileSystem;
-import lfocc.framework.util.JavaCodeGen;
 import lfocc.framework.util.JavaCompiler;
 import lfocc.framework.util.Logger;
 
@@ -38,6 +38,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	private File binFolder = null;
 	private String currentFeature = null; // relevant for the FeatureHelper interface
 	private List<String> currentFeatureConfiguration = null;
+	private Options options = new Options();
 	
 	public Application(String[] args) {
 		this.args = args;
@@ -158,6 +159,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		try {
 			FileSystem.writeTo(generateMainFile(), srcFolder.getPath() + "/Main.java");
 			FileSystem.writeTo(generateApplicationFile(), srcFolder.getPath() + "/Application.java");
+			FileSystem.writeTo(options.generate(cfg.name()), srcFolder.getPath() + "/Options.java");
 		} catch (IOException e1) {
 			Logger.error("Failed to write main files!");
 			e1.printStackTrace();
@@ -179,98 +181,120 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	}
 	
 	private String generateMainFile() {
-		JavaCodeGen main = new JavaCodeGen();
+		String src = "";
 
-		main.setPackage("lfocc.compilers." + cfg.name());
-		main.emitLn();
-		main.addImport("lfocc.compilers." + cfg.name() + ".application.Application");
-		main.emitLn();
-
-		main.startClass("public", "Main");
-		main.startMethod("public static", "void", "main", "String[]", "args");
-		main.emitLn("Application app = new Application(args);");
-		main.emitLn("app.run();");
-		main.endMethod();
-		main.endClass();
-
-		return main.generate();
+		src += "package lfocc.compilers." + cfg.name() + ";\n";
+		src += "\n";
+		src += "import lfocc.compilers." + cfg.name() + ".application.Application;\n";
+		src += "\n";
+		src += "public class Main {\n";
+		src += "\n";
+		src += "   public static void main(String[] args) {\n";
+		src += "   Application app = new Application(args);\n";
+		src += "   app.run();\n";
+		src += "   }\n";
+		src += "}\n";
+		
+		return src;
 	}
 	
 	private String generateApplicationFile() {
-		JavaCodeGen app = new JavaCodeGen();
+		String src = "";
 		
-		app.setPackage(String.format("lfocc.compilers.%s.application", cfg.name()));
-		app.emitLn();
+		src += "package lfocc.compilers." + cfg.name() + ".application;\n";
+		src += "\n";
 
 		///////////////////////////////////////////////////////////////////////
 		// Imports
 		///////////////////////////////////////////////////////////////////////
-		//app.addImport(String.format("lfocc.compilers.%s.parser.%sParser", cfg.name(), cfg.name()));
-		//app.addImport(String.format("lfocc.compilers.%s.parser.%sLexer", cfg.name(), cfg.name()));
-		app.emitLn();
-		
-		app.startClass("public", "Application");
+		src += "import java.io.Reader;\n";
+		src += "import java.io.InputStreamReader;\n";
+		src += "import java.io.FileInputStream;\n";
+		src += "import java.io.File;\n";
+		src += "import java.io.FileNotFoundException;\n";
+		src += "\n";
+		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Parser;\n";
+		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Lexer;\n";
+		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Lexer.ErrorReporter;\n";
+		src += "import lfocc.compilers." + cfg.name() + ".options.Options;\n";
+		src += "\n";
+		src += "public class Application implements ErrorReporter {\n";
+		src += "   \n";
 		
 		///////////////////////////////////////////////////////////////////////
 		// Attributes
 		///////////////////////////////////////////////////////////////////////
-		app.emitLn("private String[] args;");
-		app.emitLn();
+		src += "   private Options options;\n";
+		src += "   \n";
 		
 		///////////////////////////////////////////////////////////////////////
 		// Constructor
 		///////////////////////////////////////////////////////////////////////
-		app.startMethod("public", "", "Application", "String[]", "args");
-		app.emitLn("this.args = args;");
-		app.endMethod();
-		app.emitLn();
+		src += "   public Application(String[] args) {\n";
+		src += "      options = new Options(args);\n";
+		src += "   }\n";
+		src += "   \n";
 		
 		///////////////////////////////////////////////////////////////////////
 		// run()
 		///////////////////////////////////////////////////////////////////////
-		app.startMethod("public", "void", "run");
-		app.emitLn("parse();");
-		app.emitLn("semantics();");
-		app.emitLn("transform();");
-		app.emitLn("generate();");
-		app.endMethod();
-		app.emitLn();
+		src += "   public void run() {\n";
+		src += "      parse();\n";
+		src += "      semantics();\n";
+		src += "      transform();\n";
+		src += "      generate();\n";
+		src += "   }\n";
+		src += "   \n";
 		
 		///////////////////////////////////////////////////////////////////////
 		// parse()
 		///////////////////////////////////////////////////////////////////////
-		app.startMethod("private", "void", "parse");
-		app.emitLn("// TODO");
-		app.endMethod();
-		app.emitLn();
+		src += "   public void parse() {\n";
+		src += "      try {\n";
+		src += "         Reader in = new InputStreamReader(new FileInputStream(new File(options.getInput())));\n";
+		src += "      } catch (FileNotFoundException e) {\n";
+		src += "         System.out.println(String.format(\"File '%s' not found!\", options.getInput()));\n";
+		src += "         System.exit(-1);\n";
+		src += "      }\n";
+		src += "   }\n";
+		src += "   \n";
+		
+		///////////////////////////////////////////////////////////////////////
+		// error(int start, int end, int line, String s)
+		///////////////////////////////////////////////////////////////////////
+		src += "   public void error(int start, int end, int line, String s) {\n";
+		src += "      System.out.println(String.format(\"Parser Failure on line %d from %d to %d ('%s')!\", line, start, end, s));\n";
+		src += "      System.exit(-1);\n";
+		src += "   }\n";
+		src += "   \n";
 		
 		///////////////////////////////////////////////////////////////////////
 		// semantics()
 		///////////////////////////////////////////////////////////////////////
-		app.startMethod("private", "void", "semantics");
-		app.emitLn("// TODO");
-		app.endMethod();
-		app.emitLn();
+		src += "   public void semantics() {\n";
+		src += "      // TODO\n";
+		src += "   }\n";
+		src += "   \n";
 
 		///////////////////////////////////////////////////////////////////////
 		// transform()
 		///////////////////////////////////////////////////////////////////////
-		app.startMethod("private", "void", "transform");
-		app.emitLn("// TODO");
-		app.endMethod();
-		app.emitLn();
+		src += "   public void transform() {\n";
+		src += "      // TODO\n";
+		src += "   }\n";
+		src += "   \n";
 
 		///////////////////////////////////////////////////////////////////////
 		// generate()
 		///////////////////////////////////////////////////////////////////////
-		app.startMethod("private", "void", "generate");
-		app.emitLn("// TODO");
-		app.endMethod();
-		app.emitLn();
+		src += "   public void generate() {\n";
+		src += "      // TODO\n";
+		src += "   }\n";
+		src += "   \n";
 
-		app.endClass();
+		src += "}\n";
 		
-		return app.generate();
+		return src;
 	}
 	
 	private void compileCompiler() {

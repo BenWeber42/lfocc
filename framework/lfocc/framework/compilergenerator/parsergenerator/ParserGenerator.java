@@ -97,7 +97,7 @@ public class ParserGenerator {
 		// TODO: lapg doesn't seem to respect the -o flag
 		CommandOutput output = Command.executeWithOutput(
 				"java -jar ./lib/lapg-1.3.10.jar" + 
-				" -o " + path.getPath() +
+				//" -o " + path.getPath() +
 				" " + path.getPath() + "/" + name + ".s"
 				);
 		
@@ -144,6 +144,9 @@ public class ParserGenerator {
 		src += "\n";
 		src += "prefix = \"" + name + "\"\n";
 		src += "lang = \"java\"\n";
+		src += "package = \"lfocc.compilers." + name + ".parser\"\n";
+		src += "positions = \"line,offset\"";
+		src += "endpositions = \"offset\"";
 		src += "\n";
 		src += "# Tokens\n";
 		src += "\n";
