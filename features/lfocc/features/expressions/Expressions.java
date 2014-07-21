@@ -74,6 +74,8 @@ public class Expressions extends MultiExtendable {
 		src += "   | expression '<' expression\n";
 		src += "   | expression '>=' expression\n";
 		src += "   | expression '>' expression\n";
+		src += "   | '-' expression\n";
+		src += "   | '+' expression\n";
 		
 		Iterator<String> it = getExtensions(expressionExtender).iterator();
 		while (it.hasNext())
