@@ -97,15 +97,15 @@ public class ParserGenerator {
 		
 	}
 	
-	public boolean generate(File path) {
+	public boolean generate(File path, File target) {
 
 		// Process with lapg: 
 		// TODO: lapg doesn't seem to respect the -o flag
-		CommandOutput output = Command.executeWithOutput(
-				"java -jar ./lib/lapg-1.3.10.jar" + 
+		CommandOutput output = Command.executeWithOutput(new String[]{
+				"java", "-jar", "./lib/lapg-1.3.10.jar",
 				//" -o " + path.getPath() +
-				" " + path.getPath() + "/" + name + ".s"
-				);
+				path.getPath() + "/" + name + ".s"
+				});
 		
 		if (!output.success()) {
 			Iterator<String> it = output.output().iterator();
@@ -136,9 +136,9 @@ public class ParserGenerator {
 		}
 		
 		// because lapg doesn't respect the -o flag, we need to manually move it
-		if (!FileSystem.move(name + "Parser.java", path.getPath()))
+		if (!FileSystem.move(name + "Parser.java", target.getPath()))
 			return false;
-		if (!FileSystem.move(name + "Lexer.java", path.getPath()))
+		if (!FileSystem.move(name + "Lexer.java", target.getPath()))
 			return false;
 		
 		return true;

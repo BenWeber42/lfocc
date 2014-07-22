@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class Command {
 	/**
 	 * Same as execute(command, false);
 	 */
-	public static boolean execute(String command) {
+	public static boolean execute(String[] command) {
 		return execute(command, false);
 	}
 	
@@ -23,14 +24,14 @@ public class Command {
 	 * 
 	 * @param output whether the output should be logged (with info level)
 	 */
-	public static boolean execute(String command, boolean output) {
+	public static boolean execute(String command[], boolean output) {
 
 		Process proc = null;
 		try {
 			proc = Runtime.getRuntime().exec(command);
 		} catch (IOException e1) {
 			Logger.warning("Failed to execute:");
-			Logger.warning(command);
+			Logger.warning(StringUtil.join(" ", Arrays.asList(command)));
 			return false;
 		}
 
@@ -54,7 +55,7 @@ public class Command {
 
 		if (proc.exitValue() != 0) {
 			Logger.warning("Failed to execute:");
-			Logger.warning(command);
+			Logger.warning(StringUtil.join(" ", Arrays.asList(command)));
 			Logger.warning("ErrorStream:");
 			
 			List<String> lines = toStringList(proc.getErrorStream());
@@ -91,14 +92,14 @@ public class Command {
 	 * 
 	 * @param output whether the output should be logged (with info level)
 	 */
-	public static CommandOutput executeWithOutput(String command) {
+	public static CommandOutput executeWithOutput(String[] command) {
 
 		Process proc = null;
 		try {
 			proc = Runtime.getRuntime().exec(command);
 		} catch (IOException e1) {
 			Logger.warning("Failed to execute:");
-			Logger.warning(command);
+			Logger.warning(StringUtil.join(" ", Arrays.asList(command)));
 			return new CommandOutput(-1, null);
 		}
 
@@ -122,7 +123,10 @@ public class Command {
 		
 		private CommandOutput(int exitCode, List<String> output) {
 			this.exitCode = exitCode;
-			this.output = output;
+			if (output != null)
+				this.output = output;
+			else
+				this.output = new ArrayList<String>();
 		}
 		
 		public boolean success() {

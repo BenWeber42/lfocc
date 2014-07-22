@@ -1,15 +1,20 @@
 package lfocc.framework.util;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class JavaCompiler {
 
 	public static boolean compile(String classPath, File outputFolder, File file) {
-		return Command.execute("javac" +
-				" -cp " + classPath + 
-				" -d " + outputFolder.getPath() +
-				" " + file.getPath());
+		return Command.execute(new String[]{"javac",
+				// adds debugging information for remote debugging
+				"-g:source,lines,vars",
+				"-cp " + classPath,
+				"-d " + outputFolder.getPath(),
+				file.getPath()});
 	}
 	
 	/**
@@ -19,17 +24,19 @@ public class JavaCompiler {
 	 */
 	public static boolean compileFolder(String classPath, File outputFolder, File folder) {
 		
-		StringBuilder sb = new StringBuilder("javac" +
-				" -cp " + classPath + 
-				" -d " + outputFolder.getPath());
+		List<String> command = new ArrayList<String>(Arrays.asList("javac",
+				// adds debugging information for remote debugging
+				"-g:source,lines,vars",
+				"-cp", classPath,
+				"-d", outputFolder.getPath()));
 
 		Iterator<String> it = FileSystem.getNestedFiles(folder.getPath()).iterator();
 		while (it.hasNext()) {
 			String file = it.next();
 			if (file.endsWith(".java"))
-				sb.append(" " + file);
+				command.add(file);
 		}
 		
-		return Command.execute(sb.toString());
+		return Command.execute(command.toArray(new String[command.size()]));
 	}
 }

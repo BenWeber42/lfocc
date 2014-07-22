@@ -32,7 +32,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	private ParserGenerator parserGenerator;
 	private File outputFolder = null;
 	private File srcFolder = null;
-	private File parserFolder = null;
+	private File grammarFolder = null;
 	private File binFolder = null;
 	private String currentFeature = null; // relevant for the FeatureHelper interface
 	private List<String> currentFeatureConfiguration = null;
@@ -120,8 +120,11 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 			outputFolder = FileSystem.createFolder("compilers/" +
 					cfg.name()
 					+ "/").toFile();
-			srcFolder = FileSystem.createFolder(outputFolder.getPath() + "/src/").toFile();
-			parserFolder = FileSystem.createFolder(srcFolder.getPath() + "/parser").toFile();
+			srcFolder = FileSystem.createFolder(outputFolder.getPath() + "/src/lfocc/compilers/" + cfg.name() + "/").toFile();
+			FileSystem.createFolder(srcFolder.getPath() + "/application/").toFile();
+			FileSystem.createFolder(srcFolder.getPath() + "/options/").toFile();
+			FileSystem.createFolder(srcFolder.getPath() + "/parser/").toFile();
+			grammarFolder = FileSystem.createFolder(outputFolder.getPath() + "/grammar").toFile();
 			binFolder = FileSystem.createFolder(outputFolder.getPath()+ "/bin").toFile();
 		} catch (IOException e) {
 			Logger.error("Failed to setup output folder due to");
@@ -140,6 +143,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	}
 	
 	private void generateCompiler() {
+		// FIXME: this has become obsolete, but may be relevant in the future
 		// copy runtime & infrastructure
 		if (!FileSystem.copyAll(
 				FileSystem.getFiles("framework/lfocc/framework/compiler/"),
@@ -152,8 +156,8 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		// generate files:
 		try {
 			FileSystem.writeTo(generateMainFile(), srcFolder.getPath() + "/Main.java");
-			FileSystem.writeTo(generateApplicationFile(), srcFolder.getPath() + "/Application.java");
-			FileSystem.writeTo(options.generate(cfg.name()), srcFolder.getPath() + "/Options.java");
+			FileSystem.writeTo(generateApplicationFile(), srcFolder.getPath() + "/application/Application.java");
+			FileSystem.writeTo(options.generate(cfg.name()), srcFolder.getPath() + "/options/Options.java");
 		} catch (IOException e1) {
 			Logger.error("Failed to write main files!");
 			e1.printStackTrace();
@@ -162,13 +166,13 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		
 		// parser generator:
 		try {
-			parserGenerator.copyTo(parserFolder);
+			parserGenerator.copyTo(grammarFolder);
 		} catch (IOException e) {
 			Logger.error("Failed to copy parser grammar to output folder!");
 			e.printStackTrace();
 			exit(-1);
 		}
-		if (!parserGenerator.generate(parserFolder)) {
+		if (!parserGenerator.generate(grammarFolder, new File(srcFolder, "/parser/"))) {
 			Logger.error("Failed to generate parser!");
 			exit(-1);
 		}
