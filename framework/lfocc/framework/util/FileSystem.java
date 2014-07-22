@@ -21,6 +21,7 @@ public class FileSystem {
 	
 	public static void writeTo(String src, String destination) throws IOException {
 		File dest = new File(destination);
+
 		if (!dest.exists())
 			dest.createNewFile();
 		
@@ -34,25 +35,20 @@ public class FileSystem {
 	 * 
 	 * Note: If `to` is a folder, the file will be copied into that folder.
 	 */
-	public static boolean copy(String from, String to, boolean replace) {
-		try {
-			File _to = new File(to);
-			File _from = new File(from);
+	public static void copy(String from, String to, boolean replace) throws IOException {
+		File _to = new File(to);
+		File _from = new File(from);
 
-			if (_to.isDirectory()) {
-				_to = new File(_to, _from.getName());
-			}
-			
-			if (replace) {
-				Files.copy(_from.toPath(), _to.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			} else {
-				
-				Files.copy(_from.toPath(), _to.toPath());
-			}
-		} catch (IOException e) {
-			return false;
+		if (_to.isDirectory()) {
+			_to = new File(_to, _from.getName());
 		}
-		return true;
+		
+		if (replace) {
+			Files.copy(_from.toPath(), _to.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} else {
+			
+			Files.copy(_from.toPath(), _to.toPath());
+		}
 	}
 	
 	/**
@@ -60,19 +56,20 @@ public class FileSystem {
 	 * 
 	 * Warning: replaces existing files!
 	 */
-	public static boolean copy(String from, String to) {
-		return copy(from, to, true);
+	public static void copy(String from, String to) throws IOException {
+		copy(from, to, true);
 	}
 	
 	/**
 	 * Issues copy on all files.
+	 * @throws IOException 
 	 */
-	public static boolean copyAll(List<String> fromFiles, String toFolder) {
+	public static boolean copyAll(List<String> fromFiles, String toFolder) throws IOException {
 		
 		Iterator<String> it = fromFiles.iterator();
 		boolean status = true;
 		while (it.hasNext()) {
-			status &= copy(it.next(), toFolder);
+			copy(it.next(), toFolder);
 		}
 		
 		return status;
@@ -81,30 +78,24 @@ public class FileSystem {
 	/**
 	 * Moves file from `target` to `destination`
 	 */ 
-	public static boolean move(String target, String destination, boolean replace) {
+	public static void move(String target, String destination, boolean replace) throws IOException {
 		File from = new File(target);
 		File to = new File(destination);
 		
 		if (to.isDirectory())
 			to = new File(to, from.getName());
 		
-		try {
-			if (replace)
-				Files.move(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			else
-				Files.move(from.toPath(), to.toPath());
-		} catch (IOException e) {
-			return false;
-		}
-		
-		return true;
+		if (replace)
+			Files.move(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		else
+			Files.move(from.toPath(), to.toPath());
 	}
 	
 	/**
 	 * Same as move(target, destination, true)
 	 */
-	public static boolean move(String target, String destination) {
-		return move(target, destination, true);
+	public static void move(String target, String destination) throws IOException {
+		move(target, destination, true);
 	}
 
 	/**

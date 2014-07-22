@@ -2,6 +2,7 @@ package lfocc.framework.application;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,11 +33,13 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	private ParserGenerator parserGenerator;
 	private File outputFolder = null;
 	private File srcFolder = null;
+	private File packageFolder = null;
 	private File grammarFolder = null;
 	private File binFolder = null;
 	private String currentFeature = null; // relevant for the FeatureHelper interface
 	private List<String> currentFeatureConfiguration = null;
 	private Options options = new Options();
+	private List<SourceFile> sources = new ArrayList<SourceFile>();
 	
 	public Application(String[] args) {
 		this.args = args;
@@ -120,10 +123,11 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 			outputFolder = FileSystem.createFolder("compilers/" +
 					cfg.name()
 					+ "/").toFile();
-			srcFolder = FileSystem.createFolder(outputFolder.getPath() + "/src/lfocc/compilers/" + cfg.name() + "/").toFile();
-			FileSystem.createFolder(srcFolder.getPath() + "/application/").toFile();
-			FileSystem.createFolder(srcFolder.getPath() + "/options/").toFile();
-			FileSystem.createFolder(srcFolder.getPath() + "/parser/").toFile();
+			srcFolder = FileSystem.createFolder(outputFolder.getPath() + "/src/").toFile();
+			packageFolder = new File(srcFolder, "/lfocc/compilers/" + cfg.name() + "/");
+			FileSystem.createFolder(packageFolder.getPath() + "/application/").toFile();
+			FileSystem.createFolder(packageFolder.getPath() + "/options/").toFile();
+			FileSystem.createFolder(packageFolder.getPath() + "/parser/").toFile();
 			grammarFolder = FileSystem.createFolder(outputFolder.getPath() + "/grammar").toFile();
 			binFolder = FileSystem.createFolder(outputFolder.getPath()+ "/bin").toFile();
 		} catch (IOException e) {
@@ -145,22 +149,47 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	private void generateCompiler() {
 		// FIXME: this has become obsolete, but may be relevant in the future
 		// copy runtime & infrastructure
-		if (!FileSystem.copyAll(
-				FileSystem.getFiles("framework/lfocc/framework/compiler/"),
-				srcFolder.getPath())) {
-			
+		try {
+			List<String> runtime = FileSystem.getNestedFiles("framework/lfocc/framework/compiler/");
+			Iterator<String> r = runtime.iterator();
+			while (r.hasNext()) {
+				String file = r.next();
+				String target = srcFolder.getPath() + "/lfocc/framework/compiler/" +
+						file.replace("lfocc/framework/compiler/", "");
+				String folder = (new File(target)).getParent();
+				FileSystem.createFolder(folder);
+				FileSystem.copy(file, target);
+			}
+		} catch (IOException e2) {
 			Logger.error("Failed to copy compiler runtime to output folder!");
+			e2.printStackTrace();
 			exit(-1);
 		}
+			
 		
 		// generate files:
 		try {
-			FileSystem.writeTo(generateMainFile(), srcFolder.getPath() + "/Main.java");
-			FileSystem.writeTo(generateApplicationFile(), srcFolder.getPath() + "/application/Application.java");
-			FileSystem.writeTo(options.generate(cfg.name()), srcFolder.getPath() + "/options/Options.java");
+			FileSystem.writeTo(generateMainFile(), packageFolder.getPath() + "/Main.java");
+			FileSystem.writeTo(generateApplicationFile(), packageFolder.getPath() + "/application/Application.java");
+			FileSystem.writeTo(options.generate(cfg.name()), packageFolder.getPath() + "/options/Options.java");
 		} catch (IOException e1) {
 			Logger.error("Failed to write main files!");
 			e1.printStackTrace();
+			exit(-1);
+		}
+		
+		// copy sources:
+		try {
+			Iterator<SourceFile> s = sources.iterator();
+			while (s.hasNext()) {
+				SourceFile source = s.next();
+				String folder = srcFolder.toPath() + "/" + source.getPackage().replace(".", "/") + "/";
+				FileSystem.createFolder(folder);
+				FileSystem.copy(source.getFile().getPath(), folder + source.getFile().getName());
+			}
+		} catch (IOException e) {
+			Logger.error("Failed to copy source files to output folder!");
+			e.printStackTrace();
 			exit(-1);
 		}
 		
@@ -172,7 +201,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 			e.printStackTrace();
 			exit(-1);
 		}
-		if (!parserGenerator.generate(grammarFolder, new File(srcFolder, "/parser/"))) {
+		if (!parserGenerator.generate(grammarFolder, new File(packageFolder, "/parser/"))) {
 			Logger.error("Failed to generate parser!");
 			exit(-1);
 		}
@@ -272,8 +301,8 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		///////////////////////////////////////////////////////////////////////
 		// error(int start, int end, int line, String s)
 		///////////////////////////////////////////////////////////////////////
-		src += "   public void error(int start, int end, int line, String s) {\n";
-		src += "      System.out.println(String.format(\"Parser Failure on line %d from %d to %d ('%s')!\", line, start, end, s));\n";
+		src += "   public void error(int line, String s) {\n";
+		src += "      System.out.println(String.format(\"Parser Failure on line %d ('%s')!\", line, s));\n";
 		src += "      System.exit(-1);\n";
 		src += "   }\n";
 		src += "   \n";
@@ -341,6 +370,38 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	@Override
 	public ParserGenerator getParserGenerator() {
 		return parserGenerator;
+	}
+
+	@Override
+	public void addSource(String _package, File file) {
+		sources.add(new SourceFile(_package, file));
+	}
+	
+	private static class SourceFile {
+
+		private String _package;
+		private File file;
+		
+		public SourceFile(String _package, File file) {
+			this._package = _package;
+			this.file = file;
+		}
+
+		public String getPackage() {
+			return _package;
+		}
+
+		public void setPackage(String _package) {
+			this._package = _package;
+		}
+
+		public File getFile() {
+			return file;
+		}
+
+		public void setFile(File file) {
+			this.file = file;
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////

@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import lfocc.framework.util.Command;
@@ -22,6 +24,7 @@ public class ParserGenerator {
 	Map<String, String> tokens = new HashMap<String, String>();
 	Map<String, String> tokenReturnTypes = new HashMap<String, String>();
 	Map<Integer, List<String>> precedence = new TreeMap<Integer, List<String>>();
+	Set<String> imports = new HashSet<String>();
 	String name;
 	
 	public ParserGenerator(String name) {
@@ -55,6 +58,10 @@ public class ParserGenerator {
 		precedence.get(level).add(name);
 	}
 	
+	public void addImport(String _import) {
+		imports.add(_import);
+	}
+	
 	public boolean hasRootRule() {
 		return root != null;
 	}
@@ -69,32 +76,7 @@ public class ParserGenerator {
 	 * Copies all grammars to `path` and creates the root grammar there too.
 	 */
 	public void copyTo(File path) throws IOException {
-		
-		StringBuilder sb = new StringBuilder();
-		
-		Iterator<String> it = parserGrammar.keySet().iterator();
-		while (it.hasNext()) {
-			String feature = it.next();
-			Iterator<String> src = parserGrammar.get(feature).iterator();
-			
-			if (src.hasNext()) {
-				sb.append(String.format(
-						"\n" +
-						"############################################################\n" +
-						"# Added by feature '%s'\n" +
-						"############################################################\n\n\n",
-						feature));
-				
-				while (src.hasNext()) {
-					sb.append(src.next());
-					sb.append("\n");
-				}
-			}
-		}
-
-		sb.insert(0, generateRootParser());
-		FileSystem.writeTo(sb.toString(), path.toString() + "/" + name + ".s");
-		
+		FileSystem.writeTo(generateParser(), path.toString() + "/" + name + ".s");
 	}
 	
 	public boolean generate(File path, File target) {
@@ -103,7 +85,7 @@ public class ParserGenerator {
 		// TODO: lapg doesn't seem to respect the -o flag
 		CommandOutput output = Command.executeWithOutput(new String[]{
 				"java", "-jar", "./lib/lapg-1.3.10.jar",
-				//" -o " + path.getPath() +
+				//"-o", path.getPath(),
 				path.getPath() + "/" + name + ".s"
 				});
 		
@@ -136,15 +118,26 @@ public class ParserGenerator {
 		}
 		
 		// because lapg doesn't respect the -o flag, we need to manually move it
-		if (!FileSystem.move(name + "Parser.java", target.getPath()))
+		try {
+			FileSystem.move(name + "Parser.java", target.getPath());
+		FileSystem.move(name + "Lexer.java", target.getPath());
+		} catch (IOException e) {
+			Logger.warning("Failed to copy lexer or parser to output folder!");
+			e.printStackTrace();
 			return false;
-		if (!FileSystem.move(name + "Lexer.java", target.getPath()))
-			return false;
+		}
 		
 		return true;
 	}
 	
-	private String generateRootParser() {
+	private String generateParser() {
+
+		StringBuilder sb = new StringBuilder();
+
+		///////////////////////////////////////////////////////////////////////
+		// Prefix
+		///////////////////////////////////////////////////////////////////////
+
 		String src = "";
 
 		src += "############################################################\n";
@@ -156,8 +149,8 @@ public class ParserGenerator {
 		src += "prefix = \"" + name + "\"\n";
 		src += "lang = \"java\"\n";
 		src += "package = \"lfocc.compilers." + name + ".parser\"\n";
-		src += "positions = \"line,offset\"\n";
-		src += "endpositions = \"offset\"\n";
+		src += "positions = \"line,column\"\n";
+		src += "endpositions = \"column\"\n";
 		src += "stack = 4096\n";
 		src += "\n";
 		src += "# Tokens\n";
@@ -179,6 +172,10 @@ public class ParserGenerator {
 		src += "\n";
 		src += "# Grammar\n";
 		src += "\n";
+
+		///////////////////////////////////////////////////////////////////////
+		// Grammars
+		///////////////////////////////////////////////////////////////////////
 		
 		Iterator<List<String>> _it = precedence.values().iterator();
 		while (_it.hasNext()) {
@@ -195,7 +192,48 @@ public class ParserGenerator {
 		src += "input ::= " +  root + " ;\n";
 		src += "\n";
 		
-		return src;
+		sb.append(src);
 		
+		Iterator<String> f = parserGrammar.keySet().iterator();
+		while (f.hasNext()) {
+			String feature = f.next();
+			Iterator<String> grammar = parserGrammar.get(feature).iterator();
+			
+			if (grammar.hasNext()) {
+				sb.append(String.format(
+						"\n" +
+						"############################################################\n" +
+						"# Added by feature '%s'\n" +
+						"############################################################\n\n\n",
+						feature));
+				
+				while (grammar.hasNext()) {
+					sb.append(grammar.next());
+					sb.append("\n");
+				}
+			}
+		}	
+
+		///////////////////////////////////////////////////////////////////////
+		// Sources
+		///////////////////////////////////////////////////////////////////////
+		
+		if (imports.isEmpty())
+			return sb.toString();
+
+		src = "";
+		src += "\n";
+		src += "%%\n";
+		src += "\n";
+
+		src += "${template java.imports-}\n";
+		Iterator<String> _import = imports.iterator();
+		while (_import.hasNext())
+			src += "import " + _import.next() + ";\n";
+		src += "${end}\n";
+		
+		sb.append(src);
+
+		return sb.toString();
 	}
 }

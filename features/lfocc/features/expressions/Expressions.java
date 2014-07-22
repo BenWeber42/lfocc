@@ -1,5 +1,6 @@
 package lfocc.features.expressions;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,6 +28,7 @@ public class Expressions extends MultiExtendable {
 	
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
+		// Lexems
 		cg.getParserGenerator().addParserSource(getName(), generateSource());
 		cg.getParserGenerator().addToken("'+'", "/\\+/");
 		cg.getParserGenerator().addToken("'-'", "/\\-/");
@@ -47,19 +49,58 @@ public class Expressions extends MultiExtendable {
 		cg.getParserGenerator().addPrecedence("'*' '/' '%' '&&'", 2);
 		cg.getParserGenerator().addPrecedence("'!'", 3);
 
-		cg.getParserGenerator().addToken("integer", "/0|[1-9][0-9]*|0x[a-fA-F0-9]+/");
-		cg.getParserGenerator().addToken("float", "/(0|[1-9][0-9]*)\\.[0-9]+/");
-		cg.getParserGenerator().addToken("boolean", "/true|false/");
+		// FIXME: integer should also parse negative integers!
+		cg.getParserGenerator().addToken("integer", "String", "/0|[1-9][0-9]*/   { $lexem = current(); break; }");
+		cg.getParserGenerator().addToken("hex", "String", "/0x[a-fA-F0-9]+/   { $lexem = current().substring(2); break; }");
+		cg.getParserGenerator().addToken("float", "String", "/(0|[1-9][0-9]*)\\.[0-9]+/ { $lexem = current(); break; }");
+		cg.getParserGenerator().addToken("boolean", "String", "/true|false/ { $lexem = current(); break; }");
+		
+		// Sources
+		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/Expression.java"));
+		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/IntConst.java"));
+		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/FloatConst.java"));
+		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/BooleanConst.java"));
+		
+		// imports:
+		cg.getParserGenerator().addImport("lfocc.features.expressions.ast.*");
+		cg.getParserGenerator().addImport("java.lang.NumberFormatException");
 	}
 
 	private String generateSource() {
 		String src = "";
 		
-		src += "expression ::=\n";
+		src += "expression (Expression) ::=\n";
 		src += "   '(' expression ')'\n";
+		src += "\n";
 		src += "   | integer\n";
+		src += "   {\n";
+		src += "      try { $$ = new IntConst(Integer.parseInt($integer)); }\n";
+		src += "      catch (NumberFormatException e) {\n";
+		src += "         reporter.error(${expression.line}, String.format(\"Invalid integer '%s'!\", $integer));\n";
+		src += "      }\n";
+		src += "   }\n";
+		src += "\n";
+		src += "   | hex\n";
+		src += "   {\n";
+		src += "      try { $$ = new IntConst(Integer.parseInt($hex, 16)); }\n";
+		src += "      catch (NumberFormatException e) {\n";
+		src += "         reporter.error(${expression.line}, String.format(\"Invalid integer '%s'!\", $hex));\n";
+		src += "      }\n";
+		src += "   }\n";
+		src += "\n";
 		src += "   | float\n";
+		src += "   {\n";
+		src += "      try { $$ = new FloatConst(Float.parseFloat($float)); }\n";
+		src += "      catch (NumberFormatException e) {\n";
+		src += "         reporter.error(${expression.line}, String.format(\"Invalid float '%s'!\", $float));\n";
+		src += "      }\n";
+		src += "   }\n";
+		src += "\n";
 		src += "   | boolean\n";
+		src += "   {\n";
+		src += "      $$ = new BooleanConst();\n";
+		src += "   }\n";
+		src += "\n";
 		src += "   | expression '+' expression\n";
 		src += "   | expression '-' expression\n";
 		src += "   | expression '*' expression\n";
