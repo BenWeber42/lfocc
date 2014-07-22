@@ -42,7 +42,7 @@ do
 
     echo -n "Testcase $testcase... "
 
-    output=$(java -cp compilers/$language/bin lfocc.compilers.$language.Main $testcase $testcase.out)
+    output=$(java -cp compilers/$language/bin lfocc.compilers.$language.Main $testcase $testcase.out 2>&1)
 
     if [ $? -ne 0 ]
     then

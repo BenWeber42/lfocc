@@ -4,18 +4,18 @@ languages="none"
 
 if [ $# -eq 0 ]
 then
-    languages=$(ls compilers)
+    languages=$(ls configs)
 else
     languages=$1
 fi
 
 for language in $languages
 do
-    rm -r compilers/$language > /dev/null
+    rm -r compilers/$language 2> /dev/null
 
     echo -n "Generating language $language ... "
 
-    output=$(java -cp bin lfocc.framework.Main configs/$language/Configuration.xml)
+    output=$(java -cp bin lfocc.framework.Main configs/$language/Configuration.xml 2>&1)
 
     if [ $? -ne 0 ]
     then
