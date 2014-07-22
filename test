@@ -40,13 +40,13 @@ do
 
     language=$(echo $testcase | awk -F'/' '{ print $2 }')
 
-    echo -n "Testcase $testcase... "
+    echo -n "Testcase $testcase ... "
 
     output=$(java -cp compilers/$language/bin lfocc.compilers.$language.Main $testcase $testcase.out 2>&1)
 
     if [ $? -ne 0 ]
     then
-        echo "FAILURE"
+        echo "FAILURE!"
         echo "$output"
         fail=$((fail+1))
         if [ $single = "no" ]
@@ -54,7 +54,7 @@ do
             echo $testcase >> fails
         fi
     else
-        echo "OK"
+        echo "OK!"
         pass=$((pass+1))
     fi
     total=$((total+1))

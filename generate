@@ -22,6 +22,6 @@ do
         echo "FAILURE!"
         echo "$output"
     else
-        echo "SUCCESS!"
+        echo "OK!"
     fi
 done
