@@ -16,7 +16,7 @@ import lfocc.framework.util.XML;
 public class LanguageConfigurationLoader {
 	
 	public static final String LANGUAGE_CONFIGURATION_SCHEMA = 
-			"configs/schema.xsd";
+			"framework/lfocc/framework/config/schema.xsd";
 	
 	private GlobalConfiguration globalConfig = null;
 	private Map<String, File> featureConfigurations = null;
