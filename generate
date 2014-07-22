@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+languages="none"
+
+if [ $# -eq 0 ]
+then
+    languages=$(ls compilers)
+else
+    languages=$1
+fi
+
+for language in $languages
+do
+    rm -r compilers/$language > /dev/null
+
+    echo -n "Generating language $language ... "
+
+    output=$(java -cp bin lfocc.framework.Main configs/$language/Configuration.xml)
+
+    if [ $? -ne 0 ]
+    then
+        echo "FAILURE!"
+        echo "$output"
+    else
+        echo "SUCCESS!"
+    fi
+done

@@ -1,0 +1,64 @@
+#!/usr/bin/env sh
+
+testcases="none"
+single="no"
+
+if [ $# -eq 0 ]
+then
+    echo "Doing all testcases."
+    testcases=$(find tests -name "*.lang")
+
+    # reset fails
+    echo -n > fails
+elif [ $1 = "fails" ]
+then
+    if [ -e fails ]
+    then
+        echo "Doing only failed testcases."
+        testcases=$(cat fails)
+    else
+        echo "Couldn't find fails file! Doing all testcases."
+        testcases=$(find tests -name "*.lang")
+    fi
+
+    # reset fails
+    echo -n > fails
+else
+    echo "Doing testcases $testcases."
+    single="yes"
+    testcases=$1
+fi
+
+
+pass=0
+fail=0
+total=0
+
+# go over all testcases:
+for testcase in $testcases
+do
+
+    language=$(echo $testcase | awk -F'/' '{ print $2 }')
+
+    echo -n "Testcase $testcase... "
+
+    output=$(java -cp compilers/$language/bin lfocc.compilers.$language.Main $testcase $testcase.out)
+
+    if [ $? -ne 0 ]
+    then
+        echo "FAILURE"
+        echo "$output"
+        fail=$((fail+1))
+        if [ $single = "no" ]
+        then
+            echo $testcase >> fails
+        fi
+    else
+        echo "OK"
+        pass=$((pass+1))
+    fi
+    total=$((total+1))
+done
+
+echo
+echo "Finished ($fail failed, $pass passed, $total in total)"
