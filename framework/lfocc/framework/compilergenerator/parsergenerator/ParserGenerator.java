@@ -158,6 +158,7 @@ public class ParserGenerator {
 		src += "package = \"lfocc.compilers." + name + ".parser\"\n";
 		src += "positions = \"line,offset\"\n";
 		src += "endpositions = \"offset\"\n";
+		src += "stack = 4096\n";
 		src += "\n";
 		src += "# Tokens\n";
 		src += "\n";

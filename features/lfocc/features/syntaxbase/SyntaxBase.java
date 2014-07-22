@@ -17,8 +17,11 @@ public class SyntaxBase extends Feature {
 		cg.getParserGenerator().addToken("','", "/,/");
 		cg.getParserGenerator().addToken("whitespace", "/[\\n\\r\\t ]+/ { return false; }");
 		// TODO: add configuration
-		// FIXME: allow multi line comments to parse '/************/' and '/**/'
-		cg.getParserGenerator().addToken("multi_line_comment", "/\\/\\*+((([^\\*])+)|([\\*]+(?!\\/)))[*]+\\// { return false; }");
+		// parses C++ style one line comments ( // ... )
 		cg.getParserGenerator().addToken("single_line_comment", "/\\/\\/[^\\n]*/ { return false; }");
+		// parses C++ style multi line comments ( /* .. */ ), can't parse /***/
+		cg.getParserGenerator().addToken("multi_line_comment", "/\\/\\*+((([^\\*])+)|([\\*]+(?!\\/)))[*]+\\// { return false; }");
+		// parses C++ style multi line comments special case /****/
+		cg.getParserGenerator().addToken("multi_line_comment2", "/\\/\\*[*]+\\// { return false; }");
 	}
 }

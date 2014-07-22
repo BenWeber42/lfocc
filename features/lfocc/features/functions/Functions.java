@@ -109,7 +109,7 @@ public class Functions extends MultiExtendable {
 		cg.getParserGenerator().addToken("'return'", "/return/");
 	}
 	
-	public String generateFunctionGrammar(FrameworkInterface framework) {
+	private String generateFunctionGrammar(FrameworkInterface framework) {
 		String src = "";
 		src += "functionDeclaration ::=\n";
 		src += "   identifier identifier '(' parameterDeclaration ')' '{' codeBlock '}'\n";
@@ -148,7 +148,7 @@ public class Functions extends MultiExtendable {
 		return src;
 	}
 	
-	public String generateReturnGrammar() {
+	private String generateReturnGrammar() {
 		String src = "";
 		if (returnValue) {
 			src += "returnStmt ::= 'return' expression ';' ;\n";

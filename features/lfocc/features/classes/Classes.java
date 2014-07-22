@@ -50,6 +50,16 @@ public class Classes extends SingleExtendable {
 					services.getService("Expressions", "ExpressionExtender");
 
 			extender.addSyntaxRule("'new' identifier '(' ')'");
+
+			/*
+			 * This should be a cast, better would be:
+			 * '(' identfier ')' expression
+			 * but that would require a LALR(2) parser generator, but lapg
+			 * is a LALR(1) parser generator (I believe that's the reason)
+			 */
+
+			// TODO: add check to make sure expression is an identifier!
+			extender.addSyntaxRule("'(' expression ')' expression");
 		}
 	}
 
@@ -62,8 +72,11 @@ public class Classes extends SingleExtendable {
 			cg.getParserGenerator().addToken("'.'", "/\\./");
 			cg.getParserGenerator().addPrecedence("'.'", 4);
 		}
-		if (cg.hasFeature("Expressions"))
+		if (cg.hasFeature("Expressions")) {
 			cg.getParserGenerator().addToken("'new'", "/new/");
+			// set associativity of cast operator:
+			cg.getParserGenerator().addPrecedence("')'", -1);
+		}
 		cg.getParserGenerator().addParserSource(getName(), generateParserSource());
 		
 	}

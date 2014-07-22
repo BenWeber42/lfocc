@@ -9,6 +9,7 @@ import org.w3c.dom.Document;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.FrameworkInterface;
 import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.feature.service.ExtenderService;
 import lfocc.framework.util.XML;
@@ -97,27 +98,29 @@ public class Variables extends Feature {
 		if (classMembers) {
 			ExtenderService extender = (ExtenderService) services.getService("Classes", "Extender");
 			extender.addSyntaxRule("variableDeclaration ';' ");
-			
-			if (services.hasFeature("Expressions")) {
-				extender = (ExtenderService) services.getService("Expressions", "ExpressionExtender");
-				extender.addSyntaxRule("expression '.' variableUse");
-				extender = (ExtenderService) services.getService("Expressions", "AssignableExpressionExtender");
-				extender.addSyntaxRule("expression '.' variableUse");
-			}
 		}
 	}
 	
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		
-		cg.getParserGenerator().addParserSource(getName(), generateParserSource());
+		cg.getParserGenerator().addParserSource(getName(), generateParserSource(cg));
 	}
 	
-	private String generateParserSource() {
+	private String generateParserSource(FrameworkInterface framework) {
 		String src = "";
-		src += "variableDeclaration ::= identifier identifier ;\n";
+		src += "variableDeclaration ::= identifier _variableDeclaration ;\n";
 		src += "\n";
-		src += "variableUse ::= identifier ;\n";
+		src += "_variableDeclaration ::= \n";
+		src += "   identifier\n";
+		src += "   | identifier ',' _variableDeclaration\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "variableUse ::= \n";
+		src += "   identifier\n";
+		if (classMembers && framework.hasFeature("Expressions"))
+			src += "   | expression '.' identifier\n";
+		src += "   ;\n";
 		src += "\n";
 		src += "variableParameterDeclaration ::= \n";
 		src += "   # empty\n";
