@@ -147,7 +147,6 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	}
 	
 	private void generateCompiler() {
-		// FIXME: this has become obsolete, but may be relevant in the future
 		// copy runtime & infrastructure
 		try {
 			List<String> runtime = FileSystem.getNestedFiles("framework/lfocc/framework/compiler/");
@@ -155,7 +154,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 			while (r.hasNext()) {
 				String file = r.next();
 				String target = srcFolder.getPath() + "/lfocc/framework/compiler/" +
-						file.replace("lfocc/framework/compiler/", "");
+						file.replace("framework/lfocc/framework/compiler/", "");
 				String folder = (new File(target)).getParent();
 				FileSystem.createFolder(folder);
 				FileSystem.copy(file, target);
