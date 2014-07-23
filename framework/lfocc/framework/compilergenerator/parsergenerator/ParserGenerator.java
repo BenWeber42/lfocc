@@ -98,17 +98,18 @@ public class ParserGenerator {
 		}
 		
 		// FIXME: improve detection of conflicts
-		boolean conflict = false;
+		boolean error = false;
 		Iterator<String> it = output.output().iterator();
 		while (it.hasNext()) {
-			if (it.next().contains("conflict")) {
-				conflict = true;
+			String line = it.next();
+			if (line.contains("conflict") || line.contains("error")) {
+				error = true;
 				break;
 			}
 		}
 
-		if (conflict) {
-			Logger.warning("Grammar contains conflicts!");
+		if (error) {
+			Logger.warning("Grammar contains errors!");
 
 			it = output.output().iterator();
 			while (it.hasNext())
