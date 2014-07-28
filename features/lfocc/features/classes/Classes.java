@@ -49,35 +49,61 @@ public class Classes extends SingleExtendable {
 			extender = (ExtenderService)
 					services.getService("Expressions", "ExpressionExtender");
 
-			extender.addSyntaxRule("'new' identifier '(' ')'");
+			extender.addSyntaxRule(
+					"'new' identifier '(' ')'" +
+					"   {\n" +
+					"      $$ = new NewOperator($identifier);\n" +
+					"   }\n"
+					);
 
 			/*
-			 * This should be a cast, better would be:
-			 * '(' identfier ')' expression
-			 * but that would require a LALR(2) parser generator, but lapg
-			 * is a LALR(1) parser generator (I believe that's the reason)
+			 * Due to limitations of the LALR(1) parser and to keep it simple
+			 * we'll use a special syntax for casts.
 			 */
-
-			// TODO: add check to make sure expression is an identifier!
-			extender.addSyntaxRule("'(' expression ')' expression");
+			
+			extender.addSyntaxRule(
+					"'cast' '<' identifier '>' expression\n" +
+				    "   {\n" +
+				    "      $$ = new CastExpression($identifier, $expression#1);\n" +
+				    "   }\n"
+					);
+			
+			extender.addSyntaxRule(
+					"'null'\n" +
+				    "   {\n" +
+				    "      $$ = new NullExpression();\n" +
+				    "   }\n"
+					);
+			
 		}
 	}
 
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		cg.getParserGenerator().addToken("'class'", "/class/");
+
 		if (inheritance)
 			cg.getParserGenerator().addToken("'extends'", "/extends/");
+
 		if (!objectMemberExtender.isEmpty()) {
 			cg.getParserGenerator().addToken("'.'", "/\\./");
 			cg.getParserGenerator().addPrecedence("'.'", 4);
 		}
+
 		if (cg.hasFeature("Expressions")) {
 			cg.getParserGenerator().addToken("'new'", "/new/");
-			// set associativity of cast operator:
-			cg.getParserGenerator().addPrecedence("')'", -1);
+			// expressions will register '<' and '>'
+			cg.getParserGenerator().addToken("'cast'", "/cast/");
+			cg.getParserGenerator().addToken("'null'", "/null/");
 		}
+
 		cg.getParserGenerator().addParserSource(getName(), generateParserSource());
+		
+		cg.getParserGenerator().addImport("lfocc.features.classes.ast.*");
+
+		cg.addSource("lfocc.features.classes.ast", new File("features/lfocc/features/classes/ast/CastExpression.java"));
+		cg.addSource("lfocc.features.classes.ast", new File("features/lfocc/features/classes/ast/NewOperator.java"));
+		cg.addSource("lfocc.features.classes.ast", new File("features/lfocc/features/classes/ast/NullExpression.java"));
 		
 	}
 	

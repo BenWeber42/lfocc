@@ -1,6 +1,6 @@
 package lfocc.features.expressions.ast;
 
-import lfocc.framework.compiler.ir.ASTLeafNode;
+import lfocc.framework.compiler.ast.ASTLeafNode;
 
 public class FloatConst extends ASTLeafNode implements Expression {
 	

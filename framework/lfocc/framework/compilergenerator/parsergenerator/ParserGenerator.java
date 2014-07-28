@@ -99,6 +99,9 @@ public class ParserGenerator {
 		
 		// FIXME: improve detection of conflicts
 		boolean error = false;
+		if (output.output().size() > 1)
+			error = true;
+		
 		Iterator<String> it = output.output().iterator();
 		while (it.hasNext()) {
 			String line = it.next();

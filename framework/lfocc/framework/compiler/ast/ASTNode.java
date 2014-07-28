@@ -1,4 +1,4 @@
-package lfocc.framework.compiler.ir;
+package lfocc.framework.compiler.ast;
 
 import java.util.List;
 

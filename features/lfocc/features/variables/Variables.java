@@ -85,12 +85,22 @@ public class Variables extends Feature {
 			ExtenderService extender = (ExtenderService) services.getService("Functions", "DeclarationExtender");
 			extender.addSyntaxRule("variableParameterDeclaration");
 			extender = (ExtenderService) services.getService("Functions", "CallExtender");
-			extender.addSyntaxRule("variableParameterExpression");
+			extender.addSyntaxRule("variableParameterExpression" +
+					"   {\n" +
+					"      $$ = $variableParameterExpression;\n" +
+					"   }\n"
+					);
 		}
 
 		if (services.hasFeature("Expressions")) {
 			ExtenderService extender = (ExtenderService) services.getService("Expressions", "ExpressionExtender");
-			extender.addSyntaxRule("variableUse");
+			extender.addSyntaxRule(
+					"variableUse\n" +
+					"   {\n" +
+					"   	$$ = $variableUse; \n" +
+					"   }\n"
+					);
+			// FIXME: this should only be registered if assignments (statements) are activated!
 			extender = (ExtenderService) services.getService("Expressions", "AssignableExpressionExtender");
 			extender.addSyntaxRule("variableUse");
 		}
@@ -105,6 +115,11 @@ public class Variables extends Feature {
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		
 		cg.getParserGenerator().addParserSource(getName(), generateParserSource(cg));
+
+		cg.addSource("lfocc.features.variables.ast", new File("features/lfocc/features/variables/ast/Variable.java"));
+		cg.addSource("lfocc.features.variables.ast", new File("features/lfocc/features/variables/ast/Attribute.java"));
+
+		cg.getParserGenerator().addImport("lfocc.features.variables.ast.*");
 	}
 	
 	private String generateParserSource(FrameworkInterface framework) {
@@ -116,10 +131,18 @@ public class Variables extends Feature {
 		src += "   | identifier ',' _variableDeclaration\n";
 		src += "   ;\n";
 		src += "\n";
-		src += "variableUse ::= \n";
+		src += "variableUse (Expression) ::= \n";
 		src += "   identifier\n";
-		if (classMembers && framework.hasFeature("Expressions"))
+		src += "   {\n";
+		src += "      $$ = new Variable($identifier); \n";
+		src += "   }\n";
+		if (classMembers && framework.hasFeature("Expressions")) {
 			src += "   | expression '.' identifier\n";
+			src += "   {\n";
+			src += "      $$ = new Attribute($expression, $identifier); \n";
+			src += "   }\n";
+		}
+		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
 		src += "variableParameterDeclaration ::= \n";
@@ -136,14 +159,30 @@ public class Variables extends Feature {
 		src += "   identifier identifier\n";
 		src += "   ;\n";
 		src += "\n";
-		src += "variableParameterExpression ::=\n";
+		src += "variableParameterExpression (List<Expression>) ::=\n";
 		src += "   # empty\n";
+		src += "   {\n";
+		src += "      $$ = new ArrayList<Expression>();\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   | _variableParameterExpression\n";
+		src += "   {\n";
+		src += "      $$ = $_variableParameterExpression;\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "_variableParameterExpression ::=\n";
+		src += "_variableParameterExpression (List<Expression>) ::=\n";
 		src += "   expression\n";
+		src += "   {\n";
+		src += "      $$ = new ArrayList<Expression>(Arrays.asList($expression));\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   | expression ',' _variableParameterExpression\n";
+		src += "   {\n";
+		src += "      $_variableParameterExpression#1.add($expression);\n";
+		src += "      $$ = $_variableParameterExpression#1;\n";
+		src += "   }\n";
 		src += "   ;\n";
 		return src;
 	}

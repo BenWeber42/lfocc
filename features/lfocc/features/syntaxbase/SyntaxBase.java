@@ -19,9 +19,14 @@ public class SyntaxBase extends Feature {
 		// TODO: add configuration
 		// parses C++ style one line comments ( // ... )
 		cg.getParserGenerator().addToken("single_line_comment", "/\\/\\/[^\\n]*/ { return false; }");
+		// FIXME: parse /*/*/ as multi_line_comment
 		// parses C++ style multi line comments ( /* .. */ ), can't parse /***/
 		cg.getParserGenerator().addToken("multi_line_comment", "/\\/\\*+((([^\\*])+)|([\\*]+(?!\\/)))[*]+\\// { return false; }");
 		// parses C++ style multi line comments special case /****/
 		cg.getParserGenerator().addToken("multi_line_comment2", "/\\/\\*[*]+\\// { return false; }");
+		
+		cg.getParserGenerator().addImport("java.util.List");
+		cg.getParserGenerator().addImport("java.util.ArrayList");
+		cg.getParserGenerator().addImport("java.util.Arrays");
 	}
 }

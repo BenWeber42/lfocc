@@ -60,6 +60,9 @@ public class Functions extends MultiExtendable {
 			helper.depends("Expressions");
 		
 		helper.registerService(getExtender(callExtender));
+		// There needs to be some kind of contract between whoever extends the
+		// syntax and Functions for type saftey. Currently the contract is that
+		// every extension returns a List<Expression> (the list of arguments)
 		helper.registerService(getExtender(declarationExtender));
 		
 	}
@@ -88,7 +91,12 @@ public class Functions extends MultiExtendable {
 		if (services.hasFeature("Expressions")) {
 			extender = (ExtenderService) 
 					services.getService("Expressions", "ExpressionExtender");
-			extender.addSyntaxRule("functionCall");
+			extender.addSyntaxRule(
+					"functionCall" +
+					"   {\n" +
+					"      $$ = $functionCall;\n" +
+					"   }\n"
+					);
 		}
 
 		if (classMembers) {
@@ -107,6 +115,13 @@ public class Functions extends MultiExtendable {
 		cg.getParserGenerator().addParserSource(getName(), generateFunctionGrammar(cg));
 		cg.getParserGenerator().addParserSource(getName(), generateReturnGrammar());
 		cg.getParserGenerator().addToken("'return'", "/return/");
+		
+		cg.addSource("lfocc.features.functions.ast.FunctionCall",
+				new File("features/lfocc/features/functions/ast/FunctionCall.java"));
+		cg.addSource("lfocc.features.functions.ast.FunctionCall",
+				new File("features/lfocc/features/functions/ast/MethodCall.java"));
+		
+		cg.getParserGenerator().addImport("lfocc.features.functions.ast.*");
 	}
 	
 	private String generateFunctionGrammar(FrameworkInterface framework) {
@@ -126,20 +141,29 @@ public class Functions extends MultiExtendable {
 
 		}
 		src += "   ;\n";
-		src += "functionCall ::=\n";
+		src += "functionCall (Expression) ::=\n";
 		src += "   identifier '(' parameterExpression ')'\n";
-		if (classMembers && framework.hasFeature("Expressions"))
+		src += "   {\n";
+		src += "      $$ = new FunctionCall($identifier, $parameterExpression);\n";
+		src += "   }\n";
+		src += "   \n";
+		if (classMembers && framework.hasFeature("Expressions")) {
 			src += "   | expression '.' identifier '(' parameterExpression ')'\n";
+			src += "   {\n";
+			src += "      $$ = new MethodCall($identifier, $expression, $parameterExpression);\n";
+			src += "   }\n";
+			src += "   \n";
+		}
 		src += "   ;\n";
 		src += "\n";
-		src += "parameterExpression ::=\n";
+		src += "parameterExpression (List<Expression>) ::=\n";
 
 		it = getExtensions(callExtender).iterator();
 		if (it.hasNext()) {
-			src += "      " + it.next() + "\n";
+			src += "   " + it.next() + "\n";
 			
 			while (it.hasNext())
-				src += "      | " + it.next() + "\n";
+				src += "   | " + it.next() + "\n";
 
 		}
 

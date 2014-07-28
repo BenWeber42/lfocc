@@ -18,6 +18,8 @@ public class Statement extends SingleExtendable {
 	public static final String STATEMENT_CONFIGURATION_SCHEMA =
 			"features/lfocc/features/statement/ConfigSchema.xsd";
 
+	// Assignemnt should be a feature on its own.
+	// For simplicity purposes it's part of the Statement feature.
 	private boolean assignment = true; // whether to active assingment statements
 	private boolean codeblock = true; // whether statements can occur in code blocks
 	
