@@ -24,11 +24,12 @@ then
     # reset fails
     echo -n > fails
 else
-    echo "Doing testcases $testcases."
     single="yes"
     testcases=$1
+    echo "Doing testcases $testcases."
 fi
 
+testcases=$(echo "$testcases" | awk -F'.' '{ print $1 }')
 
 pass=0
 fail=0
@@ -42,9 +43,19 @@ do
 
     echo -n "Testcase $testcase ... "
 
-    output=$(java -cp compilers/$language/bin lfocc.compilers.$language.Main $testcase $testcase.out 2>&1)
+    ret=0
 
-    if [ $? -ne 0 ]
+    if [ -e  $testcase.compile.out ]
+    then
+        if [ "FAIL" = "$(cat $testcase.compile.out)" ]
+        then
+            ret=255
+        fi
+    fi
+
+    output=$(java -cp compilers/$language/bin lfocc.compilers.$language.Main $testcase.lang $testcase.test.out 2>&1)
+
+    if [ $? -ne $ret ]
     then
         echo "FAILURE!"
         echo "$output"
