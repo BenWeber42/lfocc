@@ -11,4 +11,5 @@
 	<feature name="Functions" config="Functions.xml" />
 	<feature name="Variables" config="Variables.xml" />
 	<feature name="Lambdas" />
+
 </LanguageConfiguration>

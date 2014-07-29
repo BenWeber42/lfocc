@@ -16,8 +16,6 @@ import lfocc.framework.util.XML;
 
 public class Variables extends Feature {
 	
-	// TODO: add support for 'null'
-	
 	public static final String VARIABLES_CONFIGURATION_SCHEMA =
 			"features/lfocc/features/variables/ConfigSchema.xsd";
 	
@@ -73,17 +71,33 @@ public class Variables extends Feature {
 		
 		if (globals) {
 			ExtenderService extender = (ExtenderService) services.getService("GlobalScope", "Extender");
-			extender.addSyntaxRule("variableDeclaration ';' ");
+			extender.addSyntaxRule(
+					"attributeDeclaration\n" +
+					"   {\n" +
+					"      $$ = new ArrayList<ASTNode>($attributeDeclaration);\n" +
+					"   }\n"
+					);
 		}
 		
 		if (locals) {
 			ExtenderService extender = (ExtenderService) services.getService("Statement", "Extender");
-			extender.addSyntaxRule("variableDeclaration");
+			extender.addSyntaxRule(
+					"variableDeclaration\n" +
+					"   {\n" +
+					"      $$ = $variableDeclaration;\n" +
+					"   }\n"
+					);
 		}
 		
 		if (functionParameters) {
 			ExtenderService extender = (ExtenderService) services.getService("Functions", "DeclarationExtender");
-			extender.addSyntaxRule("variableParameterDeclaration");
+			extender.addSyntaxRule(
+					"variableParameterDeclaration\n" +
+					"   {\n" +
+					"      $$ = new ArrayList<ASTNode>($variableParameterDeclaration);\n" +
+					"   }\n"
+					);
+			
 			extender = (ExtenderService) services.getService("Functions", "CallExtender");
 			extender.addSyntaxRule("variableParameterExpression" +
 					"   {\n" +
@@ -100,35 +114,90 @@ public class Variables extends Feature {
 					"   	$$ = $variableUse; \n" +
 					"   }\n"
 					);
-			// FIXME: this should only be registered if assignments (statements) are activated!
-			extender = (ExtenderService) services.getService("Expressions", "AssignableExpressionExtender");
-			extender.addSyntaxRule("variableUse");
+
+			if (services.hasFeature("Assignments")) {
+				extender = (ExtenderService) services.getService("Expressions", "AssignableExpressionExtender");
+				extender.addSyntaxRule(
+						"variableUse\n" +
+						"   {\n" +
+						"      $$ = $variableUse;\n" +
+						"   }\n"
+						);
+			}
 		}
 
 		if (classMembers) {
 			ExtenderService extender = (ExtenderService) services.getService("Classes", "Extender");
-			extender.addSyntaxRule("variableDeclaration ';' ");
+			extender.addSyntaxRule(
+					"attributeDeclaration" +
+					"   {\n" +
+					"      $$ = new ArrayList<ASTNode>($attributeDeclaration);\n" +
+					"   }\n"
+					);
 		}
 	}
 	
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		
-		cg.getParserGenerator().addParserSource(getName(), generateParserSource(cg));
+		cg.getParserGenerator().addGrammarSource(getName(), generateGrammar(cg));
 
-		cg.addSource("lfocc.features.variables.ast", new File("features/lfocc/features/variables/ast/Variable.java"));
-		cg.addSource("lfocc.features.variables.ast", new File("features/lfocc/features/variables/ast/Attribute.java"));
+		cg.addSource("lfocc.features.variables.ast",
+				new File("features/lfocc/features/variables/ast/Variable.java"));
+		cg.addSource("lfocc.features.variables.ast",
+				new File("features/lfocc/features/variables/ast/Attribute.java"));
+		cg.addSource("lfocc.features.variables.ast",
+				new File("features/lfocc/features/variables/ast/VariableDeclaration.java"));
 
 		cg.getParserGenerator().addImport("lfocc.features.variables.ast.*");
 	}
 	
-	private String generateParserSource(FrameworkInterface framework) {
+	private String generateGrammar(FrameworkInterface framework) {
 		String src = "";
-		src += "variableDeclaration ::= identifier _variableDeclaration ;\n";
+		src += "variableDeclaration (List<ASTNode>) ::=\n";
+		src += "   type = identifier vars = _variableDeclaration\n";
+		src += "   {\n";
+		src += "      Iterator<ASTNode> it = $vars.iterator();\n";
+		src += "      while (it.hasNext()) {\n";
+		src += "         ASTNode node = it.next();\n";
+		src += "         if (node instanceof VariableDeclaration)\n";
+		src += "            ((VariableDeclaration) node).setType($type);\n";
+		src += "      }\n";
+		src += "      $$ = $vars;\n";
+		src += "   }\n";
+		src += "   ;\n";
 		src += "\n";
-		src += "_variableDeclaration ::= \n";
+		src += "_variableDeclaration (List<ASTNode>) ::= \n";
 		src += "   identifier\n";
-		src += "   | identifier ',' _variableDeclaration\n";
+		src += "   {\n";
+		src += "      $$ = new ArrayList<ASTNode>(Arrays.asList(new VariableDeclaration(null, $identifier)));\n";
+		src += "   }\n";
+		src += "\n";
+		if (framework.hasFeature("Assignments")) {
+			src += "   | identifier '=' expression\n";
+			src += "   {\n";
+			src += "      $$ = new ArrayList<ASTNode>(Arrays.asList(\n";
+			src += "         new VariableDeclaration(null, $identifier),\n";
+			src += "         new Assignment(new Variable($identifier), $expression)\n";
+			src += "      ));\n";
+			src += "   }\n";
+			src += "\n";
+		}
+		src += "   | identifier ',' next = _variableDeclaration\n";
+		src += "   {\n";
+		src += "      $next.add(0, new VariableDeclaration(null, $identifier));\n";
+		src += "      $$ = $next;\n";
+		src += "   }\n";
+		src += "\n";
+		if (framework.hasFeature("Assignments")) {
+			src += "   | identifier '=' expression ',' next = _variableDeclaration\n";
+			src += "   {\n";
+			src += "      $next.add(0, new VariableDeclaration(null, $identifier));\n";
+			src += "      $next.add(1, new Assignment(new Variable($identifier), $expression));\n";
+			src += "      $$ = $next;\n";
+			src += "   }\n";
+			src += "\n";
+		}
 		src += "   ;\n";
 		src += "\n";
 		src += "variableUse (Expression) ::= \n";
@@ -145,45 +214,98 @@ public class Variables extends Feature {
 		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "variableParameterDeclaration ::= \n";
-		src += "   # empty\n";
-		src += "   | _variableParameterDeclaration\n";
-		src += "   ;\n";
-		src += "\n";
-		src += "_variableParameterDeclaration ::= \n";
-		src += "   variableParameterDeclarationElement\n";
-		src += "   | variableParameterDeclarationElement ',' _variableParameterDeclaration\n";
-		src += "   ;\n";
-		src += "\n";
-		src += "variableParameterDeclarationElement ::= \n";
-		src += "   identifier identifier\n";
-		src += "   ;\n";
-		src += "\n";
-		src += "variableParameterExpression (List<Expression>) ::=\n";
-		src += "   # empty\n";
+		src += "attributeDeclaration (List<VariableDeclaration>) ::= \n";
+		src += "   type = identifier vars = attributeDeclarations ';'\n";
 		src += "   {\n";
-		src += "      $$ = new ArrayList<Expression>();\n";
+		src += "      Iterator<VariableDeclaration> var = $vars.iterator();\n";
+		src += "      while (var.hasNext())\n";
+		src += "         var.next().setType($type);\n";
+		src += "      $$ = $vars;\n";
+		src += "   }\n";
+		src += "   ;\n";
+		src += "\n";
+		src += "attributeDeclarations (List<VariableDeclaration>) ::= \n";
+		src += "   attributeName\n";
+		src += "   {\n";
+		src += "      $$ = new ArrayList<VariableDeclaration>(Arrays.asList($attributeName));\n";
 		src += "   }\n";
 		src += "   \n";
-		src += "   | _variableParameterExpression\n";
+		src += "   | attributeName ',' next = attributeDeclarations\n";
 		src += "   {\n";
-		src += "      $$ = $_variableParameterExpression;\n";
+		src += "      $next.add(0, $attributeName);\n";
+		src += "      $$ = $next;\n";
 		src += "   }\n";
 		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "_variableParameterExpression (List<Expression>) ::=\n";
-		src += "   expression\n";
+		src += "attributeName (VariableDeclaration) ::=\n";
+		src += "   identifier\n";
 		src += "   {\n";
-		src += "      $$ = new ArrayList<Expression>(Arrays.asList($expression));\n";
-		src += "   }\n";
-		src += "   \n";
-		src += "   | expression ',' _variableParameterExpression\n";
-		src += "   {\n";
-		src += "      $_variableParameterExpression#1.add($expression);\n";
-		src += "      $$ = $_variableParameterExpression#1;\n";
+		src += "      $$ = new VariableDeclaration(null, $identifier);\n";
 		src += "   }\n";
 		src += "   ;\n";
+		src += "\n";
+		if (functionParameters) {
+			src += "variableParameterDeclaration (List<VariableDeclaration>) ::= \n";
+			src += "   # empty\n";
+			src += "   {\n";
+			src += "      $$ = new ArrayList<VariableDeclaration>();\n";
+			src += "   }\n";
+			src += "   \n";
+			src += "   | vars = _variableParameterDeclaration\n";
+			src += "   {\n";
+			src += "      $$ = $vars;\n";
+			src += "   }\n";
+			src += "   \n";
+			src += "   ;\n";
+			src += "\n";
+			src += "_variableParameterDeclaration (List<VariableDeclaration>) ::= \n";
+			src += "   variableParameterDeclarationElement\n";
+			src += "   {\n";
+			src += "      $$ = new ArrayList<VariableDeclaration>(Arrays.asList($variableParameterDeclarationElement));\n";
+			src += "   }\n";
+			src += "   \n";
+			src += "   | variableParameterDeclarationElement ',' next = _variableParameterDeclaration\n";
+			src += "   {\n";
+			src += "      $next.add(0, $variableParameterDeclarationElement);\n";
+			src += "      $$ = $next;\n";
+			src += "   }\n";
+			src += "   ;\n";
+			src += "\n";
+			src += "variableParameterDeclarationElement (VariableDeclaration) ::= \n";
+			src += "   type = identifier name = identifier\n";
+			src += "   {\n";
+			src += "      $$ = new VariableDeclaration($type, $name);\n";
+			src += "   }\n";
+			src += "   ;\n";
+			src += "\n";
+			src += "variableParameterExpression (List<Expression>) ::=\n";
+			src += "   # empty\n";
+			src += "   {\n";
+			src += "      $$ = new ArrayList<Expression>();\n";
+			src += "   }\n";
+			src += "   \n";
+			src += "   | _variableParameterExpression\n";
+			src += "   {\n";
+			src += "      $$ = $_variableParameterExpression;\n";
+			src += "   }\n";
+			src += "   \n";
+			src += "   ;\n";
+			src += "\n";
+			src += "_variableParameterExpression (List<Expression>) ::=\n";
+			src += "   expression\n";
+			src += "   {\n";
+			src += "      $$ = new ArrayList<Expression>(Arrays.asList($expression));\n";
+			src += "   }\n";
+			src += "   \n";
+			src += "   | expression ',' next = _variableParameterExpression\n";
+			src += "   {\n";
+			src += "      $next.add($expression);\n";
+			src += "      $$ = $next;\n";
+			src += "   }\n";
+			src += "   ;\n";
+		}
+
 		return src;
 	}
 

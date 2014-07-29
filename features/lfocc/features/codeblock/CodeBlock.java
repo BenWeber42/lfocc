@@ -13,23 +13,40 @@ public class CodeBlock extends SingleExtendable {
 	}
 	
 	public void setupCompilerGenerator(CompilerGenerator cg) {
-		cg.getParserGenerator().addParserSource(getName(), generateParser());
+		cg.getParserGenerator().addGrammarSource(getName(), generateGrammar());
 	}
 	
-	public String generateParser() {
+	private String generateGrammar() {
 		String src = "";
 		
-		src += "codeBlock ::= \n";
+		src += "codeBlock (List<ASTNode>) ::= \n";
 		src += "   # empty\n";
+		src += "   {\n";
+		src += "      $$ = new ArrayList<ASTNode>();\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   | _codeBlock\n";
+		src += "   {\n";
+		src += "      $$ = $_codeBlock;\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "_codeBlock ::= \n";
+		src += "_codeBlock (List<ASTNode>) ::= \n";
 		src += "   codeBlockElement\n";
-		src += "   | codeBlockElement _codeBlock\n";
+		src += "   {\n";
+		src += "      $$ = $codeBlockElement;\n";
+		src += "   }\n";
+		src += "   \n";
+		src += "   | codeBlockElement code = _codeBlock\n";
+		src += "   {\n";
+		src += "      $codeBlockElement.addAll($code);\n";
+		src += "      $$ = $codeBlockElement;\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "codeBlockElement ::= \n";
+		src += "codeBlockElement (List<ASTNode>) ::= \n";
 
 		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {

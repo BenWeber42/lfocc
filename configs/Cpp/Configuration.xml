@@ -13,4 +13,6 @@
 	<feature name="Variables" config="Variables.xml" />
 	<feature name="Exceptions" />
 	<feature name="Lambdas" />
+	<feature name="Assignments" />
+
 </LanguageConfiguration>

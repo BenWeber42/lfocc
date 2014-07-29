@@ -239,7 +239,9 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		src += "import java.io.File;\n";
 		src += "import java.io.FileNotFoundException;\n";
 		src += "import java.io.IOException;\n";
+		src += "import java.util.List;\n";
 		src += "\n";
+		src += "import lfocc.framework.compiler.ast.*;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Parser;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Parser.ParseException;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Lexer;\n";
@@ -253,6 +255,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		// Attributes
 		///////////////////////////////////////////////////////////////////////
 		src += "   private Options options;\n";
+		src += "   private List<ASTNode> roots;\n";
 		src += "   \n";
 		
 		///////////////////////////////////////////////////////////////////////
@@ -282,8 +285,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		src += "         Reader in = new InputStreamReader(new FileInputStream(new File(options.getInput())));\n";
 		src += "         " + cfg.name() + "Lexer lexer = new " + cfg.name() + "Lexer(in, this);\n";
 		src += "         " + cfg.name() + "Parser parser = new " + cfg.name() + "Parser(this);\n";
-		// TODO: get AST from parser
-		src += "         parser.parse(lexer);\n";
+		src += "         roots = parser.parse(lexer);\n";
 		src += "      } catch (FileNotFoundException e) {\n";
 		src += "         System.out.println(String.format(\"File '%s' not found!\", options.getInput()));\n";
 		src += "         System.exit(-1);\n";
@@ -298,7 +300,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		src += "   \n";
 		
 		///////////////////////////////////////////////////////////////////////
-		// error(int start, int end, int line, String s)
+		// error(int line, String s)
 		///////////////////////////////////////////////////////////////////////
 		src += "   public void error(int line, String s) {\n";
 		src += "      System.out.println(String.format(\"Parser Failure on line %d ('%s')!\", line, s));\n";

@@ -28,5 +28,7 @@ public class SyntaxBase extends Feature {
 		cg.getParserGenerator().addImport("java.util.List");
 		cg.getParserGenerator().addImport("java.util.ArrayList");
 		cg.getParserGenerator().addImport("java.util.Arrays");
+		cg.getParserGenerator().addImport("java.util.Iterator");
+		cg.getParserGenerator().addImport("lfocc.framework.compiler.ast.*");
 	}
 }

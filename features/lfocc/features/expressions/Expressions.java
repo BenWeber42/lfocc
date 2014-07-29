@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.FrameworkInterface;
 import lfocc.framework.feature.MultiExtendable;
 
 public class Expressions extends MultiExtendable {
@@ -29,7 +30,7 @@ public class Expressions extends MultiExtendable {
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		// Lexems
-		cg.getParserGenerator().addParserSource(getName(), generateSource());
+		cg.getParserGenerator().addGrammarSource(getName(), generateGrammar(cg));
 		cg.getParserGenerator().addToken("'+'", "/\\+/");
 		cg.getParserGenerator().addToken("'-'", "/\\-/");
 		cg.getParserGenerator().addToken("'*'", "/\\*/");
@@ -70,13 +71,13 @@ public class Expressions extends MultiExtendable {
 		cg.getParserGenerator().addImport("java.lang.NumberFormatException");
 	}
 
-	private String generateSource() {
+	private String generateGrammar(FrameworkInterface helper) {
 		String src = "";
 		
 		src += "expression (Expression) ::=\n";
-		src += "   '(' expression ')'\n";
+		src += "   '(' expr = expression ')'\n";
 		src += "   {\n";
-		src += "      $$ = $expression#1; \n";
+		src += "      $$ = $expr; \n";
 		src += "   }\n";
 		src += "\n";
 		src += "   | integer\n";
@@ -108,84 +109,84 @@ public class Expressions extends MultiExtendable {
 		src += "      $$ = new BooleanConst(\"true\".equals($boolean));\n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '+' expression\n";
+		src += "   | left = expression '+' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.PLUS, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.PLUS, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '-' expression\n";
+		src += "   | left = expression '-' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.MINUS, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.MINUS, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '*' expression\n";
+		src += "   | left = expression '*' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.TIMES, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.TIMES, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '/' expression\n";
+		src += "   | left = expression '/' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.DIVIDE, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.DIVIDE, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '%' expression\n";
+		src += "   | left = expression '%' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.MODULO, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.MODULO, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '&&' expression\n";
+		src += "   | left = expression '&&' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.AND, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.AND, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '||' expression\n";
+		src += "   | left = expression '||' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.OR, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.OR, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | '!' expression\n";
+		src += "   | '!' arg = expression\n";
 		src += "   {\n";
-		src += "      $$ = new UnaryOperatorExpression(UnaryOperatorExpression.Operator.NOT, $expression#1); \n";
+		src += "      $$ = new UnaryOperatorExpression(UnaryOperatorExpression.Operator.NOT, $arg); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '==' expression\n";
+		src += "   | left = expression '==' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.EQUAL, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.EQUAL, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '!=' expression\n";
+		src += "   | left = expression '!=' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.NOT_EQUAL, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.NOT_EQUAL, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '<=' expression\n";
+		src += "   | left = expression '<=' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.SMALLER_EQUAL, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.SMALLER_EQUAL, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '<' expression\n";
+		src += "   | left = expression '<' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.SMALLER, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.SMALLER, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '>=' expression\n";
+		src += "   | left = expression '>=' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.GREATER_EQUAL, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.GREATER_EQUAL, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | expression '>' expression\n";
+		src += "   | left = expression '>' right = expression\n";
 		src += "   {\n";
-		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.GREATER, $expression#1, $expression#2); \n";
+		src += "      $$ = new BinaryOperatorExpression(BinaryOperatorExpression.Operator.GREATER, $left, $right); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | '-' expression\n";
+		src += "   | '-' arg = expression\n";
 		src += "   {\n";
-		src += "      $$ = new UnaryOperatorExpression(UnaryOperatorExpression.Operator.MINUS, $expression#1); \n";
+		src += "      $$ = new UnaryOperatorExpression(UnaryOperatorExpression.Operator.MINUS, $arg); \n";
 		src += "   }\n";
 		src += "\n";
-		src += "   | '+' expression\n";
+		src += "   | '+' arg = expression\n";
 		src += "   {\n";
-		src += "      $$ = new UnaryOperatorExpression(UnaryOperatorExpression.Operator.PLUS, $expression#1); \n";
+		src += "      $$ = new UnaryOperatorExpression(UnaryOperatorExpression.Operator.PLUS, $arg); \n";
 		src += "   }\n";
 		src += "\n";
 		
@@ -195,7 +196,10 @@ public class Expressions extends MultiExtendable {
 		src += "   ;\n";
 		src += "\n";
 
-		src += "assignableExpression ::=\n";
+		if (!helper.hasFeature("Assignments"))
+			return src;
+		
+		src += "assignableExpression (Expression) ::=\n";
 		it = getExtensions(assignableExpressionExtender).iterator();
 
 		if (it.hasNext()) {

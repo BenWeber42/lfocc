@@ -3,6 +3,7 @@ package lfocc.framework.compilergenerator.parsergenerator;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,13 +26,14 @@ public class ParserGenerator {
 	Map<String, String> tokenReturnTypes = new HashMap<String, String>();
 	Map<Integer, List<String>> precedence = new TreeMap<Integer, List<String>>();
 	Set<String> imports = new HashSet<String>();
+	List<String> sources = new ArrayList<String>();
 	String name;
 	
 	public ParserGenerator(String name) {
 		this.name = name;
 	}
 
-	public void addParserSource(String feature, String source) {
+	public void addGrammarSource(String feature, String source) {
 		if (parserGrammar.get(feature) == null)
 			parserGrammar.put(feature, new ArrayList<String>());
 
@@ -60,6 +62,10 @@ public class ParserGenerator {
 	
 	public void addImport(String _import) {
 		imports.add(_import);
+	}
+	
+	public void addParserSource(String src) {
+		sources.add(src);
 	}
 	
 	public boolean hasRootRule() {
@@ -193,7 +199,9 @@ public class ParserGenerator {
 		}
 
 		src += "\n";
-		src += "input ::= " +  root + " ;\n";
+		src += "input (List<ASTNode>) ::= \n";
+		src += "   " + root;
+		src += "   ;\n";
 		src += "\n";
 		
 		sb.append(src);
@@ -222,7 +230,7 @@ public class ParserGenerator {
 		// Sources
 		///////////////////////////////////////////////////////////////////////
 		
-		if (imports.isEmpty())
+		if (imports.isEmpty() && sources.isEmpty())
 			return sb.toString();
 
 		src = "";
@@ -230,12 +238,30 @@ public class ParserGenerator {
 		src += "%%\n";
 		src += "\n";
 
-		src += "${template java.imports-}\n";
-		Iterator<String> _import = imports.iterator();
-		while (_import.hasNext())
-			src += "import " + _import.next() + ";\n";
-		src += "${end}\n";
+		if (!imports.isEmpty()) {
+			List<String> _imports = new ArrayList<String>(imports);
+			Collections.sort(_imports);
+			src += "${template java.imports-}\n";
+			src += "${call base}\n";
+			Iterator<String> _import = _imports.iterator();
+			while (_import.hasNext())
+				src += "import " + _import.next() + ";\n";
+			src += "${end}\n";
+			src += "\n";
+			src += "\n";
+		}
 		
+		if (!sources.isEmpty()) {
+			src += "${template java.classcode}\n";
+			src += "${call base}\n";
+			Iterator<String> source = sources.iterator();
+			while (source.hasNext())
+				src += source.next() + "\n";
+			src += "${end}\n";
+			src += "\n";
+			src += "\n";
+		}
+
 		sb.append(src);
 
 		return sb.toString();

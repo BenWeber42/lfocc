@@ -74,18 +74,33 @@ public class Functions extends MultiExtendable {
 
 		ExtenderService extender = (ExtenderService) 
 				services.getService("CodeBlock", "Extender");
-		extender.addSyntaxRule("returnStmt");
+		extender.addSyntaxRule(
+				"returnStmt" +
+				"   {\n" +
+				"      $$ = new ArrayList<ASTNode>(Arrays.asList($returnStmt));\n" +
+				"   }\n"
+				);
 		
 		if (globals) {
 			extender = (ExtenderService) 
 					services.getService("GlobalScope", "Extender");
-			extender.addSyntaxRule("functionDeclaration");
+			extender.addSyntaxRule(
+					"functionDeclaration\n" +
+					"   {\n" +
+					"      $$ = new ArrayList<ASTNode>(Arrays.asList($functionDeclaration));\n" +
+					"   }\n"
+					);
 		}
 
 		if (services.hasFeature("Statement")) {
 			extender = (ExtenderService) 
 					services.getService("Statement", "Extender");
-			extender.addSyntaxRule("functionCall");
+			extender.addSyntaxRule(
+					"functionCall" +
+					"   {\n" +
+					"      $$ = new ArrayList<ASTNode>(Arrays.asList($functionCall));\n" +
+					"   }\n"
+					);
 		}
 
 		if (services.hasFeature("Expressions")) {
@@ -102,7 +117,12 @@ public class Functions extends MultiExtendable {
 		if (classMembers) {
 			extender = (ExtenderService) 
 					services.getService("Classes", "Extender");
-			extender.addSyntaxRule("functionDeclaration");
+			extender.addSyntaxRule(
+					"functionDeclaration" +
+					"   {\n" +
+					"      $$ = new ArrayList<ASTNode>(Arrays.asList($functionDeclaration));\n" +
+					"   }\n"
+					);
 		}
 
 	}
@@ -112,25 +132,32 @@ public class Functions extends MultiExtendable {
 		if (!globals && !classMembers)
 			return;
 
-		cg.getParserGenerator().addParserSource(getName(), generateFunctionGrammar(cg));
-		cg.getParserGenerator().addParserSource(getName(), generateReturnGrammar());
+		cg.getParserGenerator().addGrammarSource(getName(), generateFunctionGrammar(cg));
+		cg.getParserGenerator().addGrammarSource(getName(), generateReturnGrammar());
 		cg.getParserGenerator().addToken("'return'", "/return/");
 		
 		cg.addSource("lfocc.features.functions.ast.FunctionCall",
 				new File("features/lfocc/features/functions/ast/FunctionCall.java"));
 		cg.addSource("lfocc.features.functions.ast.FunctionCall",
 				new File("features/lfocc/features/functions/ast/MethodCall.java"));
+		cg.addSource("lfocc.features.functions.ast.FunctionCall",
+				new File("features/lfocc/features/functions/ast/ReturnStatement.java"));
+		cg.addSource("lfocc.features.functions.ast.FunctionCall",
+				new File("features/lfocc/features/functions/ast/FunctionDeclaration.java"));
 		
 		cg.getParserGenerator().addImport("lfocc.features.functions.ast.*");
 	}
 	
 	private String generateFunctionGrammar(FrameworkInterface framework) {
 		String src = "";
-		src += "functionDeclaration ::=\n";
-		src += "   identifier identifier '(' parameterDeclaration ')' '{' codeBlock '}'\n";
+		src += "functionDeclaration (FunctionDeclaration) ::=\n";
+		src += "   type = identifier name = identifier '(' parameterDeclaration ')' '{' codeBlock '}'\n";
+		src += "   {\n";
+		src += "      $$ = new FunctionDeclaration($type, $name, $parameterDeclaration, $codeBlock);\n";
+		src += "   }\n";
 		src += "   ;\n";
 		src += "\n";
-		src += "parameterDeclaration ::=\n";
+		src += "parameterDeclaration (List<ASTNode>) ::=\n";
 		
 		Iterator<String> it = getExtensions(declarationExtender).iterator();
 		if (it.hasNext()) {
@@ -141,6 +168,7 @@ public class Functions extends MultiExtendable {
 
 		}
 		src += "   ;\n";
+		src += "\n";
 		src += "functionCall (Expression) ::=\n";
 		src += "   identifier '(' parameterExpression ')'\n";
 		src += "   {\n";
@@ -174,12 +202,21 @@ public class Functions extends MultiExtendable {
 	
 	private String generateReturnGrammar() {
 		String src = "";
+
+		src += "returnStmt (ReturnStatement) ::= \n";
+		src += "   'return' ';'\n";
+		src += "   {\n";
+		src += "      $$ = new ReturnStatement(null);\n";
+		src += "   }\n";
+		src += "   \n";
 		if (returnValue) {
-			src += "returnStmt ::= 'return' expression ';' ;\n";
-			src += "returnStmt ::= 'return' ';' ;\n";
-		} else {
-			src += "returnStmt ::= 'return' ';' ;\n";
+			src += "   | 'return' expression ';'\n";
+		src += "   {\n";
+		src += "      $$ = new ReturnStatement($expression);\n";
+		src += "   }\n";
+		src += "   \n";
 		}
+		src += "   ;\n";
 		
 		return src;
 	}

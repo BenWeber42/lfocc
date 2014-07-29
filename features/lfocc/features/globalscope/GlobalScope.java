@@ -22,26 +22,45 @@ public class GlobalScope extends SingleExtendable {
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 
-		cg.getParserGenerator().addParserSource(getName(), generateParserSource());
-		cg.getParserGenerator().setRootRule("globalScope");
+		cg.getParserGenerator().addGrammarSource(getName(), generateGrammar());
+		cg.getParserGenerator().setRootRule(
+				"globalScope\n" + 
+				"   {\n" + 
+				"      $$ = $globalScope;\n" + 
+				"   }\n"
+				);
 	}
 	
-	private String generateParserSource() {
+	private String generateGrammar() {
 		String src = "";
-		// TODO: EOF
-		src += "globalScope ::= \n";
+		src += "globalScope (List<ASTNode>) ::= \n";
 		src += "   # empty\n";
-		src += "   | _globalScope\n";
+		src += "   {\n";
+		src += "      $$ = new ArrayList<ASTNode>();\n";
+		src += "   }\n";
+		src += "   \n";
+		src += "   | globals = _globalScope\n";
+		src += "   {\n";
+		src += "      $$ = $globals;\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "_globalScope ::= \n";
+		src += "_globalScope (List<ASTNode>) ::= \n";
 		src += "   globalScopeElement\n";
-		src += "   | globalScopeElement _globalScope\n";
+		src += "   {\n";
+		src += "      $$ = $globalScopeElement;\n";
+		src += "   }\n";
+		src += "   \n";
+		src += "   | prev = globalScopeElement next = _globalScope\n";
+		src += "   {\n";
+		src += "      $prev.addAll($next);\n";
+		src += "      $$ = $prev;\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "globalScopeElement ::=\n";
-		src += "\n";
-		src += "\n";
+		src += "globalScopeElement (List<ASTNode>) ::=\n";
 		
 		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {

@@ -57,80 +57,142 @@ public class ControlFlow extends Feature {
 		ExtenderService codeBlock = (ExtenderService) services.getService(
 				"CodeBlock", "Extender");
 
-		if (ifConditional)
-			codeBlock.addSyntaxRule("ifConditional");
-		if (whileLoop)
-			codeBlock.addSyntaxRule("whileLoop");
-		if (doWhileLoop)
-			codeBlock.addSyntaxRule("doWhileLoop");
-		if (forLoop)
-			codeBlock.addSyntaxRule("forLoop");
+		if (ifConditional) {
+			codeBlock.addSyntaxRule(
+					"ifConditional\n" +
+					"   {\n" +
+					"      $$ = new ArrayList<ASTNode>(Arrays.asList($ifConditional));\n" +
+					"   }\n"
+					);
+		}
+		if (whileLoop) {
+			codeBlock.addSyntaxRule(
+					"whileLoop\n" +
+					"   {\n" +
+					"      $$ = new ArrayList<ASTNode>(Arrays.asList($whileLoop));\n" +
+					"   }\n"
+					);
+		}
+		if (doWhileLoop) {
+			codeBlock.addSyntaxRule(
+					"doWhileLoop\n" +
+					"   {\n" +
+					"      $$ = new ArrayList<ASTNode>(Arrays.asList($doWhileLoop));\n" +
+					"   }\n"
+					);
+		}
+		if (forLoop) {
+			codeBlock.addSyntaxRule(
+					"forLoop\n" +
+					"   {\n" +
+					"      $$ = new ArrayList<ASTNode>(Arrays.asList($forLoop));\n" +
+					"   }\n"
+					);
+		}
 	}
 	
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
+		cg.getParserGenerator().addImport("lfocc.features.controlflow.ast.*");
+		cg.addSource("lfocc.features.controlflow.ast",
+				new File("features/lfocc/features/controlflow/ast/IfConditional.java"));
+		cg.addSource("lfocc.features.controlflow.ast",
+				new File("features/lfocc/features/controlflow/ast/ElseConditional.java"));
+		cg.addSource("lfocc.features.controlflow.ast",
+				new File("features/lfocc/features/controlflow/ast/WhileLoop.java"));
+		cg.addSource("lfocc.features.controlflow.ast",
+				new File("features/lfocc/features/controlflow/ast/DoWhileLoop.java"));
+		cg.addSource("lfocc.features.controlflow.ast",
+				new File("features/lfocc/features/controlflow/ast/ForLoop.java"));
+
 		if (ifConditional) {
-			cg.getParserGenerator().addParserSource(getName(), generateIfSource());
+			cg.getParserGenerator().addGrammarSource(getName(), generateIfGrammar());
 			cg.getParserGenerator().addToken("'if'", "/if/");
 			if (elseConditional | elseIfConditional)
 				cg.getParserGenerator().addToken("'else'", "/else/");
 		}
 		if (whileLoop) {
-			cg.getParserGenerator().addParserSource(getName(), generateWhileSource());
+			cg.getParserGenerator().addGrammarSource(getName(), generateWhileGrammar());
 			cg.getParserGenerator().addToken("'while'", "/while/");
 		}
 		if (doWhileLoop) {
-			cg.getParserGenerator().addParserSource(getName(), generateDoWhileSource());
+			cg.getParserGenerator().addGrammarSource(getName(), generateDoWhileGrammar());
 			cg.getParserGenerator().addToken("'do'", "/do/");
 			if (!whileLoop)
 				cg.getParserGenerator().addToken("'while'", "/while/");
 		}
 		if (forLoop) {
-			cg.getParserGenerator().addParserSource(getName(), generateForGrammar());
+			cg.getParserGenerator().addGrammarSource(getName(), generateForGrammar());
 			cg.getParserGenerator().addToken("'for'", "/for/");
 		}
 	}
 	
-	private String generateIfSource() {
+	private String generateIfGrammar() {
 		String src = "";
-		src += "ifConditional ::= \n";
-		if (ifConditional)
-			src += "   'if' '(' expression ')' '{' codeBlock '}' ifRest ;\n";
+		src += "ifConditional (IfConditional) ::= \n";
+		if (ifConditional) {
+			src += "   'if' '(' expression ')' '{' codeBlock '}' ifRest\n";
+			src += "   {\n";
+			src += "      $$ = new IfConditional($expression, $codeBlock, $ifRest);\n";
+			src += "   }\n";
+			src += "   ;\n";
+		}
 		src += "\n";
 
-		src += "ifRest ::= \n";
+		src += "ifRest (ASTNode) ::= \n";
 		src += "   # empty\n";
-		if (elseConditional || elseIfConditional)
+		src += "   {\n";
+		src += "      $$ = null;\n";
+		src += "   }\n";
+		if (elseConditional || elseIfConditional) {
 			src += "   | 'else' ifRest2\n";
+			src += "   {\n";
+			src += "      $$ = $ifRest2;\n";
+			src += "   }\n";
+		}
 		src += "   ;\n";
 		src += "\n";
-		src += "ifRest2 ::=\n";
+		src += "ifRest2 (ASTNode) ::=\n";
 		if (elseIfConditional) {
 			src += "   'if' '(' expression ')' '{' codeBlock '}' ifRest\n";
+			src += "   {\n";
+			src += "      $$ = new IfConditional($expression, $codeBlock, $ifRest);\n";
+			src += "   }\n";
+		}
+		if (elseConditional) {
 			src += "   | '{' codeBlock '}'\n";
-		} else if (elseConditional) {
-			src += "   '{' codeBlock '}'\n";
+			src += "   {\n";
+			src += "      $$ = new ElseConditional($codeBlock);\n";
+			src += "   }\n";
 		}
 		src += "   ;\n";
 
 		return src;
 	}
 	
-	private String generateWhileSource() {
+	private String generateWhileGrammar() {
 		String src = "";
-		src += "whileLoop ::= \n";
-		if (whileLoop)
+		src += "whileLoop (WhileLoop) ::= \n";
+		if (whileLoop) {
 			src += "   'while' '(' expression ')' '{' codeBlock '}' \n";
+			src += "   {\n";
+			src += "      $$ = new WhileLoop($expression, $codeBlock);\n";
+			src += "   }\n";
+		}
 		src += "   ;\n";
 
 		return src;
 	}
 	
-	private String generateDoWhileSource() {
+	private String generateDoWhileGrammar() {
 		String src = "";
-		src += "doWhileLoop ::= \n";
-		if (doWhileLoop)
+		src += "doWhileLoop (DoWhileLoop) ::= \n";
+		if (doWhileLoop) {
 			src += "   'do' '{' codeBlock '}' 'while' '(' expression ')' \n";
+			src += "   {\n";
+			src += "      $$ = new DoWhileLoop($codeBlock, $expression);\n";
+			src += "   }\n";
+		}
 		src += "   ;\n";
 
 		return src;
@@ -138,19 +200,40 @@ public class ControlFlow extends Feature {
 	
 	private String generateForGrammar() {
 		String src = "";
-		src += "forLoop ::= \n";
-		if (forLoop)
-			src += "   'for' '(' statementOpt ';' expressionOpt ';' statementOpt ')' '{' codeBlock '}' \n";
+		src += "forLoop (ForLoop) ::= \n";
+		if (forLoop) {
+			src += "   'for' '(' init = statementOpt ';' expressionOpt ';' repeat = statementOpt ')' '{' codeBlock '}' \n";
+			src += "   {\n";
+			src += "      $$ = new ForLoop($init, $expressionOpt, $repeat, $codeBlock);\n";
+			src += "   }\n";
+			src += "   \n";
+		}
 		src += "   ;\n";
 		src += "\n";
-		src += "statementOpt ::=\n";
+		src += "statementOpt (List<ASTNode>) ::=\n";
 		src += "   # empty\n";
+		src += "   {\n";
+		src += "      $$ = new ArrayList<ASTNode>();\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   | statement\n";
+		src += "   {\n";
+		src += "      $$ = $statement;\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "expressionOpt ::=\n";
+		src += "expressionOpt (Expression) ::=\n";
 		src += "   # empty\n";
+		src += "   {\n";
+		src += "      $$ = null;\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   | expression\n";
+		src += "   {\n";
+		src += "      $$ = $expression;\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   ;\n";
 
 		return src;

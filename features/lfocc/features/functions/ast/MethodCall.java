@@ -9,12 +9,12 @@ import lfocc.framework.compiler.ast.ASTNode;
 public class MethodCall implements Expression {
 
 	private String name;
-	private Expression expr;
+	private Expression receiver;
 	private List<Expression> arguments;
 
 	public MethodCall(String name, Expression expr, List<Expression> arguments) {
 		this.name = name;
-		this.expr = expr;
+		this.receiver = expr;
 		this.arguments = arguments;
 	}
 
@@ -27,11 +27,11 @@ public class MethodCall implements Expression {
 	}
 
 	public Expression getExpr() {
-		return expr;
+		return receiver;
 	}
 
 	public void setExpr(Expression expr) {
-		this.expr = expr;
+		this.receiver = expr;
 	}
 
 	public List<Expression> getArguments() {
@@ -45,7 +45,7 @@ public class MethodCall implements Expression {
 	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> children = new ArrayList<ASTNode>(arguments);
-		children.add(expr);
+		children.add(receiver);
 		return children;
 	}
 

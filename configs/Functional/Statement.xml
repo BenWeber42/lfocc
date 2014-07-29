@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <StatementConfiguration>
 
-	<Assignment>false</Assignment>
 	<Codeblock>true</Codeblock>
 
 </StatementConfiguration>

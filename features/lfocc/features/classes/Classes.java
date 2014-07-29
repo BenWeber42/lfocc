@@ -15,8 +15,6 @@ import lfocc.framework.util.XML;
 
 public class Classes extends SingleExtendable {
 	
-	// TODO: new operator
-	
 	public static final String CLASSES_CONFIGURATION_SCHEMA =
 			"features/lfocc/features/classes/ConfigSchema.xsd";
 	
@@ -43,7 +41,12 @@ public class Classes extends SingleExtendable {
 	public void setupFeatureArrangements(ServiceProvider services) {
 		ExtenderService extender = (ExtenderService)
 				services.getService("GlobalScope", "Extender");
-		extender.addSyntaxRule("classDecl");
+		extender.addSyntaxRule(
+				"classDecl\n" +
+				"   {\n" +
+				"      $$ = new ArrayList<ASTNode>(Arrays.asList($classDecl));\n" +
+				"   }\n"
+				);
 		
 		if (services.hasFeature("Expressions")) {
 			extender = (ExtenderService)
@@ -62,9 +65,9 @@ public class Classes extends SingleExtendable {
 			 */
 			
 			extender.addSyntaxRule(
-					"'cast' '<' identifier '>' expression\n" +
+					"'cast' '<' identifier '>' arg = expression\n" +
 				    "   {\n" +
-				    "      $$ = new CastExpression($identifier, $expression#1);\n" +
+				    "      $$ = new CastExpression($identifier, $arg);\n" +
 				    "   }\n"
 					);
 			
@@ -97,35 +100,66 @@ public class Classes extends SingleExtendable {
 			cg.getParserGenerator().addToken("'null'", "/null/");
 		}
 
-		cg.getParserGenerator().addParserSource(getName(), generateParserSource());
+		cg.getParserGenerator().addGrammarSource(getName(), generateGrammar());
 		
 		cg.getParserGenerator().addImport("lfocc.features.classes.ast.*");
 
-		cg.addSource("lfocc.features.classes.ast", new File("features/lfocc/features/classes/ast/CastExpression.java"));
-		cg.addSource("lfocc.features.classes.ast", new File("features/lfocc/features/classes/ast/NewOperator.java"));
-		cg.addSource("lfocc.features.classes.ast", new File("features/lfocc/features/classes/ast/NullExpression.java"));
+		cg.addSource("lfocc.features.classes.ast",
+				new File("features/lfocc/features/classes/ast/CastExpression.java"));
+		cg.addSource("lfocc.features.classes.ast",
+				new File("features/lfocc/features/classes/ast/NewOperator.java"));
+		cg.addSource("lfocc.features.classes.ast",
+				new File("features/lfocc/features/classes/ast/NullExpression.java"));
+		cg.addSource("lfocc.features.classes.ast",
+				new File("features/lfocc/features/classes/ast/ClassNode.java"));
 		
 	}
 	
-	private String generateParserSource() {
+	private String generateGrammar() {
 		String src = "";
-		src += "classDecl ::= 'class' identifier '{' classBody '}' ;\n";
-
-		if (inheritance)
-			src += "classDecl ::= 'class' identifier 'extends' identifier '{' classBody '}' ;\n";
-		
+		src += "classDecl (ClassNode) ::= \n";
+		src += "   'class' name = identifier '{' classBody '}'\n";
+		src += "   {\n";
+		src += "      $$ = new ClassNode($name, null, $classBody);\n";
+		src += "   }\n";
+		src += "   \n";
+		if (inheritance) {
+			src += "   | 'class' name = identifier 'extends' parent = identifier '{' classBody '}'\n";
+			src += "   {\n";
+			src += "      $$ = new ClassNode($name, $parent, $classBody);\n";
+			src += "   }\n";
+			src += "   \n";
+		}
+		src += "   ;\n";
 		src += "\n";
-		src += "classBody ::=\n";
+		src += "classBody (List<ASTNode>) ::=\n";
 		src += "   # empty\n";
-		src += "   | _classBody\n";
+		src += "   {\n";
+		src += "      $$ = new ArrayList<ASTNode>();\n";
+		src += "   }\n";
+		src += "   \n";
+		src += "   | members = _classBody\n";
+		src += "   {\n";
+		src += "      $$ = $members;\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "_classBody ::=\n";
+		src += "_classBody (List<ASTNode>) ::=\n";
 		src += "   classBodyElement\n";
-		src += "   | classBodyElement _classBody\n";
+		src += "   {\n";
+		src += "      $$ = $classBodyElement;\n";
+		src += "   }\n";
+		src += "   \n";
+		src += "   | prev = classBodyElement next = _classBody\n";
+		src += "   {\n";
+		src += "      $prev.addAll($next);\n";
+		src += "      $$ = $prev;\n";
+		src += "   }\n";
+		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "classBodyElement ::=\n";
+		src += "classBodyElement (List<ASTNode>) ::=\n";
 
 		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {
