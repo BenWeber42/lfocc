@@ -1,4 +1,4 @@
-package lfocc.framework.compilergenerator.options;
+package lfocc.framework.compilergenerator;
 
 public class Options {
 

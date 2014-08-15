@@ -1,4 +1,4 @@
-package lfocc.framework.compilergenerator.parsergenerator;
+package lfocc.framework.compilergenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +16,6 @@ import lfocc.framework.util.Command;
 import lfocc.framework.util.Command.CommandOutput;
 import lfocc.framework.util.FileSystem;
 import lfocc.framework.util.Logger;
-
 
 public class ParserGenerator {
 	
@@ -103,7 +102,7 @@ public class ParserGenerator {
 			return false;
 		}
 		
-		// FIXME: improve detection of conflicts
+		// TODO: improve detection of conflicts
 		boolean error = false;
 		if (output.output().size() > 1)
 			error = true;
