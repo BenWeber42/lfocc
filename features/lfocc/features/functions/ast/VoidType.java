@@ -1,6 +1,6 @@
 package lfocc.features.functions.ast;
 
-import lfocc.features.variables.ast.TypeSymbol;
+import lfocc.features.types.ast.TypeSymbol;
 
 public class VoidType implements TypeSymbol {
 

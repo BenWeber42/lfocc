@@ -1,5 +1,7 @@
 package lfocc.features.syntaxbase;
 
+import java.io.File;
+
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 
@@ -30,5 +32,14 @@ public class SyntaxBase extends Feature {
 		cg.getParserGenerator().addImport("java.util.Arrays");
 		cg.getParserGenerator().addImport("java.util.Iterator");
 		cg.getParserGenerator().addImport("lfocc.framework.compiler.ast.*");
+		
+		if (!cg.hasFeature("Types")) {
+			/*
+			 * Even without static typing the TypeSymbol interface is required
+			 * by many AST nodes and features.
+			 */
+			cg.addSource("lfocc.features.types.ast",
+					new File("features/lfocc/features/types/ast/TypeSymbol.java"));
+		}
 	}
 }

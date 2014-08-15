@@ -72,21 +72,30 @@ public class Variables extends Feature {
 		if (globals) {
 			ExtenderService extender = (ExtenderService) services.getService("GlobalScope", "Extender");
 			extender.addSyntaxRule(
-					"attributeDeclaration\n" +
+					"nonAssignableVariableDeclaration\n" +
 					"   {\n" +
-					"      $$ = new ArrayList<ASTNode>($attributeDeclaration);\n" +
+					"      $$ = new ArrayList<ASTNode>($nonAssignableVariableDeclaration);\n" +
 					"   }\n"
 					);
 		}
 		
 		if (locals) {
 			ExtenderService extender = (ExtenderService) services.getService("Statement", "Extender");
-			extender.addSyntaxRule(
-					"variableDeclaration\n" +
-					"   {\n" +
-					"      $$ = $variableDeclaration;\n" +
-					"   }\n"
-					);
+			if (services.hasFeature("Types")) {
+				extender.addSyntaxRule(
+						"assignableVariableDeclaration\n" +
+						"   {\n" +
+						"      $$ = $assignableVariableDeclaration;\n" +
+						"   }\n"
+						);
+			} else {
+				extender.addSyntaxRule(
+						"nonAssignableVariableDeclaration\n" +
+						"   {\n" +
+						"      $$ = new ArrayList<ASTNode>($nonAssignableVariableDeclaration);\n" +
+						"   }\n"
+						);
+			}
 		}
 		
 		if (functionParameters) {
@@ -129,9 +138,9 @@ public class Variables extends Feature {
 		if (classMembers) {
 			ExtenderService extender = (ExtenderService) services.getService("Classes", "Extender");
 			extender.addSyntaxRule(
-					"attributeDeclaration" +
+					"nonAssignableVariableDeclaration" +
 					"   {\n" +
-					"      $$ = new ArrayList<ASTNode>($attributeDeclaration);\n" +
+					"      $$ = new ArrayList<ASTNode>($nonAssignableVariableDeclaration);\n" +
 					"   }\n"
 					);
 		}
@@ -148,34 +157,34 @@ public class Variables extends Feature {
 				new File("features/lfocc/features/variables/ast/Attribute.java"));
 		cg.addSource("lfocc.features.variables.ast",
 				new File("features/lfocc/features/variables/ast/VariableDeclaration.java"));
-		cg.addSource("lfocc.features.variables.ast",
-				new File("features/lfocc/features/variables/ast/TypeSymbol.java"));
 
 		cg.getParserGenerator().addImport("lfocc.features.variables.ast.*");
 	}
 	
 	private String generateGrammar(FrameworkInterface framework) {
 		String src = "";
-		src += "variableDeclaration (List<ASTNode>) ::=\n";
-		src += "   type = identifier vars = _variableDeclaration\n";
-		src += "   {\n";
-		src += "      Iterator<ASTNode> it = $vars.iterator();\n";
-		src += "      while (it.hasNext()) {\n";
-		src += "         ASTNode node = it.next();\n";
-		src += "         if (node instanceof VariableDeclaration)\n";
-		src += "            ((VariableDeclaration) node).setType($type);\n";
-		src += "      }\n";
-		src += "      $$ = $vars;\n";
-		src += "   }\n";
-		src += "   ;\n";
-		src += "\n";
-		src += "_variableDeclaration (List<ASTNode>) ::= \n";
-		src += "   identifier\n";
-		src += "   {\n";
-		src += "      $$ = new ArrayList<ASTNode>(Arrays.asList(new VariableDeclaration(null, $identifier)));\n";
-		src += "   }\n";
-		src += "\n";
-		if (framework.hasFeature("Assignments")) {
+		if (framework.hasFeature("Types") && framework.hasFeature("Assignments")) {
+			// Without types assignable variable declarations become abmigious
+			// with assignments (requires * look ahead)
+			src += "assignableVariableDeclaration (List<ASTNode>) ::=\n";
+			src += "   type vars = _assignableVariableDeclaration\n";
+			src += "   {\n";
+			src += "      Iterator<ASTNode> it = $vars.iterator();\n";
+			src += "      while (it.hasNext()) {\n";
+			src += "         ASTNode node = it.next();\n";
+			src += "         if (node instanceof VariableDeclaration)\n";
+			src += "            ((VariableDeclaration) node).setType($type);\n";
+			src += "      }\n";
+			src += "      $$ = $vars;\n";
+			src += "   }\n";
+			src += "   ;\n";
+			src += "\n";
+			src += "_assignableVariableDeclaration (List<ASTNode>) ::= \n";
+			src += "   identifier\n";
+			src += "   {\n";
+			src += "      $$ = new ArrayList<ASTNode>(Arrays.asList(new VariableDeclaration(null, $identifier)));\n";
+			src += "   }\n";
+			src += "\n";
 			src += "   | identifier '=' expression\n";
 			src += "   {\n";
 			src += "      $$ = new ArrayList<ASTNode>(Arrays.asList(\n";
@@ -184,24 +193,22 @@ public class Variables extends Feature {
 			src += "      ));\n";
 			src += "   }\n";
 			src += "\n";
-		}
-		src += "   | identifier ',' next = _variableDeclaration\n";
-		src += "   {\n";
-		src += "      $next.add(0, new VariableDeclaration(null, $identifier));\n";
-		src += "      $$ = $next;\n";
-		src += "   }\n";
-		src += "\n";
-		if (framework.hasFeature("Assignments")) {
-			src += "   | identifier '=' expression ',' next = _variableDeclaration\n";
+			src += "   | identifier ',' next = _assignableVariableDeclaration\n";
+			src += "   {\n";
+			src += "      $next.add(0, new VariableDeclaration(null, $identifier));\n";
+			src += "      $$ = $next;\n";
+			src += "   }\n";
+			src += "\n";
+			src += "   | identifier '=' expression ',' next = _assignableVariableDeclaration\n";
 			src += "   {\n";
 			src += "      $next.add(0, new VariableDeclaration(null, $identifier));\n";
 			src += "      $next.add(1, new Assignment(new Variable($identifier), $expression));\n";
 			src += "      $$ = $next;\n";
 			src += "   }\n";
 			src += "\n";
+			src += "   ;\n";
+			src += "\n";
 		}
-		src += "   ;\n";
-		src += "\n";
 		src += "variableUse (Expression) ::= \n";
 		src += "   identifier\n";
 		src += "   {\n";
@@ -216,23 +223,29 @@ public class Variables extends Feature {
 		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "attributeDeclaration (List<VariableDeclaration>) ::= \n";
-		src += "   type = identifier vars = attributeDeclarations ';'\n";
+		src += "nonAssignableVariableDeclaration (List<VariableDeclaration>) ::= \n";
+		if (framework.hasFeature("Types")) {
+			src += "   type vars = nonAssignableVariableDeclarations ';'\n";
+		} else {
+			src += "   vars = nonAssignableVariableDeclarations ';'\n";
+		}
 		src += "   {\n";
-		src += "      Iterator<VariableDeclaration> var = $vars.iterator();\n";
-		src += "      while (var.hasNext())\n";
-		src += "         var.next().setType($type);\n";
+		if (framework.hasFeature("Types")) {
+			src += "      Iterator<VariableDeclaration> var = $vars.iterator();\n";
+			src += "      while (var.hasNext())\n";
+			src += "         var.next().setType($type);\n";
+		}
 		src += "      $$ = $vars;\n";
 		src += "   }\n";
 		src += "   ;\n";
 		src += "\n";
-		src += "attributeDeclarations (List<VariableDeclaration>) ::= \n";
+		src += "nonAssignableVariableDeclarations (List<VariableDeclaration>) ::= \n";
 		src += "   attributeName\n";
 		src += "   {\n";
 		src += "      $$ = new ArrayList<VariableDeclaration>(Arrays.asList($attributeName));\n";
 		src += "   }\n";
 		src += "   \n";
-		src += "   | attributeName ',' next = attributeDeclarations\n";
+		src += "   | attributeName ',' next = nonAssignableVariableDeclarations\n";
 		src += "   {\n";
 		src += "      $next.add(0, $attributeName);\n";
 		src += "      $$ = $next;\n";
@@ -275,12 +288,21 @@ public class Variables extends Feature {
 			src += "   ;\n";
 			src += "\n";
 			src += "variableParameterDeclarationElement (VariableDeclaration) ::= \n";
-			src += "   type = identifier name = identifier\n";
-			src += "   {\n";
-			src += "      $$ = new VariableDeclaration($type, $name);\n";
-			src += "   }\n";
-			src += "   ;\n";
-			src += "\n";
+			if (framework.hasFeature("Types")) {
+				src += "   type name = identifier\n";
+				src += "   {\n";
+				src += "      $$ = new VariableDeclaration($type, $name);\n";
+				src += "   }\n";
+				src += "   ;\n";
+				src += "\n";
+			} else {
+				src += "   name = identifier\n";
+				src += "   {\n";
+				src += "      $$ = new VariableDeclaration(null, $name);\n";
+				src += "   }\n";
+				src += "   ;\n";
+				src += "\n";
+			}
 			src += "variableParameterExpression (List<Expression>) ::=\n";
 			src += "   # empty\n";
 			src += "   {\n";

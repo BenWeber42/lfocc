@@ -3,16 +3,17 @@ package lfocc.features.functions.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import lfocc.features.types.ast.TypeSymbol;
 import lfocc.framework.compiler.ast.ASTNode;
 
 public class FunctionDeclaration implements ASTNode {
 
 	private String name;
-	private String returnType;
+	private TypeSymbol returnType;
 	private List<ASTNode> parameters;
 	private List<ASTNode> code;
 	
-	public FunctionDeclaration(String returnType, String name, List<ASTNode> parameters, List<ASTNode> code) {
+	public FunctionDeclaration(TypeSymbol returnType, String name, List<ASTNode> parameters, List<ASTNode> code) {
 		this.returnType = returnType;
 		this.name = name;
 		this.parameters = parameters;
@@ -27,11 +28,11 @@ public class FunctionDeclaration implements ASTNode {
 		this.name = name;
 	}
 
-	public String getReturnType() {
+	public TypeSymbol getReturnType() {
 		return returnType;
 	}
 
-	public void setReturnType(String returnType) {
+	public void setReturnType(TypeSymbol returnType) {
 		this.returnType = returnType;
 	}
 

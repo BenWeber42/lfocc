@@ -135,15 +135,18 @@ public class Functions extends MultiExtendable {
 		cg.getParserGenerator().addGrammarSource(getName(), generateFunctionGrammar(cg));
 		cg.getParserGenerator().addGrammarSource(getName(), generateReturnGrammar());
 		cg.getParserGenerator().addToken("'return'", "/return/");
+		cg.getParserGenerator().addToken("'void'", "/void/");
 		
-		cg.addSource("lfocc.features.functions.ast.FunctionCall",
+		cg.addSource("lfocc.features.functions.ast",
 				new File("features/lfocc/features/functions/ast/FunctionCall.java"));
-		cg.addSource("lfocc.features.functions.ast.FunctionCall",
+		cg.addSource("lfocc.features.functions.ast",
 				new File("features/lfocc/features/functions/ast/MethodCall.java"));
-		cg.addSource("lfocc.features.functions.ast.FunctionCall",
+		cg.addSource("lfocc.features.functions.ast",
 				new File("features/lfocc/features/functions/ast/ReturnStatement.java"));
-		cg.addSource("lfocc.features.functions.ast.FunctionCall",
+		cg.addSource("lfocc.features.functions.ast",
 				new File("features/lfocc/features/functions/ast/FunctionDeclaration.java"));
+		cg.addSource("lfocc.features.functions.ast",
+				new File("features/lfocc/features/functions/ast/VoidType.java"));
 		
 		cg.getParserGenerator().addImport("lfocc.features.functions.ast.*");
 	}
@@ -151,10 +154,18 @@ public class Functions extends MultiExtendable {
 	private String generateFunctionGrammar(FrameworkInterface framework) {
 		String src = "";
 		src += "functionDeclaration (FunctionDeclaration) ::=\n";
-		src += "   type = identifier name = identifier '(' parameterDeclaration ')' '{' codeBlock '}'\n";
+		src += "   'void' name = identifier '(' parameterDeclaration ')' '{' codeBlock '}'\n";
 		src += "   {\n";
-		src += "      $$ = new FunctionDeclaration($type, $name, $parameterDeclaration, $codeBlock);\n";
+		src += "      $$ = new FunctionDeclaration(new VoidType(), $name, $parameterDeclaration, $codeBlock);\n";
 		src += "   }\n";
+		src += "   \n";
+		if (framework.hasFeature("Types")) {
+			src += "   | type name = identifier '(' parameterDeclaration ')' '{' codeBlock '}'\n";
+			src += "   {\n";
+			src += "      $$ = new FunctionDeclaration($type, $name, $parameterDeclaration, $codeBlock);\n";
+			src += "   }\n";
+			src += "   \n";
+		}
 		src += "   ;\n";
 		src += "\n";
 		src += "parameterDeclaration (List<ASTNode>) ::=\n";

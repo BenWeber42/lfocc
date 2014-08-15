@@ -79,6 +79,17 @@ public class Classes extends SingleExtendable {
 					);
 			
 		}
+		
+		if (services.hasFeature("Types")) {
+			extender = (ExtenderService)
+					services.getService("Types", "Extender");
+			extender.addSyntaxRule(
+					"identifier\n" +
+					"   {\n" +
+					"      $$ = new ClassType($identifier);\n" +
+					"   }\n"
+					);
+		}
 	}
 
 	@Override

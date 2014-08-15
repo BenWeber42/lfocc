@@ -9,6 +9,7 @@
 	<feature name="Expressions" />
 	<feature name="Statement" config="Statement.xml" />
 	<feature name="Functions" config="Functions.xml" />
+	<feature name="Types" />
 	<feature name="Variables" config="Variables.xml" />
 	<feature name="Lambdas" />
 

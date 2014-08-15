@@ -1,5 +1,7 @@
-package lfocc.features.variables.ast;
+package lfocc.features.types.ast;
 
 public interface TypeSymbol {
+	
 	public String getName();
+
 }

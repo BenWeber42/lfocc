@@ -1,6 +1,6 @@
 package lfocc.features.classes.ast;
 
-import lfocc.features.variables.ast.TypeSymbol;
+import lfocc.features.types.ast.TypeSymbol;
 
 public class ClassType implements TypeSymbol {
 

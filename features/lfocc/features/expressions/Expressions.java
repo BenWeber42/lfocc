@@ -9,6 +9,8 @@ import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.FrameworkInterface;
 import lfocc.framework.feature.MultiExtendable;
+import lfocc.framework.feature.service.ExtenderService;
+import lfocc.framework.feature.service.ServiceProvider;
 
 public class Expressions extends MultiExtendable {
 	
@@ -25,6 +27,32 @@ public class Expressions extends MultiExtendable {
 	public void setup(FeatureHelper helper) {
 		helper.registerService(getExtender(expressionExtender));
 		helper.registerService(getExtender(assignableExpressionExtender));
+		
+	}
+	
+	@Override
+	public void setupFeatureArrangements(ServiceProvider services) {
+		if (services.hasFeature("Types")) {
+			ExtenderService extender = (ExtenderService) services.getService("Types", "Extender");
+			extender.addSyntaxRule(
+					"'int'\n" +
+					"   {\n" +
+					"      $$ = new IntType();\n" +
+					"   }\n"
+					);
+			extender.addSyntaxRule(
+					"'float'\n" +
+					"   {\n" +
+					"      $$ = new FloatType();\n" +
+					"   }\n"
+					);
+			extender.addSyntaxRule(
+					"'boolean'\n" +
+					"   {\n" +
+					"      $$ = new BooleanType();\n" +
+					"   }\n"
+					);
+		}
 	}
 	
 	@Override
@@ -45,6 +73,9 @@ public class Expressions extends MultiExtendable {
 		cg.getParserGenerator().addToken("'<'", "/</");
 		cg.getParserGenerator().addToken("'>='", "/>=/");
 		cg.getParserGenerator().addToken("'>'", "/>/");
+		cg.getParserGenerator().addToken("'int'", "/int/");
+		cg.getParserGenerator().addToken("'float'", "/float/");
+		cg.getParserGenerator().addToken("'boolean'", "/boolean/");
 		cg.getParserGenerator().addPrecedence("'==' '!=' '<=' '>=' '<' '>'", 0);
 		cg.getParserGenerator().addPrecedence("'+' '-' '||'", 1);
 		cg.getParserGenerator().addPrecedence("'*' '/' '%' '&&'", 2);
