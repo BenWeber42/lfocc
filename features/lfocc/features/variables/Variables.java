@@ -148,6 +148,8 @@ public class Variables extends Feature {
 				new File("features/lfocc/features/variables/ast/Attribute.java"));
 		cg.addSource("lfocc.features.variables.ast",
 				new File("features/lfocc/features/variables/ast/VariableDeclaration.java"));
+		cg.addSource("lfocc.features.variables.ast",
+				new File("features/lfocc/features/variables/ast/TypeSymbol.java"));
 
 		cg.getParserGenerator().addImport("lfocc.features.variables.ast.*");
 	}

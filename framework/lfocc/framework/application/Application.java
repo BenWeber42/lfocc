@@ -8,10 +8,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
-import lfocc.framework.compilergenerator.options.Options;
-import lfocc.framework.compilergenerator.parsergenerator.ParserGenerator;
+import lfocc.framework.compilergenerator.Options;
+import lfocc.framework.compilergenerator.ParserGenerator;
+import lfocc.framework.compilergenerator.SemanticsGenerator;
 import lfocc.framework.config.GlobalConfiguration;
 import lfocc.framework.config.LanguageConfigurationLoader;
 import lfocc.framework.feature.Feature;
@@ -23,7 +25,7 @@ import lfocc.framework.util.FileSystem;
 import lfocc.framework.util.JavaCompiler;
 import lfocc.framework.util.Logger;
 
-public class Application implements CompilerGenerator, FeatureHelper, ServiceProvider {
+public class Application implements SemanticsGenerator, CompilerGenerator, FeatureHelper, ServiceProvider {
 	
 	private String[] args;
 	private Map<String, Feature> features = new HashMap<String, Feature>();
@@ -31,7 +33,7 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	private GlobalConfiguration cfg;
 	private Map<String, Map<String, Service>> services = new HashMap<String, Map<String, Service>>();
 	private ParserGenerator parserGenerator;
-	private File outputFolder = null;
+ 	private File outputFolder = null;
 	private File srcFolder = null;
 	private File packageFolder = null;
 	private File grammarFolder = null;
@@ -40,6 +42,8 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	private List<String> currentFeatureConfiguration = null;
 	private Options options = new Options();
 	private List<SourceFile> sources = new ArrayList<SourceFile>();
+	private Map<Integer, String> semanticsPackages = new TreeMap<Integer, String>();
+	private Map<Integer, String> semanticsNames = new TreeMap<Integer, String>();
 	
 	public Application(String[] args) {
 		this.args = args;
@@ -242,11 +246,18 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		src += "import java.util.List;\n";
 		src += "\n";
 		src += "import lfocc.framework.compiler.ast.*;\n";
+		src += "import lfocc.framework.compiler.ast.ASTTransformer.TransformerFailure;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Parser;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Parser.ParseException;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Lexer;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Lexer.ErrorReporter;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".options.Options;\n";
+		src += "\n";
+		Iterator<String> semantics = semanticsPackages.values().iterator();
+		while (semantics.hasNext()) {
+			String _package = semantics.next();
+			src += "import " + _package + ";\n";
+		}
 		src += "\n";
 		src += "public class Application implements ErrorReporter {\n";
 		src += "   \n";
@@ -312,7 +323,24 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		// semantics()
 		///////////////////////////////////////////////////////////////////////
 		src += "   public void semantics() {\n";
-		src += "      // TODO\n";
+		if (!semanticsNames.isEmpty()) {
+			src += "      ASTTransformer transfomer = null;\n";
+			src += "      \n";
+			src += "      try {\n";
+			semantics = semanticsNames.values().iterator();
+			while (semantics.hasNext()) {
+				String transformer = semantics.next();
+				src += "         \n";
+				src += "         transformer = new " + transformer + "();\n";
+				src += "         transformer.transform(roots);\n";
+			}
+			src += "      } catch (TransformerFailure f) {\n";
+			src += "         System.out.println(f.getMessage());\n";
+			src += "         System.exit(-1);\n";
+			src += "      }\n";
+		} else {
+			src += "      // No semantic transformations\n";
+		}
 		src += "   }\n";
 		src += "   \n";
 
@@ -374,6 +402,11 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	}
 
 	@Override
+	public SemanticsGenerator getSemanticsGenerator() {
+		return this;
+	}
+
+	@Override
 	public void addSource(String _package, File file) {
 		sources.add(new SourceFile(_package, file));
 	}
@@ -403,6 +436,17 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 		public void setFile(File file) {
 			this.file = file;
 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// SemanticsGenerator methods:
+	////////////////////////////////////////////////////////////////////////////
+
+	@Override
+	public void addTransformer(int priority, String packageName, String transformer) {
+		assert(!semanticsNames.containsKey(priority));
+		semanticsNames.put(priority, transformer);
+		semanticsPackages.put(priority, packageName);
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -476,4 +520,5 @@ public class Application implements CompilerGenerator, FeatureHelper, ServicePro
 	public String getLanguageName() {
 		return cfg.name();
 	}
+
 }

@@ -1,5 +1,7 @@
 package lfocc.features.assignments.ast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
@@ -33,8 +35,7 @@ public class Assignment implements ASTNode {
 
 	@Override
 	public List<ASTNode> getChildren() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<ASTNode>(Arrays.asList(target, value));
 	}
 
 }

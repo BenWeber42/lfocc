@@ -57,14 +57,30 @@ public class Expressions extends MultiExtendable {
 		cg.getParserGenerator().addToken("boolean", "String", "/true|false/ { $lexem = current(); break; }");
 		
 		// Sources
-		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/Expression.java"));
-		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/IntConst.java"));
-		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/FloatConst.java"));
-		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/BooleanConst.java"));
-		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/BinaryExpression.java"));
-		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/BinaryOperatorExpression.java"));
-		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/UnaryExpression.java"));
-		cg.addSource("lfocc.features.expressions.ast", new File("features/lfocc/features/expressions/ast/UnaryOperatorExpression.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/Expression.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/IntConst.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/FloatConst.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/BooleanConst.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/BinaryExpression.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/BinaryOperatorExpression.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/UnaryExpression.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/UnaryOperatorExpression.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/PrimitiveType.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/IntType.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/FloatType.java"));
+		cg.addSource("lfocc.features.expressions.ast",
+				new File("features/lfocc/features/expressions/ast/BooleanType.java"));
 		
 		// imports:
 		cg.getParserGenerator().addImport("lfocc.features.expressions.ast.*");

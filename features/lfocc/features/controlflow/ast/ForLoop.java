@@ -1,5 +1,6 @@
 package lfocc.features.controlflow.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
@@ -55,8 +56,11 @@ public class ForLoop implements ASTNode {
 
 	@Override
 	public List<ASTNode> getChildren() {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<ASTNode> children = new ArrayList<ASTNode>(init);
+		children.add(expr);
+		children.addAll(code);
+		children.addAll(repeat);
+		return children;
 	}
 
 }

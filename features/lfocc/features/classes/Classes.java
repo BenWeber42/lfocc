@@ -112,6 +112,8 @@ public class Classes extends SingleExtendable {
 				new File("features/lfocc/features/classes/ast/NullExpression.java"));
 		cg.addSource("lfocc.features.classes.ast",
 				new File("features/lfocc/features/classes/ast/ClassNode.java"));
+		cg.addSource("lfocc.features.classes.ast",
+				new File("features/lfocc/features/classes/ast/ClassType.java"));
 		
 	}
 	
