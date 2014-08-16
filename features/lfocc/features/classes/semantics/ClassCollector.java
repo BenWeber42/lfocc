@@ -28,7 +28,9 @@ public class ClassCollector extends ASTTransformer {
 	@Override
 	public void visit(ASTNode node) {
 		if (node instanceof ClassDeclaration) {
-			TypeDB.INSTANCE.addType(new ClassType((ClassDeclaration) node));
+			ClassType classType = new ClassType((ClassDeclaration) node);
+			TypeDB.INSTANCE.addType(classType);
+			((ClassDeclaration) node).setType(classType);
 		}
 	}
 	

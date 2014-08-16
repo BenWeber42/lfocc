@@ -10,6 +10,7 @@ public class ClassDeclaration implements ASTNode {
 	private String name;
 	private String parent;
 	private List<ASTNode> members;
+	private ClassType type;
 	
 	public ClassDeclaration(String name) {
 		this.name = name;
@@ -53,6 +54,14 @@ public class ClassDeclaration implements ASTNode {
 	@Override
 	public List<ASTNode> getChildren() {
 		return members;
+	}
+
+	public ClassType getType() {
+		return type;
+	}
+
+	public void setType(ClassType type) {
+		this.type = type;
 	}
 
 }

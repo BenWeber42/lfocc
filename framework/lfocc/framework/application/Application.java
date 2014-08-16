@@ -334,7 +334,9 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 				src += "         transformer = new " + transformer + "();\n";
 				src += "         transformer.transform(roots);\n";
 			}
+			src += "      \n";
 			src += "      } catch (TransformerFailure f) {\n";
+			src += "         System.out.println(\"Failure during semantic stage:\");\n";
 			src += "         System.out.println(f.getMessage());\n";
 			src += "         System.exit(-1);\n";
 			src += "      }\n";

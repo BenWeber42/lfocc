@@ -41,5 +41,15 @@ public class Base extends Feature {
 			cg.addSource("lfocc.features.types.ast",
 					new File("features/lfocc/features/types/ast/TypeSymbol.java"));
 		}
+		
+		if (!cg.hasFeature("Classes")) {
+			/*
+			 * This is required for attributes and methods
+			 */
+			cg.addSource("lfocc.features.classes.ast",
+					new File("features/lfocc/features/classes/ast/ClassType.java"));
+			cg.addSource("lfocc.features.classes.ast",
+					new File("features/lfocc/features/classes/ast/ClassDeclaration.java"));
+		}
 	}
 }
