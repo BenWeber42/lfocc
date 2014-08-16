@@ -155,6 +155,8 @@ public class Functions extends MultiExtendable {
 					new File("features/lfocc/features/functions/semantics/VoidAdder.java"));
 			cg.addSource("lfocc.features.functions.semantics",
 					new File("features/lfocc/features/functions/semantics/FunctionChecker.java"));
+			cg.addSource("lfocc.features.functions.ast",
+					new File("features/lfocc/features/functions/ast/MethodCollection.java"));
 			cg.getSemanticsGenerator().addTransformer(300,
 					"lfocc.features.functions.semantics", "VoidAdder");
 			cg.getSemanticsGenerator().addTransformer(3000,

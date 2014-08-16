@@ -13,6 +13,7 @@ public class FunctionDeclaration extends ExtendableNode implements ASTNode {
 	private TypeSymbol returnType;
 	private List<ASTNode> parameters;
 	private List<ASTNode> code;
+	private FunctionSymbol sym;
 	
 	public FunctionDeclaration(TypeSymbol returnType, String name, List<ASTNode> parameters, List<ASTNode> code) {
 		this.returnType = returnType;
@@ -58,6 +59,14 @@ public class FunctionDeclaration extends ExtendableNode implements ASTNode {
 		List<ASTNode> children = new ArrayList<ASTNode>(parameters);
 		children.addAll(code);
 		return children;
+	}
+
+	public FunctionSymbol getSym() {
+		return sym;
+	}
+
+	public void setSym(FunctionSymbol sym) {
+		this.sym = sym;
 	}
 
 }
