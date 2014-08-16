@@ -47,7 +47,8 @@ public class IfConditional implements ASTNode {
 		ArrayList<ASTNode> children = new ArrayList<ASTNode>();
 		children.add(expr);
 		children.addAll(code);
-		children.add(next);
+		if (next != null)
+			children.add(next);
 		return children;
 	}
 

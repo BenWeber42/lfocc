@@ -6,8 +6,11 @@ import java.util.List;
 
 public abstract class ASTTransformer {
 	
-	public void transform(List<ASTNode> rootes) throws TransformerFailure {
-		Iterator<ASTNode> it = rootes.iterator();
+	public void transform(List<ASTNode> roots) throws TransformerFailure {
+		if (roots == null)
+			return;
+		
+		Iterator<ASTNode> it = roots.iterator();
 		while (it.hasNext()) {
 			visit(it.next());
 		}

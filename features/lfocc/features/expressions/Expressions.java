@@ -113,6 +113,13 @@ public class Expressions extends MultiExtendable {
 		cg.addSource("lfocc.features.expressions.ast",
 				new File("features/lfocc/features/expressions/ast/BooleanType.java"));
 		
+		if (cg.hasFeature("Types")) {
+			cg.addSource("lfocc.features.expressions.semantics.Primitives", 
+					new File("features/lfocc/features/expressions/semantics/Primitives.java"));
+			cg.getSemanticsGenerator().addTransformer(500,
+					"lfocc.features.expressions.semantics", "Primitives");
+		}
+		
 		// imports:
 		cg.getParserGenerator().addImport("lfocc.features.expressions.ast.*");
 		cg.getParserGenerator().addImport("java.lang.NumberFormatException");

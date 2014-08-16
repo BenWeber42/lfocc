@@ -25,6 +25,8 @@ public class ReturnStatement implements ASTNode {
 
 	@Override
 	public List<ASTNode> getChildren() {
+		if (expr == null)
+			return new ArrayList<ASTNode>();
 		return new ArrayList<ASTNode>(Arrays.asList(expr));
 	}
 
