@@ -1,11 +1,11 @@
-package lfocc.features.syntaxbase;
+package lfocc.features.base;
 
 import java.io.File;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 
-public class SyntaxBase extends Feature {
+public class Base extends Feature {
 	
 	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {

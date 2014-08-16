@@ -2,7 +2,7 @@
 <LanguageConfiguration>
 	<name>PureState</name>
 
-	<feature name="SyntaxBase" />
+	<feature name="Base" />
 	<feature name="GlobalScope" />
 	<feature name="CodeBlock" />
 	<feature name="ControlFlow" config="ControlFlow.xml" />

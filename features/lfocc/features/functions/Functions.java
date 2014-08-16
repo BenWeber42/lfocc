@@ -50,7 +50,7 @@ public class Functions extends MultiExtendable {
 			return; // function declarations can't occur anywhere, nothing to do
 
 		helper.depends("CodeBlock");
-		helper.depends("SyntaxBase"); // because of '{' or '('
+		helper.depends("Base"); // because of '{' or '('
 		
 		if (globals)
 			helper.depends("GlobalScope");

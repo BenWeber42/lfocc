@@ -25,7 +25,7 @@ public class Classes extends SingleExtendable {
 	@Override
 	public void setup(FeatureHelper helper) {
 		helper.depends("GlobalScope");
-		helper.depends("SyntaxBase");
+		helper.depends("Base");
 		helper.registerService(getExtender());
 		
 		if (helper.getConfiguration() != null) {

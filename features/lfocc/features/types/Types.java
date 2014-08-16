@@ -11,7 +11,7 @@ public class Types extends SingleExtendable {
 
 	@Override
 	public void setup(FeatureHelper helper) {
-		helper.depends("SyntaxBase");
+		helper.depends("Base");
 		helper.registerService(getExtender());
 	}
 	

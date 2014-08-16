@@ -49,7 +49,7 @@ public class Variables extends Feature {
 		configure(helper.getConfiguration());
 		helper.printConfiguration(getConfiguration());
 		
-		helper.depends("SyntaxBase");
+		helper.depends("Base");
 		if (classMembers)
 			helper.depends("Classes");
 		
