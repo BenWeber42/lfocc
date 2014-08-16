@@ -1,11 +1,22 @@
 package lfocc.framework.compiler.ast;
 
+import java.util.Iterator;
 import java.util.List;
 
 
-public interface ASTTransformer {
+public abstract class ASTTransformer {
 	
-	public void transform(List<ASTNode> rootes) throws TransformerFailure;
+	public void transform(List<ASTNode> rootes) throws TransformerFailure {
+		Iterator<ASTNode> it = rootes.iterator();
+		while (it.hasNext()) {
+			visit(it.next());
+		}
+	}
+	
+	public void visit(ASTNode node) throws TransformerFailure {
+		transform(node.getChildren());
+	}
+	
 
 	@SuppressWarnings("serial")
 	public static class TransformerFailure extends Throwable {

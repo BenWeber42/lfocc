@@ -1,6 +1,6 @@
 package lfocc.features.expressions.ast;
 
-public class IntType implements PrimitiveType {
+public class IntType extends PrimitiveType {
 
 	@Override
 	public String getName() {

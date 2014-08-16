@@ -15,6 +15,10 @@ class TestClass {
     boolean attrib4;
 }
 
+class AnotherClass {
+	int x, y, z;
+}
+
 void TestFunction(int param1, TestClass param2, float param3) {
 
     int local1, local2;

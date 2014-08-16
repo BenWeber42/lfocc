@@ -1,18 +1,28 @@
 package lfocc.features.classes.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lfocc.framework.compiler.ast.ASTNode;
 
-public class ClassNode implements ASTNode {
+public class ClassDeclaration implements ASTNode {
 	
 	private String name;
 	private String parent;
 	private List<ASTNode> members;
 	
-	public ClassNode(String name, String parent, List<ASTNode> members) {
+	public ClassDeclaration(String name) {
 		this.name = name;
-		this.parent = parent;
+		this.parent = "Object";
+		this.members = new ArrayList<ASTNode>();
+	}
+
+	public ClassDeclaration(String name, String parent, List<ASTNode> members) {
+		this.name = name;
+		if (parent != null)
+			this.parent = parent;
+		else
+			this.parent = "Object";
 		this.members = members;
 	}
 

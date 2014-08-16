@@ -256,7 +256,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		Iterator<String> semantics = semanticsPackages.values().iterator();
 		while (semantics.hasNext()) {
 			String _package = semantics.next();
-			src += "import " + _package + ";\n";
+			src += "import " + _package + ".*;\n";
 		}
 		src += "\n";
 		src += "public class Application implements ErrorReporter {\n";
@@ -324,7 +324,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		///////////////////////////////////////////////////////////////////////
 		src += "   public void semantics() {\n";
 		if (!semanticsNames.isEmpty()) {
-			src += "      ASTTransformer transfomer = null;\n";
+			src += "      ASTTransformer transformer = null;\n";
 			src += "      \n";
 			src += "      try {\n";
 			semantics = semanticsNames.values().iterator();

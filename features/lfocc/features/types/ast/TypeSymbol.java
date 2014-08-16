@@ -1,7 +1,10 @@
 package lfocc.features.types.ast;
 
-public interface TypeSymbol {
+public abstract class TypeSymbol {
 	
-	public String getName();
+	public abstract String getName();
 
+	public boolean equals(TypeSymbol other) {
+		return getName().equals(other.getName());
+	}
 }

@@ -86,7 +86,7 @@ public class Classes extends SingleExtendable {
 			extender.addSyntaxRule(
 					"identifier\n" +
 					"   {\n" +
-					"      $$ = new ClassType($identifier);\n" +
+					"      $$ = new ClassType(new ClassDeclaration($identifier));\n" +
 					"   }\n"
 					);
 		}
@@ -122,24 +122,30 @@ public class Classes extends SingleExtendable {
 		cg.addSource("lfocc.features.classes.ast",
 				new File("features/lfocc/features/classes/ast/NullExpression.java"));
 		cg.addSource("lfocc.features.classes.ast",
-				new File("features/lfocc/features/classes/ast/ClassNode.java"));
+				new File("features/lfocc/features/classes/ast/ClassDeclaration.java"));
 		cg.addSource("lfocc.features.classes.ast",
 				new File("features/lfocc/features/classes/ast/ClassType.java"));
 		
+		if (cg.hasFeature("Types")) {
+			cg.getSemanticsGenerator().addTransformer(
+					1000, "lfocc.features.classes.semantics", "ClassCollector");
+			cg.addSource("lfocc.features.classes.semantics",
+					new File("features/lfocc/features/classes/semantics/ClassCollector.java"));
+		}
 	}
 	
 	private String generateGrammar() {
 		String src = "";
-		src += "classDecl (ClassNode) ::= \n";
+		src += "classDecl (ClassDeclaration) ::= \n";
 		src += "   'class' name = identifier '{' classBody '}'\n";
 		src += "   {\n";
-		src += "      $$ = new ClassNode($name, null, $classBody);\n";
+		src += "      $$ = new ClassDeclaration($name, null, $classBody);\n";
 		src += "   }\n";
 		src += "   \n";
 		if (inheritance) {
 			src += "   | 'class' name = identifier 'extends' parent = identifier '{' classBody '}'\n";
 			src += "   {\n";
-			src += "      $$ = new ClassNode($name, $parent, $classBody);\n";
+			src += "      $$ = new ClassDeclaration($name, $parent, $classBody);\n";
 			src += "   }\n";
 			src += "   \n";
 		}

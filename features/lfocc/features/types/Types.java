@@ -21,6 +21,8 @@ public class Types extends SingleExtendable {
 		cg.getParserGenerator().addImport("lfocc.features.types.ast.TypeSymbol");
 		cg.addSource("lfocc.features.types.ast",
 				new File("features/lfocc/features/types/ast/TypeSymbol.java"));
+		cg.addSource("lfocc.features.types.semantics",
+				new File("features/lfocc/features/types/semantics/TypeDB.java"));
 	}
 	
 	private String generateGrammar() {

@@ -1,6 +1,6 @@
 package lfocc.features.expressions.ast;
 
-public class BooleanType implements PrimitiveType {
+public class BooleanType extends PrimitiveType {
 
 	@Override
 	public String getName() {
