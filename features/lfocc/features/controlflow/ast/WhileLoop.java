@@ -6,8 +6,9 @@ import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class WhileLoop implements ASTNode {
+public class WhileLoop extends ExtendableNode implements ASTNode {
 
 	private Expression expr;
 	private List<ASTNode> code;

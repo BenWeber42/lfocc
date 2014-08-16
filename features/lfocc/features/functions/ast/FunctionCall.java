@@ -5,8 +5,9 @@ import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class FunctionCall implements Expression {
+public class FunctionCall extends ExtendableNode implements Expression {
 	
 	private String name;
 	private List<Expression> arguments;

@@ -5,8 +5,9 @@ import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class IfConditional implements ASTNode {
+public class IfConditional extends ExtendableNode implements ASTNode {
 
 	private Expression expr;
 	private List<ASTNode> code;

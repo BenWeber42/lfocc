@@ -5,8 +5,9 @@ import java.util.List;
 
 import lfocc.features.types.ast.TypeSymbol;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class FunctionDeclaration implements ASTNode {
+public class FunctionDeclaration extends ExtendableNode implements ASTNode {
 
 	private String name;
 	private TypeSymbol returnType;

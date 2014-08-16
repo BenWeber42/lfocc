@@ -5,8 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class UnaryExpression implements Expression {
+public class UnaryExpression extends ExtendableNode implements Expression {
 
 	protected Expression expr;
 

@@ -5,8 +5,9 @@ import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class ForLoop implements ASTNode {
+public class ForLoop extends ExtendableNode implements ASTNode {
 
 	private List<ASTNode> init;
 	private Expression expr;

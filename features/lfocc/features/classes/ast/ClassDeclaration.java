@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class ClassDeclaration implements ASTNode {
+public class ClassDeclaration extends ExtendableNode {
 	
 	private String name;
 	private String parent;

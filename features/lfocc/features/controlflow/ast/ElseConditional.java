@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class ElseConditional implements ASTNode {
+public class ElseConditional extends ExtendableNode implements ASTNode {
 	
 	private List<ASTNode> code;
 

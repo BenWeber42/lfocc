@@ -6,8 +6,9 @@ import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class Assignment implements ASTNode {
+public class Assignment extends ExtendableNode {
 
 	private Expression target;
 	private Expression value;

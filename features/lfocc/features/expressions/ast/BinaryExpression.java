@@ -5,8 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ExtendableNode;
 
-public abstract class BinaryExpression implements Expression {
+public abstract class BinaryExpression extends ExtendableNode implements Expression {
 
 	protected Expression left;
 	protected Expression right;
