@@ -1,9 +1,7 @@
 package lfocc.features.functions.semantics;
 
 import lfocc.features.functions.ast.FunctionDeclaration;
-import lfocc.features.functions.ast.FunctionSymbol;
 import lfocc.features.functions.ast.MethodCollection;
-import lfocc.features.functions.ast.ReturnStatement;
 import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.types.semantics.TypeDB;
 import lfocc.features.classes.ast.ClassDeclaration;
@@ -14,7 +12,7 @@ import lfocc.framework.compiler.ast.ASTTransformer;
 public class FunctionChecker extends ASTTransformer {
 	
 	private ClassType clazz = null;
-	private FunctionSymbol func = null;
+	private FunctionDeclaration func = null;
 	
 	@Override
 	public void visit(ASTNode node) throws TransformerFailure {
@@ -28,11 +26,8 @@ public class FunctionChecker extends ASTTransformer {
 	
 	private void functionDeclaration(FunctionDeclaration func) throws TransformerFailure {
 		
-		FunctionSymbol sym = new FunctionSymbol(func);
-		func.setSym(sym);
-		
 		if (clazz != null)
-			((MethodCollection) clazz.getNode().extension(MethodCollection.class)).addMethod(sym);
+			((MethodCollection) clazz.getNode().extension(MethodCollection.class)).addMethod(func);
 		
 		TypeSymbol ret = TypeDB.INSTANCE.getType(func.getReturnType().getName());
 
@@ -41,12 +36,14 @@ public class FunctionChecker extends ASTTransformer {
 					"Unknown return type '%s' in function '%s'!",
 					func.getReturnType().getName(), func.getName()));
 			
-		sym.setReturnType(ret);
+		func.setReturnType(ret);
 		
-		FunctionSymbol prevFunc = this.func;
-		this.func = sym;
+		// TODO: parameters
+		
+		FunctionDeclaration prevFunc = this.func;
+		this.func = func;
 
-		transform(func.getChildren());
+		transform(func.getCode());
 		
 		this.func = prevFunc;
 	}
@@ -55,7 +52,7 @@ public class FunctionChecker extends ASTTransformer {
 		ClassType prevClazz = clazz;
 		clazz = classDeclaration.getType();
 		
-		classDeclaration.attach(MethodCollection.class, new MethodCollection());
+		classDeclaration.attach(new MethodCollection());
 		
 		transform(classDeclaration.getChildren());
 		

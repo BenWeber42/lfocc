@@ -51,5 +51,9 @@ public class Base extends Feature {
 			cg.addSource("lfocc.features.classes.ast",
 					new File("features/lfocc/features/classes/ast/ClassDeclaration.java"));
 		}
+		
+		if (!cg.hasFeature("Variables") && cg.hasFeature("Functions")) {
+			// TODO: functions depends on VariableDeclaration for FunctionDeclarations
+		}
 	}
 }

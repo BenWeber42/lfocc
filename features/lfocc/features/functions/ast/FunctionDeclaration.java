@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lfocc.features.types.ast.TypeSymbol;
+import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
@@ -11,11 +12,10 @@ public class FunctionDeclaration extends ExtendableNode implements ASTNode {
 
 	private String name;
 	private TypeSymbol returnType;
-	private List<ASTNode> parameters;
+	private List<VariableDeclaration> parameters;
 	private List<ASTNode> code;
-	private FunctionSymbol sym;
 	
-	public FunctionDeclaration(TypeSymbol returnType, String name, List<ASTNode> parameters, List<ASTNode> code) {
+	public FunctionDeclaration(TypeSymbol returnType, String name, List<VariableDeclaration> parameters, List<ASTNode> code) {
 		this.returnType = returnType;
 		this.name = name;
 		this.parameters = parameters;
@@ -38,11 +38,11 @@ public class FunctionDeclaration extends ExtendableNode implements ASTNode {
 		this.returnType = returnType;
 	}
 
-	public List<ASTNode> getParameters() {
+	public List<VariableDeclaration> getParameters() {
 		return parameters;
 	}
 
-	public void setParameters(List<ASTNode> parameters) {
+	public void setParameters(List<VariableDeclaration> parameters) {
 		this.parameters = parameters;
 	}
 
@@ -59,14 +59,6 @@ public class FunctionDeclaration extends ExtendableNode implements ASTNode {
 		List<ASTNode> children = new ArrayList<ASTNode>(parameters);
 		children.addAll(code);
 		return children;
-	}
-
-	public FunctionSymbol getSym() {
-		return sym;
-	}
-
-	public void setSym(FunctionSymbol sym) {
-		this.sym = sym;
 	}
 
 }

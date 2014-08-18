@@ -5,13 +5,13 @@ import java.util.Map;
 
 public class MethodCollection {
 
-	private Map<String, FunctionSymbol> methods = new HashMap<String, FunctionSymbol>();
+	private Map<String, FunctionDeclaration> methods = new HashMap<String, FunctionDeclaration>();
 	
-	public void addMethod(FunctionSymbol method) {
-		methods.put(method.getNode().getName(), method);
+	public void addMethod(FunctionDeclaration method) {
+		methods.put(method.getName(), method);
 	}
 	
-	public FunctionSymbol getMethod(String name) {
+	public FunctionDeclaration getMethod(String name) {
 		return methods.get(name);
 	}
 }

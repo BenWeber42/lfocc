@@ -8,15 +8,15 @@ public abstract class ExtendableNode implements ASTNode {
 	private Map<Class<?>, Object> extensions = new HashMap<Class<?>, Object>();
 	
 	@Override
-	public void attach(Class<?> type, Object extension) {
-		assert !extensions.containsKey(type);
+	public <T> void attach(T extension) {
+		assert !extensions.containsKey(extension.getClass());
 		
-		extensions.put(type, extension);
+		extensions.put(extension.getClass(), extension);
 	}
 	
 	@Override
-	public Object extension(Class<?> type) {
-		return extensions.get(type);
+	public <T> T extension(Class<T> type) {
+		return (T) extensions.get(type);
 	}
 
 }

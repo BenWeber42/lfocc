@@ -60,9 +60,6 @@ public class Functions extends MultiExtendable {
 			helper.depends("Expressions");
 		
 		helper.registerService(getExtender(callExtender));
-		// There needs to be some kind of contract between whoever extends the
-		// syntax and Functions for type saftey. Currently the contract is that
-		// every extension returns a List<Expression> (the list of arguments)
 		helper.registerService(getExtender(declarationExtender));
 		
 	}
@@ -147,10 +144,10 @@ public class Functions extends MultiExtendable {
 				new File("features/lfocc/features/functions/ast/FunctionDeclaration.java"));
 		cg.addSource("lfocc.features.functions.ast",
 				new File("features/lfocc/features/functions/ast/VoidType.java"));
+		cg.addSource("lfocc.features.functions.ast",
+				new File("features/lfocc/features/functions/ast/FunctionSymbol.java"));
 		
 		if (cg.hasFeature("Types")) {
-			cg.addSource("lfocc.features.functions.ast",
-					new File("features/lfocc/features/functions/ast/FunctionSymbol.java"));
 			cg.addSource("lfocc.features.functions.semantics",
 					new File("features/lfocc/features/functions/semantics/VoidAdder.java"));
 			cg.addSource("lfocc.features.functions.semantics",
@@ -182,7 +179,7 @@ public class Functions extends MultiExtendable {
 		}
 		src += "   ;\n";
 		src += "\n";
-		src += "parameterDeclaration (List<ASTNode>) ::=\n";
+		src += "parameterDeclaration (List<VariableDeclaration>) ::=\n";
 		
 		Iterator<String> it = getExtensions(declarationExtender).iterator();
 		if (it.hasNext()) {
