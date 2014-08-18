@@ -32,6 +32,12 @@ public class ClassCollector extends ASTVisitor {
 	public void visit(ASTNode node) throws VisitorFailure {
 		if (node instanceof ClassDeclaration) {
 			ClassType classType = new ClassType((ClassDeclaration) node);
+
+			if (TypeDB.INSTANCE.getType(classType.getName()) != null) {
+				throw new InheritanceFailure(String.format(
+						"Class '%s' already exists!", classType.getName()));
+			}
+
 			TypeDB.INSTANCE.addType(classType);
 			((ClassDeclaration) node).setType(classType);
 			// nested classes aren't supported, so this speeds up things
