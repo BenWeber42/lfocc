@@ -2,7 +2,6 @@ package lfocc.features.classes.semantics;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import lfocc.features.classes.ast.ClassDeclaration;
@@ -14,15 +13,19 @@ import lfocc.features.types.semantics.TypeDB;
 
 public class ClassCollector extends ASTVisitor { 
 	
+	private ClassType obj = null;
+	
 	public ClassCollector() {
-		ClassType obj = new ClassType(new ClassDeclaration("Object"));
+		obj = new ClassType(new ClassDeclaration("Object"));
 		obj.setParent(null);
+		obj.getNode().setType(obj);
 		TypeDB.INSTANCE.addType(obj);
 	}
 
 	@Override
 	public void finish() throws InheritanceFailure {
 		inheritance();
+		obj.setParent(null);
 	}
 
 	@Override
