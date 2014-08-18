@@ -1,0 +1,9 @@
+
+int global(int x, float y) {
+
+}
+
+class Class {
+    // not ok, parameter number mismatch
+    int global(int x, float y, float z) {}
+}

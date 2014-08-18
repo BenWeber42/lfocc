@@ -1,0 +1,9 @@
+
+void global(int x, int y) {
+
+}
+
+class Class {
+    // not ok, return type missmatch
+    int global(int x, int y) {}
+}

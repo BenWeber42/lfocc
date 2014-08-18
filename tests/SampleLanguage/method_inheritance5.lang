@@ -1,0 +1,13 @@
+
+int global(int x, float y) {
+
+}
+
+class Class {
+    int global(int x, float y) {}
+}
+
+class SubClass extends Class {
+    // OK
+    int global(int x, float y) {}
+}
