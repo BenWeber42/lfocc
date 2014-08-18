@@ -103,7 +103,7 @@ public class Variables extends Feature {
 			extender.addSyntaxRule(
 					"variableParameterDeclaration\n" +
 					"   {\n" +
-					"      $$ = new ArrayList<ASTNode>($variableParameterDeclaration);\n" +
+					"      $$ = $variableParameterDeclaration;\n" +
 					"   }\n"
 					);
 			
