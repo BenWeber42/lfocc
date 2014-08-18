@@ -13,6 +13,7 @@ public enum TypeDB {
 	private Map<String, TypeSymbol> types = new HashMap<String, TypeSymbol>();
 
 	public void addType(TypeSymbol type) {
+		assert !types.containsKey(type.getName());
 		types.put(type.getName(), type);
 	}
 	

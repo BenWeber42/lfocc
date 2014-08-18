@@ -4,15 +4,15 @@ import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.types.semantics.TypeDB;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.framework.compiler.ast.ASTNode;
-import lfocc.framework.compiler.ast.ASTTransformer;
+import lfocc.framework.compiler.ast.ASTVisitor;
 
-public class TypeResolver extends ASTTransformer {
+public class TypeResolver extends ASTVisitor {
 	
 	@Override
-	public void visit(ASTNode node) throws TransformerFailure {
+	public void visit(ASTNode node) throws VisitorFailure {
 		
 		if (!(node instanceof VariableDeclaration)) {
-			transform(node.getChildren());
+			visit(node.getChildren());
 			return;
 		}
 			
@@ -29,7 +29,7 @@ public class TypeResolver extends ASTTransformer {
 	}
 	
 	@SuppressWarnings("serial")
-	public static class VariableTypeFailure extends TransformerFailure {
+	public static class VariableTypeFailure extends VisitorFailure {
 
 		public VariableTypeFailure(String message) {
 			super(message);

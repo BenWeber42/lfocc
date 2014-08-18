@@ -44,7 +44,7 @@ public class Classes extends SingleExtendable {
 		extender.addSyntaxRule(
 				"classDecl\n" +
 				"   {\n" +
-				"      $$ = new ArrayList<ASTNode>(Arrays.asList($classDecl));\n" +
+				"      $$ = $classDecl;\n" +
 				"   }\n"
 				);
 		

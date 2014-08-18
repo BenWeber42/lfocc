@@ -74,7 +74,7 @@ public class Variables extends Feature {
 			extender.addSyntaxRule(
 					"nonAssignableVariableDeclaration\n" +
 					"   {\n" +
-					"      $$ = new ArrayList<ASTNode>($nonAssignableVariableDeclaration);\n" +
+					"      $$ = $nonAssignableVariableDeclaration;\n" +
 					"   }\n"
 					);
 		}

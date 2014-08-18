@@ -246,7 +246,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		src += "import java.util.List;\n";
 		src += "\n";
 		src += "import lfocc.framework.compiler.ast.*;\n";
-		src += "import lfocc.framework.compiler.ast.ASTTransformer.TransformerFailure;\n";
+		src += "import lfocc.framework.compiler.ast.ASTVisitor.VisitorFailure;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Parser;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Parser.ParseException;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Lexer;\n";
@@ -266,7 +266,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		// Attributes
 		///////////////////////////////////////////////////////////////////////
 		src += "   private Options options;\n";
-		src += "   private List<ASTNode> roots;\n";
+		src += "   private ASTNode root;\n";
 		src += "   \n";
 		
 		///////////////////////////////////////////////////////////////////////
@@ -296,7 +296,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		src += "         Reader in = new InputStreamReader(new FileInputStream(new File(options.getInput())));\n";
 		src += "         " + cfg.name() + "Lexer lexer = new " + cfg.name() + "Lexer(in, this);\n";
 		src += "         " + cfg.name() + "Parser parser = new " + cfg.name() + "Parser(this);\n";
-		src += "         roots = parser.parse(lexer);\n";
+		src += "         root = parser.parse(lexer);\n";
 		src += "      } catch (FileNotFoundException e) {\n";
 		src += "         System.out.println(String.format(\"File '%s' not found!\", options.getInput()));\n";
 		src += "         System.exit(-1);\n";
@@ -324,18 +324,19 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		///////////////////////////////////////////////////////////////////////
 		src += "   public void semantics() {\n";
 		if (!semanticsNames.isEmpty()) {
-			src += "      ASTTransformer transformer = null;\n";
+			src += "      ASTVisitor visitor = null;\n";
 			src += "      \n";
 			src += "      try {\n";
 			semantics = semanticsNames.values().iterator();
 			while (semantics.hasNext()) {
 				String transformer = semantics.next();
 				src += "         \n";
-				src += "         transformer = new " + transformer + "();\n";
-				src += "         transformer.transform(roots);\n";
+				src += "         visitor = new " + transformer + "();\n";
+				src += "         visitor.visit(root);\n";
+				src += "         visitor.finish();\n";
 			}
 			src += "      \n";
-			src += "      } catch (TransformerFailure f) {\n";
+			src += "      } catch (VisitorFailure f) {\n";
 			src += "         System.out.println(\"Failure during semantic stage:\");\n";
 			src += "         System.out.println(f.getMessage());\n";
 			src += "         System.exit(-1);\n";

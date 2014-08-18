@@ -84,7 +84,7 @@ public class Functions extends MultiExtendable {
 			extender.addSyntaxRule(
 					"functionDeclaration\n" +
 					"   {\n" +
-					"      $$ = new ArrayList<ASTNode>(Arrays.asList($functionDeclaration));\n" +
+					"      $$ = $functionDeclaration;\n" +
 					"   }\n"
 					);
 		}

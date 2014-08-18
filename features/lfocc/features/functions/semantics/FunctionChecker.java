@@ -7,24 +7,24 @@ import lfocc.features.types.semantics.TypeDB;
 import lfocc.features.classes.ast.ClassDeclaration;
 import lfocc.features.classes.ast.ClassType;
 import lfocc.framework.compiler.ast.ASTNode;
-import lfocc.framework.compiler.ast.ASTTransformer;
+import lfocc.framework.compiler.ast.ASTVisitor;
 
-public class FunctionChecker extends ASTTransformer {
+public class FunctionChecker extends ASTVisitor {
 	
 	private ClassType clazz = null;
 	private FunctionDeclaration func = null;
 	
 	@Override
-	public void visit(ASTNode node) throws TransformerFailure {
+	public void visit(ASTNode node) throws VisitorFailure {
 		if (node instanceof FunctionDeclaration)
 			functionDeclaration((FunctionDeclaration) node);
 		else if (node instanceof ClassDeclaration)
 			classDeclaration((ClassDeclaration) node);
 		else
-			transform(node.getChildren());
+			visit(node.getChildren());
 	}
 	
-	private void functionDeclaration(FunctionDeclaration func) throws TransformerFailure {
+	private void functionDeclaration(FunctionDeclaration func) throws VisitorFailure {
 		
 		if (clazz != null)
 			((MethodCollection) clazz.getNode().extension(MethodCollection.class)).addMethod(func);
@@ -43,18 +43,18 @@ public class FunctionChecker extends ASTTransformer {
 		FunctionDeclaration prevFunc = this.func;
 		this.func = func;
 
-		transform(func.getCode());
+		visit(func.getCode());
 		
 		this.func = prevFunc;
 	}
 	
-	private void classDeclaration(ClassDeclaration classDeclaration) throws TransformerFailure {
+	private void classDeclaration(ClassDeclaration classDeclaration) throws VisitorFailure {
 		ClassType prevClazz = clazz;
 		clazz = classDeclaration.getType();
 		
 		classDeclaration.attach(new MethodCollection());
 		
-		transform(classDeclaration.getChildren());
+		visit(classDeclaration.getChildren());
 		
 		// TODO: check inheritance/shadowing/overloading
 		
@@ -62,7 +62,7 @@ public class FunctionChecker extends ASTTransformer {
 	}
 
 	@SuppressWarnings("serial")
-	public static class FunctionFailure extends TransformerFailure {
+	public static class FunctionFailure extends VisitorFailure {
 
 		public FunctionFailure(String message) {
 			super(message);

@@ -1,5 +1,6 @@
 package lfocc.features.globalscope;
 
+import java.io.File;
 import java.util.Iterator;
 
 import lfocc.framework.compilergenerator.CompilerGenerator;
@@ -29,14 +30,18 @@ public class GlobalScope extends SingleExtendable {
 				"      $$ = $globalScope;\n" + 
 				"   }\n"
 				);
+		cg.getParserGenerator().addImport("lfocc.features.globalscope.ast.*");
+		
+		cg.addSource("lfocc.features.globalscope.ast",
+				new File("features/lfocc/features/globalscope/ast/GlobalScope.java"));
 	}
 	
 	private String generateGrammar() {
 		String src = "";
-		src += "globalScope (List<ASTNode>) ::= \n";
+		src += "globalScope (GlobalScope) ::= \n";
 		src += "   # empty\n";
 		src += "   {\n";
-		src += "      $$ = new ArrayList<ASTNode>();\n";
+		src += "      $$ = new GlobalScope(new ArrayList<ASTNode>());\n";
 		src += "   }\n";
 		src += "   \n";
 		src += "   | globals = _globalScope\n";
@@ -46,21 +51,21 @@ public class GlobalScope extends SingleExtendable {
 		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "_globalScope (List<ASTNode>) ::= \n";
+		src += "_globalScope (GlobalScope) ::= \n";
 		src += "   globalScopeElement\n";
 		src += "   {\n";
-		src += "      $$ = $globalScopeElement;\n";
+		src += "      $$ = new GlobalScope(new ArrayList<ASTNode>(Arrays.asList($globalScopeElement)));\n";
 		src += "   }\n";
 		src += "   \n";
 		src += "   | prev = globalScopeElement next = _globalScope\n";
 		src += "   {\n";
-		src += "      $prev.addAll($next);\n";
-		src += "      $$ = $prev;\n";
+		src += "      $next.getChildren().add($prev);\n";
+		src += "      $$ = $next;\n";
 		src += "   }\n";
 		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "globalScopeElement (List<ASTNode>) ::=\n";
+		src += "globalScopeElement (ASTNode) ::=\n";
 		
 		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {

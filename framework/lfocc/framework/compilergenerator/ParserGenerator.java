@@ -198,7 +198,7 @@ public class ParserGenerator {
 		}
 
 		src += "\n";
-		src += "input (List<ASTNode>) ::= \n";
+		src += "input (ASTNode) ::= \n";
 		src += "   " + root;
 		src += "   ;\n";
 		src += "\n";

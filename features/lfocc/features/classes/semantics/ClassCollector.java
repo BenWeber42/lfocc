@@ -8,30 +8,33 @@ import java.util.Set;
 import lfocc.features.classes.ast.ClassDeclaration;
 import lfocc.features.classes.ast.ClassType;
 import lfocc.framework.compiler.ast.ASTNode;
-import lfocc.framework.compiler.ast.ASTTransformer;
+import lfocc.framework.compiler.ast.ASTVisitor;
 import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.types.semantics.TypeDB;
 
-public class ClassCollector extends ASTTransformer { 
+public class ClassCollector extends ASTVisitor { 
 	
-	@Override
-	public void transform(List<ASTNode> nodes) throws TransformerFailure {
+	public ClassCollector() {
 		ClassType obj = new ClassType(new ClassDeclaration("Object"));
 		obj.setParent(null);
 		TypeDB.INSTANCE.addType(obj);
-		
-		super.transform(nodes);
-		
+	}
+
+	@Override
+	public void finish() throws InheritanceFailure {
 		inheritance();
 	}
 
 	@Override
-	public void visit(ASTNode node) {
+	public void visit(ASTNode node) throws VisitorFailure {
 		if (node instanceof ClassDeclaration) {
 			ClassType classType = new ClassType((ClassDeclaration) node);
 			TypeDB.INSTANCE.addType(classType);
 			((ClassDeclaration) node).setType(classType);
+			// nested classes aren't supported, so this speeds up things
+			return;
 		}
+		super.visit(node);
 	}
 	
 	private void inheritance() throws InheritanceFailure {
@@ -76,7 +79,7 @@ public class ClassCollector extends ASTTransformer {
 	}
 	
 	@SuppressWarnings("serial")
-	public static class InheritanceFailure extends TransformerFailure {
+	public static class InheritanceFailure extends VisitorFailure {
 
 		public InheritanceFailure(String message) {
 			super(message);
