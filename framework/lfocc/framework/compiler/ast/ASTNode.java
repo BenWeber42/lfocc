@@ -5,6 +5,6 @@ import java.util.List;
 public interface ASTNode {
 	
 	public List<ASTNode> getChildren();
-	public <T> void attach(T extension);
+	public void extend(Object extension);
 	public <T> T extension(Class<T> type);
 }

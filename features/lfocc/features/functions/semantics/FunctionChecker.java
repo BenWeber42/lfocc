@@ -1,64 +1,126 @@
 package lfocc.features.functions.semantics;
 
+import java.util.Iterator;
+
+import lfocc.features.classes.ast.ClassDeclaration;
 import lfocc.features.functions.ast.FunctionDeclaration;
-import lfocc.features.functions.ast.MethodCollection;
+import lfocc.features.functions.ast.FunctionScope;
+import lfocc.features.globalscope.ast.GlobalScope;
 import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.types.semantics.TypeDB;
-import lfocc.features.classes.ast.ClassDeclaration;
-import lfocc.features.classes.ast.ClassType;
+import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
 public class FunctionChecker extends ASTVisitor {
 	
-	private ClassType clazz = null;
-	private FunctionDeclaration func = null;
+	private FunctionScope root = new FunctionScope(null);
 	
 	@Override
 	public void visit(ASTNode node) throws VisitorFailure {
-		if (node instanceof FunctionDeclaration)
-			functionDeclaration((FunctionDeclaration) node);
-		else if (node instanceof ClassDeclaration)
+		
+		if (node instanceof GlobalScope) {
+			globalScope((GlobalScope) node);
+		} else if (node instanceof ClassDeclaration) {
 			classDeclaration((ClassDeclaration) node);
-		else
-			visit(node.getChildren());
+		}
+		
 	}
 	
-	private void functionDeclaration(FunctionDeclaration func) throws VisitorFailure {
+	private void globalScope(GlobalScope global) throws VisitorFailure {
+		global.extend(root);
 		
-		if (clazz != null)
-			((MethodCollection) clazz.getNode().extension(MethodCollection.class)).addMethod(func);
+		Iterator<ASTNode> it = global.getChildren().iterator();
+		while (it.hasNext()) {
+			ASTNode child = it.next();
+			if (child instanceof FunctionDeclaration) 
+				functionDeclaration(root, null, (FunctionDeclaration) child);
+		}
 		
-		TypeSymbol ret = TypeDB.INSTANCE.getType(func.getReturnType().getName());
+		visit(global.getChildren());
+	}
+	
+	private void classDeclaration(ClassDeclaration clazz) throws FunctionFailure {
+		
+		if (clazz.extension(FunctionScope.class) != null)
+			return;
+		
+		if (clazz.getType().getParent() == null) {
+			// clazz should be 'Object', so the next lower scope is the global scope
+			clazz.extend(new FunctionScope(root));
+		} else {
+			// get the lower scope from the parent class:
+			if (clazz.getType().getParent().getNode().extension(FunctionScope.class) == null) {
+				classDeclaration(clazz.getType().getParent().getNode());
+			}
+			clazz.extend(new FunctionScope(
+					clazz.getType().getParent().getNode().extension(FunctionScope.class)));
+		}
+		
+		Iterator<ASTNode> it = clazz.getChildren().iterator();
+		while (it.hasNext()) {
+			ASTNode child = it.next();
+			if (child instanceof FunctionDeclaration)
+				functionDeclaration(clazz.extension(FunctionScope.class),
+						clazz, (FunctionDeclaration) child);
+		}
 
+	}
+	
+	private void functionDeclaration(FunctionScope scope, ClassDeclaration clazz, 
+			FunctionDeclaration func) throws FunctionFailure {
+
+		scope.addMethod(func);
+		checkReturn(func);
+		checkInheritance(scope, clazz, func);
+	}
+	
+	private void checkReturn(FunctionDeclaration func) throws FunctionFailure {
+		TypeSymbol ret = TypeDB.INSTANCE.getType(func.getReturnType().getName());
 		if (ret == null)
 			throw new FunctionFailure(String.format(
 					"Unknown return type '%s' in function '%s'!",
 					func.getReturnType().getName(), func.getName()));
-			
+		
 		func.setReturnType(ret);
-		
-		// TODO: parameters
-		
-		FunctionDeclaration prevFunc = this.func;
-		this.func = func;
-
-		visit(func.getCode());
-		
-		this.func = prevFunc;
 	}
 	
-	private void classDeclaration(ClassDeclaration classDeclaration) throws VisitorFailure {
-		ClassType prevClazz = clazz;
-		clazz = classDeclaration.getType();
+	private void checkInheritance(FunctionScope scope, ClassDeclaration clazz,
+			FunctionDeclaration func) throws FunctionFailure {
+
+		if (scope.getParent() == null)
+			return;
 		
-		classDeclaration.attach(new MethodCollection());
+		FunctionDeclaration parent = scope.getParent().getMethod(func.getName());
+		if (parent == null)
+			return;
 		
-		visit(classDeclaration.getChildren());
+		if (!parent.getReturnType().equals(func.getReturnType())) {
+			throw new FunctionFailure(String.format(
+					"Function '%s' in class '%s' doesn't override correctly (return type mismatch)!",
+					func.getName(), clazz.getName()));
+		}
 		
-		// TODO: check inheritance/shadowing/overloading
+		if (parent.getParameters().size() != func.getParameters().size()) {
+			throw new FunctionFailure(String.format(
+					"Function '%s' in class '%s' doesn't override correctly! (size of parameters mismatch)",
+					func.getName(), clazz.getName()));
+		}
 		
-		clazz = prevClazz;
+		Iterator<VariableDeclaration> parentParam = parent.getParameters().iterator();
+		Iterator<VariableDeclaration> param = func.getParameters().iterator();
+		
+		while (parentParam.hasNext()) {
+			assert param.hasNext();
+			
+			if (!parentParam.next().getType().equals(param.next().getType())) {
+				throw new FunctionFailure(String.format(
+						"Function '%s' in class '%s' doesn't override correctly! (parameter type mismatch)",
+						func.getName(), clazz.getName()));
+			}
+		}
+
+		assert !param.hasNext();
 	}
 
 	@SuppressWarnings("serial")
