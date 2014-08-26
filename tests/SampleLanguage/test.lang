@@ -33,7 +33,6 @@ void TestFunction(int param1, TestClass param2, float param3) {
         local2 = 4;
     } else {
         float local5, local6;
-        float local5, local6;
         local2 = 5;
     }
 

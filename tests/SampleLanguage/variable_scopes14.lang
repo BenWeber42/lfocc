@@ -1,0 +1,12 @@
+int var1;
+
+class Class {
+    
+    int var2;
+
+    void method(int var3) {
+
+        // not ok
+        int var3;
+    }
+}

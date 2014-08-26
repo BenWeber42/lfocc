@@ -1,0 +1,7 @@
+int var1;
+
+class Class {
+    
+    // var1 already declared!
+    int var1;
+}

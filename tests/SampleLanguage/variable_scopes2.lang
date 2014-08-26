@@ -1,0 +1,9 @@
+int var1;
+
+class Class {
+    
+    void method() {
+        // var1 already declared!
+        int var1;
+    }
+}

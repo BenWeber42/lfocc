@@ -1,0 +1,14 @@
+int var1;
+
+class Class {
+    
+    int var2;
+
+    void method() {
+
+        if (true) {
+            // var2 already declared!
+            int var2;
+        }
+    }
+}
