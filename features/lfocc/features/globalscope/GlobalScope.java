@@ -54,18 +54,18 @@ public class GlobalScope extends SingleExtendable {
 		src += "_globalScope (GlobalScope) ::= \n";
 		src += "   globalScopeElement\n";
 		src += "   {\n";
-		src += "      $$ = new GlobalScope(new ArrayList<ASTNode>(Arrays.asList($globalScopeElement)));\n";
+		src += "      $$ = new GlobalScope($globalScopeElement);\n";
 		src += "   }\n";
 		src += "   \n";
 		src += "   | prev = globalScopeElement next = _globalScope\n";
 		src += "   {\n";
-		src += "      $next.getChildren().add($prev);\n";
+		src += "      $next.getChildren().addAll($prev);\n";
 		src += "      $$ = $next;\n";
 		src += "   }\n";
 		src += "   \n";
 		src += "   ;\n";
 		src += "\n";
-		src += "globalScopeElement (ASTNode) ::=\n";
+		src += "globalScopeElement (List<ASTNode>) ::=\n";
 		
 		Iterator<String> it = extensions.iterator();
 		if (it.hasNext()) {

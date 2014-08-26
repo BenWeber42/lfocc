@@ -11,12 +11,10 @@ public class IfConditional extends ExtendableNode implements ASTNode {
 
 	private Expression expr;
 	private List<ASTNode> code;
-	private ASTNode next;
 
-	public IfConditional(Expression expr, List<ASTNode> code, ASTNode next) {
+	public IfConditional(Expression expr, List<ASTNode> code) {
 		this.expr = expr;
 		this.code = code;
-		this.next = next;
 	}
 	
 	public Expression getExpr() {
@@ -35,21 +33,11 @@ public class IfConditional extends ExtendableNode implements ASTNode {
 		this.code = code;
 	}
 
-	public ASTNode getNext() {
-		return next;
-	}
-
-	public void setNext(ASTNode next) {
-		this.next = next;
-	}
-
 	@Override
 	public List<ASTNode> getChildren() {
 		ArrayList<ASTNode> children = new ArrayList<ASTNode>();
 		children.add(expr);
 		children.addAll(code);
-		if (next != null)
-			children.add(next);
 		return children;
 	}
 

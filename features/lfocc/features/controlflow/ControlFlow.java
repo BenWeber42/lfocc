@@ -95,6 +95,8 @@ public class ControlFlow extends Feature {
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		cg.getParserGenerator().addImport("lfocc.features.controlflow.ast.*");
 		cg.addSource("lfocc.features.controlflow.ast",
+				new File("features/lfocc/features/controlflow/ast/Conditional.java"));
+		cg.addSource("lfocc.features.controlflow.ast",
 				new File("features/lfocc/features/controlflow/ast/IfConditional.java"));
 		cg.addSource("lfocc.features.controlflow.ast",
 				new File("features/lfocc/features/controlflow/ast/ElseConditional.java"));
@@ -129,20 +131,21 @@ public class ControlFlow extends Feature {
 	
 	private String generateIfGrammar() {
 		String src = "";
-		src += "ifConditional (IfConditional) ::= \n";
+		src += "ifConditional (Conditional) ::= \n";
 		if (ifConditional) {
 			src += "   'if' '(' expression ')' '{' codeBlock '}' ifRest\n";
 			src += "   {\n";
-			src += "      $$ = new IfConditional($expression, $codeBlock, $ifRest);\n";
+			src += "      $ifRest.insert(new IfConditional($expression, $codeBlock));\n";
+			src += "      $$ = $ifRest;\n";
 			src += "   }\n";
 			src += "   ;\n";
 		}
 		src += "\n";
 
-		src += "ifRest (ASTNode) ::= \n";
+		src += "ifRest (Conditional) ::= \n";
 		src += "   # empty\n";
 		src += "   {\n";
-		src += "      $$ = null;\n";
+		src += "      $$ = new Conditional();\n";
 		src += "   }\n";
 		if (elseConditional || elseIfConditional) {
 			src += "   | 'else' ifRest2\n";
@@ -152,17 +155,20 @@ public class ControlFlow extends Feature {
 		}
 		src += "   ;\n";
 		src += "\n";
-		src += "ifRest2 (ASTNode) ::=\n";
+		src += "ifRest2 (Conditional) ::=\n";
 		if (elseIfConditional) {
 			src += "   'if' '(' expression ')' '{' codeBlock '}' ifRest\n";
 			src += "   {\n";
-			src += "      $$ = new IfConditional($expression, $codeBlock, $ifRest);\n";
+			src += "      $ifRest.insert(new IfConditional($expression, $codeBlock));\n";
+			src += "      $$ = $ifRest;\n";
 			src += "   }\n";
 		}
 		if (elseConditional) {
 			src += "   | '{' codeBlock '}'\n";
 			src += "   {\n";
-			src += "      $$ = new ElseConditional($codeBlock);\n";
+			src += "      Conditional cond = new Conditional();\n";
+			src += "      cond.setElse(new ElseConditional($codeBlock));\n";
+			src += "      $$ = cond;\n";
 			src += "   }\n";
 		}
 		src += "   ;\n";

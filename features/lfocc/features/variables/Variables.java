@@ -159,6 +159,8 @@ public class Variables extends Feature {
 				new File("features/lfocc/features/variables/ast/VariableDeclaration.java"));
 
 		if (cg.hasFeature("Types")) {
+			cg.addSource("lfocc.features.variables.ast",
+					new File("features/lfocc/features/variables/ast/VariableScope.java"));
 			cg.addSource("lfocc.features.variables.semantics",
 					new File("features/lfocc/features/variables/semantics/TypeResolver.java"));
 			cg.getSemanticsGenerator().addTransformer(2000,

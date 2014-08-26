@@ -11,6 +11,7 @@ public class FunctionCall extends ExtendableNode implements Expression {
 	
 	private String name;
 	private List<Expression> arguments;
+	private FunctionDeclaration declaration;
 
 	public FunctionCall(String name, List<Expression> arguments) {
 		this.name = name;
@@ -36,6 +37,14 @@ public class FunctionCall extends ExtendableNode implements Expression {
 
 	public void setArguments(List<Expression> arguments) {
 		this.arguments = arguments;
+	}
+
+	public FunctionDeclaration getDeclaration() {
+		return declaration;
+	}
+
+	public void setDeclaration(FunctionDeclaration declaration) {
+		this.declaration = declaration;
 	}
 
 }

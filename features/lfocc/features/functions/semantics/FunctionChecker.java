@@ -103,7 +103,7 @@ public class FunctionChecker extends ASTVisitor {
 		
 		if (parent.getParameters().size() != func.getParameters().size()) {
 			throw new FunctionFailure(String.format(
-					"Function '%s' in class '%s' doesn't override correctly! (size of parameters mismatch)",
+					"Function '%s' in class '%s' doesn't override correctly! (number of parameters mismatch)",
 					func.getName(), clazz.getName()));
 		}
 		
