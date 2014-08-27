@@ -7,7 +7,7 @@ import java.util.List;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class UnaryExpression extends ExtendableNode implements Expression {
+public abstract class UnaryExpression extends ExtendableNode implements Expression {
 
 	protected Expression expr;
 

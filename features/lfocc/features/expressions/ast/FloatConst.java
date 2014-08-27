@@ -1,5 +1,6 @@
 package lfocc.features.expressions.ast;
 
+import lfocc.features.types.ast.TypeSymbol;
 import lfocc.framework.compiler.ast.ASTLeafNode;
 
 public class FloatConst extends ASTLeafNode implements Expression {
@@ -20,6 +21,11 @@ public class FloatConst extends ASTLeafNode implements Expression {
 
 	public void setValue(float value) {
 		this.value = value;
+	}
+
+	@Override
+	public TypeSymbol getType() {
+		return new FloatType();
 	}
 
 }

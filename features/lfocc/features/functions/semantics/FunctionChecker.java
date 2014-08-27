@@ -1,10 +1,15 @@
 package lfocc.features.functions.semantics;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import lfocc.features.classes.ast.ClassDeclaration;
+import lfocc.features.expressions.ast.FloatType;
+import lfocc.features.expressions.ast.IntType;
 import lfocc.features.functions.ast.FunctionDeclaration;
 import lfocc.features.functions.ast.FunctionScope;
+import lfocc.features.functions.ast.VoidType;
 import lfocc.features.globalscope.ast.GlobalScope;
 import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.types.semantics.TypeDB;
@@ -15,6 +20,50 @@ import lfocc.framework.compiler.ast.ASTVisitor;
 public class FunctionChecker extends ASTVisitor {
 	
 	private FunctionScope root = new FunctionScope(null);
+	
+	public FunctionChecker() {
+		
+		List<VariableDeclaration> param = new ArrayList<VariableDeclaration>();
+
+		param.add(new VariableDeclaration(new IntType(), "_int"));
+		root.addMethod(new FunctionDeclaration(
+				new VoidType(),
+				"write",
+				param,
+				new ArrayList<ASTNode>()
+				));
+
+		param.clear();
+		param.add(new VariableDeclaration(new FloatType(), "_float"));
+		root.addMethod(new FunctionDeclaration(
+				new VoidType(),
+				"writef",
+				param,
+				new ArrayList<ASTNode>()
+				));
+
+		param.clear();
+		root.addMethod(new FunctionDeclaration(
+				new VoidType(),
+				"writeln",
+				param,
+				new ArrayList<ASTNode>()
+				));
+
+		root.addMethod(new FunctionDeclaration(
+				new IntType(),
+				"read",
+				param,
+				new ArrayList<ASTNode>()
+				));
+
+		root.addMethod(new FunctionDeclaration(
+				new FloatType(),
+				"readf",
+				param,
+				new ArrayList<ASTNode>()
+				));
+	}
 	
 	@Override
 	public void visit(ASTNode node) throws VisitorFailure {

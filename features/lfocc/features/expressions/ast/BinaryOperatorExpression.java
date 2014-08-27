@@ -1,5 +1,7 @@
 package lfocc.features.expressions.ast;
 
+import lfocc.features.types.ast.TypeSymbol;
+
 public class BinaryOperatorExpression extends BinaryExpression {
 
 	public static enum Operator {
@@ -19,6 +21,7 @@ public class BinaryOperatorExpression extends BinaryExpression {
 	};
 	
 	private Operator operator;
+	private TypeSymbol type;
 	
 	public BinaryOperatorExpression(Operator operator, Expression left, Expression right) {
 		this.left = left;
@@ -32,6 +35,15 @@ public class BinaryOperatorExpression extends BinaryExpression {
 
 	public void setOperator(Operator operator) {
 		this.operator = operator;
+	}
+	
+	public void setType(TypeSymbol type) {
+		this.type = type;
+	}
+
+	@Override
+	public TypeSymbol getType() {
+		return type;
 	}
 
 }

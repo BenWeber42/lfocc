@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
+import lfocc.features.types.ast.TypeSymbol;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
@@ -12,6 +13,7 @@ public class MethodCall extends ExtendableNode implements Expression {
 	private String name;
 	private Expression receiver;
 	private List<Expression> arguments;
+	private FunctionDeclaration declaration;
 
 	public MethodCall(String name, Expression expr, List<Expression> arguments) {
 		this.name = name;
@@ -43,11 +45,25 @@ public class MethodCall extends ExtendableNode implements Expression {
 		this.arguments = arguments;
 	}
 
+	public FunctionDeclaration getDeclaration() {
+		return declaration;
+	}
+
+	public void setDeclaration(FunctionDeclaration declaration) {
+		this.declaration = declaration;
+	}
+
 	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> children = new ArrayList<ASTNode>(arguments);
 		children.add(receiver);
 		return children;
+	}
+
+	@Override
+	public TypeSymbol getType() {
+		assert declaration != null;
+		return declaration.getReturnType();
 	}
 
 }

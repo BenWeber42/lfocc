@@ -6,6 +6,7 @@ import lfocc.framework.compiler.ast.ASTLeafNode;
 public class NewOperator extends ASTLeafNode implements Expression {
 
 	private String className;
+	private ClassType type;
 	
 	public NewOperator(String className) {
 		this.setClassName(className);
@@ -17,5 +18,10 @@ public class NewOperator extends ASTLeafNode implements Expression {
 
 	public void setClassName(String className) {
 		this.className = className;
+	}
+
+	@Override
+	public ClassType getType() {
+		return type;
 	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
+import lfocc.features.types.ast.TypeSymbol;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
@@ -45,6 +46,12 @@ public class FunctionCall extends ExtendableNode implements Expression {
 
 	public void setDeclaration(FunctionDeclaration declaration) {
 		this.declaration = declaration;
+	}
+
+	@Override
+	public TypeSymbol getType() {
+		assert declaration != null;
+		return declaration.getReturnType();
 	}
 
 }

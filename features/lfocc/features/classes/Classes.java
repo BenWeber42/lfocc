@@ -78,6 +78,13 @@ public class Classes extends SingleExtendable {
 				    "   }\n"
 					);
 			
+			extender.addSyntaxRule(
+					"'this'\n" +
+					"   {\n" +
+					"      $$ = new ThisReference();\n" +
+					"   }\n"
+					);
+			
 		}
 		
 		if (services.hasFeature("Types")) {
@@ -109,6 +116,7 @@ public class Classes extends SingleExtendable {
 			// expressions will register '<' and '>'
 			cg.getParserGenerator().addToken("'cast'", "/cast/");
 			cg.getParserGenerator().addToken("'null'", "/null/");
+			cg.getParserGenerator().addToken("'this'", "/this/");
 		}
 
 		cg.getParserGenerator().addGrammarSource(getName(), generateGrammar());
@@ -124,7 +132,11 @@ public class Classes extends SingleExtendable {
 		cg.addSource("lfocc.features.classes.ast",
 				new File("features/lfocc/features/classes/ast/ClassDeclaration.java"));
 		cg.addSource("lfocc.features.classes.ast",
+				new File("features/lfocc/features/classes/ast/ThisReference.java"));
+		cg.addSource("lfocc.features.classes.ast",
 				new File("features/lfocc/features/classes/ast/ClassType.java"));
+		cg.addSource("lfocc.features.classes.ast",
+				new File("features/lfocc/features/classes/ast/NullType.java"));
 		
 		if (cg.hasFeature("Types")) {
 			cg.getSemanticsGenerator().addTransformer(

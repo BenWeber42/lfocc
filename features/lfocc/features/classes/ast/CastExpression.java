@@ -6,6 +6,7 @@ import lfocc.features.expressions.ast.UnaryExpression;
 public class CastExpression extends UnaryExpression {
 
 	private String cast;
+	private ClassType type;
 	
 	public CastExpression(String cast, Expression expr) {
 		this.setCast(cast);
@@ -18,5 +19,14 @@ public class CastExpression extends UnaryExpression {
 
 	public void setCast(String cast) {
 		this.cast = cast;
+	}
+	
+	public void setType(ClassType type) {
+		this.type = type;
+	}
+
+	@Override
+	public ClassType getType() {
+		return type;
 	}
 }

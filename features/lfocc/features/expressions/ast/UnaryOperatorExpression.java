@@ -1,5 +1,7 @@
 package lfocc.features.expressions.ast;
 
+import lfocc.features.types.ast.TypeSymbol;
+
 public class UnaryOperatorExpression extends UnaryExpression {
 
 	public static enum Operator {
@@ -9,6 +11,7 @@ public class UnaryOperatorExpression extends UnaryExpression {
 	};
 	
 	private Operator operator;
+	private TypeSymbol type;
 	
 	public UnaryOperatorExpression(Operator operator, Expression expr) {
 		this.operator = operator;
@@ -21,5 +24,14 @@ public class UnaryOperatorExpression extends UnaryExpression {
 
 	public void setOperator(Operator operator) {
 		this.operator = operator;
+	}
+	
+	public void setType(TypeSymbol type) {
+		this.type = type;
+	}
+
+	@Override
+	public TypeSymbol getType() {
+		return type;
 	}
 }

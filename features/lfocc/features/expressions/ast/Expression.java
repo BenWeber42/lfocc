@@ -1,5 +1,6 @@
 package lfocc.features.expressions.ast;
 
+import lfocc.features.types.ast.TypeSymbol;
 import lfocc.framework.compiler.ast.ASTNode;
 
 /*
@@ -8,4 +9,6 @@ import lfocc.framework.compiler.ast.ASTNode;
  * However, a language without expressions is so incredibly limited, that it's
  * barely useful.
  */
-public interface Expression extends ASTNode {}
+public interface Expression extends ASTNode {
+	public TypeSymbol getType();
+}
