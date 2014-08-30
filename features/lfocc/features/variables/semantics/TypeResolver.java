@@ -7,8 +7,6 @@ import java.util.Stack;
 import lfocc.features.classes.ast.ClassDeclaration;
 import lfocc.features.functions.ast.FunctionDeclaration;
 import lfocc.features.globalscope.ast.GlobalScope;
-import lfocc.features.types.ast.TypeSymbol;
-import lfocc.features.types.semantics.TypeDB;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.features.variables.ast.VariableScope;
 import lfocc.framework.compiler.ast.ASTNode;
@@ -96,14 +94,6 @@ public class TypeResolver extends ASTVisitor {
 	}
 
 	private void variableDeclaration(VariableDeclaration var) throws VariableFailure {
-		TypeSymbol type = TypeDB.INSTANCE.getType(var.getType().getName());
-		
-		if (type == null) {
-			throw new VariableFailure(String.format("Unknown type '%s' for variable '%s'!",
-					var.getType().getName(), var.getName()));
-		}
-
-		var.setType(type);
 		
 		if (stack.peek().getVariable(var.getName()) != null) {
 			throw new VariableFailure(String.format("Variable '%s' already declared!",
