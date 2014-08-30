@@ -91,7 +91,7 @@ public class SymbolResolver extends ASTVisitor {
 		visit(attr.getExpr());
 		
 		if (!(attr.getExpr().getType() instanceof ClassType)) {
-			throw new TypeFailure(String.format("Attribute '%s' requires a ClassType!",
+			throw new SymbolTypeFailure(String.format("Attribute '%s' requires a ClassType!",
 					attr.getField()));
 		}
 		
@@ -123,7 +123,7 @@ public class SymbolResolver extends ASTVisitor {
 		visit(method.getExpr());
 		
 		if (!(method.getExpr().getType() instanceof ClassType)) {
-			throw new TypeFailure(String.format("Method '%s' requires a ClassType!",
+			throw new SymbolTypeFailure(String.format("Method '%s' requires a ClassType!",
 					method.getName()));
 		}
 		
@@ -160,9 +160,9 @@ public class SymbolResolver extends ASTVisitor {
 	}
 
 	@SuppressWarnings("serial")
-	public static class TypeFailure extends VisitorFailure {
+	public static class SymbolTypeFailure extends VisitorFailure {
 
-		public TypeFailure(String message) {
+		public SymbolTypeFailure(String message) {
 			super(message);
 		}
 

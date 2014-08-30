@@ -11,8 +11,6 @@ import lfocc.features.functions.ast.FunctionDeclaration;
 import lfocc.features.functions.ast.FunctionScope;
 import lfocc.features.functions.ast.VoidType;
 import lfocc.features.globalscope.ast.GlobalScope;
-import lfocc.features.types.ast.TypeSymbol;
-import lfocc.features.types.semantics.TypeDB;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
@@ -125,18 +123,7 @@ public class FunctionChecker extends ASTVisitor {
 			FunctionDeclaration func) throws FunctionFailure {
 
 		scope.addMethod(func);
-		checkReturn(func);
 		checkInheritance(scope, clazz, func);
-	}
-	
-	private void checkReturn(FunctionDeclaration func) throws FunctionFailure {
-		TypeSymbol ret = TypeDB.INSTANCE.getType(func.getReturnType().getName());
-		if (ret == null)
-			throw new FunctionFailure(String.format(
-					"Unknown return type '%s' in function '%s'!",
-					func.getReturnType().getName(), func.getName()));
-		
-		func.setReturnType(ret);
 	}
 	
 	private void checkInheritance(FunctionScope scope, ClassDeclaration clazz,
