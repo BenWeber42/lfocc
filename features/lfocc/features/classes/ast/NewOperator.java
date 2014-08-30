@@ -19,6 +19,10 @@ public class NewOperator extends ASTLeafNode implements Expression {
 	public void setClassName(String className) {
 		this.className = className;
 	}
+	
+	public void setType(ClassType type) {
+		this.type = type;
+	}
 
 	@Override
 	public ClassType getType() {

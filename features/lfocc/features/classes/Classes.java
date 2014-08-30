@@ -26,6 +26,7 @@ public class Classes extends SingleExtendable {
 	public void setup(FeatureHelper helper) {
 		helper.depends("GlobalScope");
 		helper.depends("Base");
+		helper.depends("Types");
 		helper.registerService(getExtender());
 		
 		if (helper.getConfiguration() != null) {
@@ -138,12 +139,14 @@ public class Classes extends SingleExtendable {
 		cg.addSource("lfocc.features.classes.ast",
 				new File("features/lfocc/features/classes/ast/NullType.java"));
 		
-		if (cg.hasFeature("Types")) {
-			cg.getSemanticsGenerator().addTransformer(
-					1000, "lfocc.features.classes.semantics", "ClassCollector");
-			cg.addSource("lfocc.features.classes.semantics",
-					new File("features/lfocc/features/classes/semantics/ClassCollector.java"));
-		}
+		cg.getSemanticsGenerator().addTransformer(
+				1000, "lfocc.features.classes.semantics", "ClassCollector");
+		cg.getSemanticsGenerator().addTransformer(
+				1500, "lfocc.features.classes.semantics", "ClassTypeLookup");
+		cg.addSource("lfocc.features.classes.semantics",
+				new File("features/lfocc/features/classes/semantics/ClassCollector.java"));
+		cg.addSource("lfocc.features.classes.semantics",
+				new File("features/lfocc/features/classes/semantics/ClassTypeLookup.java"));
 	}
 	
 	private String generateGrammar() {

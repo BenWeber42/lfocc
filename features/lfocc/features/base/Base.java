@@ -44,16 +44,13 @@ public class Base extends Feature {
 		
 		if (!cg.hasFeature("Classes")) {
 			/*
-			 * This is required for attributes and methods
+			 * This is required for Attribute and MethodCall Nodes in the AST
+			 * from the Variables and Functions features.
 			 */
 			cg.addSource("lfocc.features.classes.ast",
 					new File("features/lfocc/features/classes/ast/ClassType.java"));
 			cg.addSource("lfocc.features.classes.ast",
 					new File("features/lfocc/features/classes/ast/ClassDeclaration.java"));
-		}
-		
-		if (!cg.hasFeature("Variables") && cg.hasFeature("Functions")) {
-			// TODO: functions depends on VariableDeclaration for FunctionDeclarations
 		}
 	}
 }

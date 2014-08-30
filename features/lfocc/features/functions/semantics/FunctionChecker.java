@@ -25,6 +25,7 @@ public class FunctionChecker extends ASTVisitor {
 		
 		List<VariableDeclaration> param = new ArrayList<VariableDeclaration>();
 
+		// add global write function
 		param.add(new VariableDeclaration(new IntType(), "_int"));
 		root.addMethod(new FunctionDeclaration(
 				new VoidType(),
@@ -33,6 +34,7 @@ public class FunctionChecker extends ASTVisitor {
 				new ArrayList<ASTNode>()
 				));
 
+		// add global writef function
 		param.clear();
 		param.add(new VariableDeclaration(new FloatType(), "_float"));
 		root.addMethod(new FunctionDeclaration(
@@ -42,6 +44,7 @@ public class FunctionChecker extends ASTVisitor {
 				new ArrayList<ASTNode>()
 				));
 
+		// add global writeln function
 		param.clear();
 		root.addMethod(new FunctionDeclaration(
 				new VoidType(),
@@ -50,6 +53,7 @@ public class FunctionChecker extends ASTVisitor {
 				new ArrayList<ASTNode>()
 				));
 
+		// add global read function
 		root.addMethod(new FunctionDeclaration(
 				new IntType(),
 				"read",
@@ -57,6 +61,7 @@ public class FunctionChecker extends ASTVisitor {
 				new ArrayList<ASTNode>()
 				));
 
+		// add global readf function
 		root.addMethod(new FunctionDeclaration(
 				new FloatType(),
 				"readf",

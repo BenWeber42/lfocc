@@ -6,7 +6,6 @@ import java.util.Set;
 
 import lfocc.features.classes.ast.ClassDeclaration;
 import lfocc.features.classes.ast.ClassType;
-import lfocc.features.classes.ast.ThisReference;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 import lfocc.features.types.ast.TypeSymbol;
@@ -15,7 +14,6 @@ import lfocc.features.types.semantics.TypeDB;
 public class ClassCollector extends ASTVisitor { 
 	
 	private ClassType obj = null;
-	private ClassType currentClass = null;
 	
 	public ClassCollector() {
 		obj = new ClassType(new ClassDeclaration("Object"));
@@ -27,6 +25,7 @@ public class ClassCollector extends ASTVisitor {
 	@Override
 	public void finish() throws InheritanceFailure {
 		inheritance();
+		// this will have been overwritten by inheritance()
 		obj.setParent(null);
 	}
 
@@ -42,13 +41,10 @@ public class ClassCollector extends ASTVisitor {
 
 			TypeDB.INSTANCE.addType(classType);
 			((ClassDeclaration) node).setType(classType);
-			currentClass = classType;
 
-		} else if (node instanceof ThisReference) {
-			((ThisReference) node).setType(currentClass);
+		} else {
+			super.visit(node);
 		}
-
-		super.visit(node);
 	}
 	
 	private void inheritance() throws InheritanceFailure {
