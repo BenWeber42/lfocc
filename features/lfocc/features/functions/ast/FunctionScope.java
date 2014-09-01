@@ -26,6 +26,10 @@ public class FunctionScope {
 		}
 	}
 	
+	public FunctionDeclaration getLocalMethod(String name) {
+		return functions.get(name);
+	}
+	
 	public FunctionScope getParent() {
 		return parent;
 	}

@@ -144,22 +144,18 @@ public class Functions extends MultiExtendable {
 				new File("features/lfocc/features/functions/ast/FunctionDeclaration.java"));
 		cg.addSource("lfocc.features.functions.ast",
 				new File("features/lfocc/features/functions/ast/VoidType.java"));
+		cg.addSource("lfocc.features.functions.ast",
+				new File("features/lfocc/features/functions/ast/FunctionScope.java"));
 		
 		if (cg.hasFeature("Types")) {
 			cg.addSource("lfocc.features.functions.semantics",
 					new File("features/lfocc/features/functions/semantics/VoidAdder.java"));
 			cg.addSource("lfocc.features.functions.semantics",
-					new File("features/lfocc/features/functions/semantics/FunctionChecker.java"));
-			cg.addSource("lfocc.features.functions.semantics",
 					new File("features/lfocc/features/functions/semantics/ReturnLookup.java"));
-			cg.addSource("lfocc.features.functions.ast",
-					new File("features/lfocc/features/functions/ast/FunctionScope.java"));
 			cg.getSemanticsGenerator().addTransformer(300,
 					"lfocc.features.functions.semantics", "VoidAdder");
 			cg.getSemanticsGenerator().addTransformer(2500,
 					"lfocc.features.functions.semantics", "ReturnLookup");
-			cg.getSemanticsGenerator().addTransformer(3000,
-					"lfocc.features.functions.semantics", "FunctionChecker");
 		}
 		cg.getParserGenerator().addImport("lfocc.features.functions.ast.*");
 	}

@@ -157,16 +157,12 @@ public class Variables extends Feature {
 				new File("features/lfocc/features/variables/ast/Attribute.java"));
 		cg.addSource("lfocc.features.variables.ast",
 				new File("features/lfocc/features/variables/ast/VariableDeclaration.java"));
+		cg.addSource("lfocc.features.variables.ast",
+				new File("features/lfocc/features/variables/ast/VariableScope.java"));
 
 		if (cg.hasFeature("Types")) {
-			cg.addSource("lfocc.features.variables.ast",
-					new File("features/lfocc/features/variables/ast/VariableScope.java"));
-			cg.addSource("lfocc.features.variables.semantics",
-					new File("features/lfocc/features/variables/semantics/TypeResolver.java"));
 			cg.addSource("lfocc.features.variables.semantics",
 					new File("features/lfocc/features/variables/semantics/VariableTypeLookup.java"));
-			cg.getSemanticsGenerator().addTransformer(2000,
-					"lfocc.features.variables.semantics", "TypeResolver");
 			// TODO: change to 2000
 			cg.getSemanticsGenerator().addTransformer(1999,
 					"lfocc.features.variables.semantics", "VariableTypeLookup");

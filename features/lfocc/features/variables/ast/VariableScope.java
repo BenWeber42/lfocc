@@ -35,4 +35,8 @@ public class VariableScope {
 	public VariableScope getParent() {
 		return parent;
 	}
+	
+	public boolean empty() {
+		return variables.values().size() == 0;
+	}
 }

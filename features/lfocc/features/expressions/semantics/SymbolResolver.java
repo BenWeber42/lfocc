@@ -1,0 +1,376 @@
+package lfocc.features.expressions.semantics;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
+
+import lfocc.features.classes.ast.ClassDeclaration;
+import lfocc.features.classes.ast.ClassType;
+import lfocc.features.expressions.ast.FloatType;
+import lfocc.features.expressions.ast.IntType;
+import lfocc.features.functions.ast.FunctionCall;
+import lfocc.features.functions.ast.FunctionDeclaration;
+import lfocc.features.functions.ast.FunctionScope;
+import lfocc.features.functions.ast.MethodCall;
+import lfocc.features.functions.ast.VoidType;
+import lfocc.features.globalscope.ast.GlobalScope;
+import lfocc.features.variables.ast.Attribute;
+import lfocc.features.variables.ast.Variable;
+import lfocc.features.variables.ast.VariableDeclaration;
+import lfocc.features.variables.ast.VariableScope;
+import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ASTVisitor;
+
+/*
+ * Originally I wanted to do variable resolution, method resolution and type
+ * checking in distinct stages. But there are a few snippets that don't allow
+ * any orderings of variable resolution, method resolution and type checking:
+ * 
+ * 1) var.method(); // The method can't be resolved before the variable's type is known
+ * -> first do variable resolution, then do method resolution
+ * 
+ * 2) method().attribute; // the attribute can't be resolved before the method's return type is known
+ * -> first do method resolution, then do variable resolution
+ * 
+ * The first two examples don't allow any ordering for variable & method resolution
+ * in two distinct stages. (A fixed point iteration would be possible, but
+ * potentially very slow)
+ * 
+ * 3) (cast<Base> derived).method()); // The method can't be resolved before the expression's type is known
+ * -> first resolve the expression's type, then do method resolution
+ * 
+ * 4) (method() + 5); // The expression's type can't be resolved before the method's return type is known
+ * -> first resolve the method, then do the type checking on the expression
+ * 
+ * These two examples don't allow any ordering for expression type checking
+ * and method/variable resolution in two distinct stages.
+ * (Again a fixed point iteration would be possible though with the same drawback)
+ * 
+ * So these semantic checks should probably occur at the same time and allow
+ * interleaving. To keep it simple they're put into this class. It's static
+ * so there are static dependencies which isn't so good. But having it dynamic
+ * would be quite tedious and wouldn't allow for more 'interesting' flexibility
+ * in the sense that it wouldn't allow to generate interesting languages.
+ * (I don't consider languages without expressions, variables or functions
+ * very interesting and I don't want to focus on them.)
+ */
+public class SymbolResolver extends ASTVisitor {
+
+	private Stack<VariableScope> variables = new Stack<VariableScope>();
+	private Stack<FunctionScope> functions = new Stack<FunctionScope>();
+	private ClassType currentClass = null;
+	private boolean insideFunction = false;
+	
+	public SymbolResolver() {
+		variables.push(new VariableScope(null));
+		functions.push(new FunctionScope(null));
+		List<VariableDeclaration> param = new ArrayList<VariableDeclaration>();
+
+		// add global write function
+		param.add(new VariableDeclaration(new IntType(), "_int"));
+		functions.peek().addMethod(new FunctionDeclaration(
+				new VoidType(),
+				"write",
+				param,
+				new ArrayList<ASTNode>()
+				));
+
+		// add global writef function
+		param.clear();
+		param.add(new VariableDeclaration(new FloatType(), "_float"));
+		functions.peek().addMethod(new FunctionDeclaration(
+				new VoidType(),
+				"writef",
+				param,
+				new ArrayList<ASTNode>()
+				));
+
+		// add global writeln function
+		param.clear();
+		functions.peek().addMethod(new FunctionDeclaration(
+				new VoidType(),
+				"writeln",
+				param,
+				new ArrayList<ASTNode>()
+				));
+
+		// add global read function
+		functions.peek().addMethod(new FunctionDeclaration(
+				new IntType(),
+				"read",
+				param,
+				new ArrayList<ASTNode>()
+				));
+
+		// add global readf function
+		functions.peek().addMethod(new FunctionDeclaration(
+				new FloatType(),
+				"readf",
+				param,
+				new ArrayList<ASTNode>()
+				));
+	}
+
+	@Override
+	public void visit(ASTNode node) throws VisitorFailure {
+		
+		if (node instanceof GlobalScope) {
+			globalScope((GlobalScope) node);
+			return;
+		} else if (node instanceof FunctionCall) {
+			functionCall((FunctionCall) node);
+		} else if (node instanceof FunctionDeclaration) {
+			insideFunction = true;
+		} else if (insideFunction && node instanceof VariableDeclaration) {
+			variableDeclaration((VariableDeclaration) node);
+		} else if (node instanceof MethodCall) {
+			methodCall((MethodCall) node);
+		} else if (node instanceof Variable) {
+			variable((Variable) node);
+		} else if (node instanceof Attribute) {
+			attribute((Attribute) node);
+		}
+		
+		if (node.extension(VariableScope.class) != null) { 
+			variables.push(node.extension(VariableScope.class));
+		} else {
+			variables.push(new VariableScope(variables.peek()));
+		}
+		
+		if (node.extension(FunctionScope.class) != null) {
+			functions.push(node.extension(FunctionScope.class));
+		}
+		
+		visit(node.getChildren());
+		
+		if (node.extension(FunctionScope.class) != null) {
+			functions.pop();
+		}
+		
+		if (!variables.peek().empty() && node.extension(VariableScope.class) == null) {
+			node.extend(variables.peek());
+		}
+		variables.pop();
+		
+		if (node instanceof FunctionDeclaration) {
+			insideFunction = false;
+		}
+			
+	}
+
+	private void classDeclaration(ClassDeclaration clazz) throws VisitorFailure {
+		
+		if (clazz.extension(VariableScope.class) != null
+				|| clazz.extension(FunctionScope.class) != null) {
+			
+			assert clazz.extension(VariableScope.class) != null;
+			assert clazz.extension(FunctionScope.class) != null;
+			return;
+		}
+		
+		if (clazz.getType().getParent() == null) {
+			// Only 'Object's Parent is null
+			assert clazz.getName().equals("Object");
+			// 'Object's parent scope is the global scope
+			assert functions.size() == 1 && variables.size() == 1;
+			
+			clazz.extend(new FunctionScope(functions.peek()));
+			clazz.extend(new VariableScope(variables.peek()));
+			
+		} else {
+			classDeclaration(clazz.getType().getParent().getNode());
+			clazz.extend(new FunctionScope(clazz.getType().getParent().getNode().extension(FunctionScope.class)));
+			clazz.extend(new VariableScope(clazz.getType().getParent().getNode().extension(VariableScope.class)));
+		}
+		
+		variables.push(clazz.extension(VariableScope.class));
+		functions.push(clazz.extension(FunctionScope.class));
+		currentClass = clazz.getType();
+		collectScope(clazz.getChildren());
+		currentClass = null;
+		variables.pop();
+		functions.pop();
+	}
+
+	private void globalScope(GlobalScope root) throws VisitorFailure {
+		assert functions.size() == 1 && variables.size() == 1;
+		
+		root.extend(functions.peek());
+		root.extend(variables.peek());
+		
+		collectScope(root.getChildren());
+		visit(root.getChildren());
+	}
+
+	private void attribute(Attribute attr) throws VisitorFailure {
+		visit(attr.getExpr());
+		
+		if (!(attr.getExpr().getType() instanceof ClassType)) {
+			throw new SymbolTypeFailure(String.format("Attribute '%s' requires a ClassType!",
+					attr.getField()));
+		}
+		
+		ClassDeclaration clazz = ((ClassType) attr.getExpr().getType()).getNode();
+		
+		assert clazz.extension(VariableScope.class) != null;
+		
+		if (clazz.extension(VariableScope.class).getVariable(attr.getField()) == null) {
+			throw new SymbolFailure(String.format("Class '%s' has no attribute '%s'!",
+					clazz.getName(), attr.getField()));
+		}
+		
+		attr.setDeclaration(clazz.extension(VariableScope.class).getVariable(attr.getField()));
+	}
+
+	private void variable(Variable var) throws SymbolFailure {
+		assert variables.peek() != null;
+		
+		VariableDeclaration decl = variables.peek().getVariable(var.getName());
+		if (decl == null) {
+			throw new SymbolFailure(String.format("Unknown variable '%s'!",
+					var.getName()));
+		}
+		
+		var.setDeclaration(decl);
+	}
+
+	private void methodCall(MethodCall method) throws VisitorFailure {
+		visit(method.getExpr());
+		
+		if (!(method.getExpr().getType() instanceof ClassType)) {
+			throw new SymbolTypeFailure(String.format("Method '%s' requires a ClassType!",
+					method.getName()));
+		}
+		
+		ClassDeclaration clazz = ((ClassType) method.getExpr().getType()).getNode();
+		
+		assert clazz.extension(FunctionScope.class) != null;
+		
+		if (clazz.extension(FunctionScope.class).getMethod(method.getName()) == null) {
+			throw new SymbolFailure(String.format("Class '%s' has no method '%s'!",
+					clazz.getName(), method.getName()));
+		}
+		
+		method.setDeclaration(clazz.extension(FunctionScope.class).getMethod(method.getName()));
+	}
+
+	private void functionCall(FunctionCall func) throws SymbolFailure {
+		assert functions.peek() != null;
+
+		FunctionDeclaration decl = functions.peek().getMethod(func.getName());
+		if (decl == null) {
+			throw new SymbolFailure(String.format("Unknown function '%s'!",
+					func.getName()));
+		}
+		
+		func.setDeclaration(decl);
+	}
+	
+	private void variableDeclaration(VariableDeclaration var) throws SymbolFailure {
+		if (variables.peek().getVariable(var.getName()) != null) {
+			throw new SymbolFailure(String.format("Variable '%s' already declared!",
+					var.getName()));
+		}
+		
+		variables.peek().addVariable(var);
+	}
+
+	private void functionDeclaration(FunctionDeclaration func) throws VisitorFailure {
+		if (functions.peek().getMethod(func.getName()) == null) {
+			// No double declaration & no overriding -> everything good
+			functions.peek().addMethod(func);
+		} else if (functions.peek().getLocalMethod(func.getName()) != null) {
+			// Double declaration -> error
+			throw new SymbolFailure(String.format("Method '%s' already declared!",
+					func.getName()));
+		} else if (overrides(func, currentClass.getParent())){
+			// check correct overriding
+			checkFunctionInheritance(func);
+		} else {
+			// no overriding -> double declaration -> error
+			// this means a method overrides a global function
+			throw new SymbolFailure(String.format("Invalid shadowing through method '%s'!",
+					func.getName()));
+		}
+		
+		func.extend(new VariableScope(variables.peek()));
+	}
+	
+	private void checkFunctionInheritance(FunctionDeclaration func) throws SymbolFailure {
+		FunctionDeclaration parent = functions.peek().getMethod(func.getName());
+
+		// return type
+		if (!parent.getReturnType().equals(func.getReturnType())) {
+			throw new SymbolFailure(String.format(
+					"Function '%s' in class '%s' doesn't override correctly (return type mismatch)!",
+					func.getName(), currentClass.getName()));
+		}
+		
+		// parameter count
+		if (parent.getParameters().size() != func.getParameters().size()) {
+			throw new SymbolFailure(String.format(
+					"Function '%s' in class '%s' doesn't override correctly! (number of parameters mismatch)",
+					func.getName(), currentClass.getName()));
+		}
+		
+		// parameter types
+		Iterator<VariableDeclaration> param = parent.getParameters().iterator();
+		Iterator<VariableDeclaration> parentParam = func.getParameters().iterator();
+		
+		while (param.hasNext()) {
+			if (!param.next().getType().equals(parentParam.next().getType())) {
+				throw new SymbolFailure(String.format(
+						"Function '%s' in class '%s' doesn't override correctly! (parameter type mismatch)",
+						func.getName(), currentClass.getName()));
+			}
+		}
+	}
+	
+	private boolean overrides(FunctionDeclaration func, ClassType clazz) {
+		if (clazz.getNode().extension(FunctionScope.class).getLocalMethod(func.getName()) != null) {
+			return true;
+		} else if (clazz.getParent() != null) {
+			return overrides(func, clazz.getParent());
+		} else {
+			return false;
+		}
+	}
+	
+	private void collectScope(List<ASTNode> nodes) throws VisitorFailure {
+		Iterator<ASTNode> it = nodes.iterator();
+		while (it.hasNext()) {
+			ASTNode node = it.next();
+			if (node instanceof FunctionDeclaration) {
+				functionDeclaration((FunctionDeclaration) node);
+			} else if (node instanceof VariableDeclaration) {
+				variableDeclaration((VariableDeclaration) node);
+			}
+		}
+		
+		it = nodes.iterator();
+		while (it.hasNext()) {
+			ASTNode node = it.next();
+			if (node instanceof ClassDeclaration) {
+				classDeclaration((ClassDeclaration) node);
+			}
+		}
+	}
+
+	@SuppressWarnings("serial")
+	public static class SymbolFailure extends VisitorFailure {
+
+		public SymbolFailure(String message) {
+			super(message);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	public static class SymbolTypeFailure extends VisitorFailure {
+
+		public SymbolTypeFailure(String message) {
+			super(message);
+		}
+
+	}
+}

@@ -23,10 +23,6 @@ public class Types extends SingleExtendable {
 				new File("features/lfocc/features/types/ast/TypeSymbol.java"));
 		cg.addSource("lfocc.features.types.semantics",
 				new File("features/lfocc/features/types/semantics/TypeDB.java"));
-		cg.addSource("lfocc.features.types.semantics",
-				new File("features/lfocc/features/types/semantics/SymbolResolver.java"));
-		cg.getSemanticsGenerator().addTransformer(4000,
-				"lfocc.features.types.semantics", "SymbolResolver");
 	}
 	
 	private String generateGrammar() {
