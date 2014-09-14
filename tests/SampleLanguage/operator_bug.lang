@@ -1,0 +1,11 @@
+int main() {
+
+	int i = 0, j = 0;
+
+	if (i < j && j < i) {}
+
+	if ((i < j || j < i) && i != j) {}
+
+	if ((i < j || j < i) && i == j) {}
+
+}
