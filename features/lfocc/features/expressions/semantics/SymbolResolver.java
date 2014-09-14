@@ -1,6 +1,7 @@
 package lfocc.features.expressions.semantics;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -94,33 +95,28 @@ public class SymbolResolver extends ASTVisitor {
 	public SymbolResolver() {
 		variables.push(new VariableScope(null));
 		functions.push(new FunctionScope(null));
-		List<VariableDeclaration> param = new ArrayList<VariableDeclaration>();
 
 		// add global write function
-		param.add(new VariableDeclaration(new IntType(), "_int"));
 		functions.peek().addMethod(new FunctionDeclaration(
 				new VoidType(),
 				"write",
-				param,
+				new ArrayList<VariableDeclaration>(Arrays.asList(new VariableDeclaration(new IntType(), "i"))),
 				new ArrayList<ASTNode>()
 				));
 
 		// add global writef function
-		param.clear();
-		param.add(new VariableDeclaration(new FloatType(), "_float"));
 		functions.peek().addMethod(new FunctionDeclaration(
 				new VoidType(),
 				"writef",
-				param,
+				new ArrayList<VariableDeclaration>(Arrays.asList(new VariableDeclaration(new FloatType(), "f"))),
 				new ArrayList<ASTNode>()
 				));
 
 		// add global writeln function
-		param.clear();
 		functions.peek().addMethod(new FunctionDeclaration(
 				new VoidType(),
 				"writeln",
-				param,
+				new ArrayList<VariableDeclaration>(),
 				new ArrayList<ASTNode>()
 				));
 
@@ -128,7 +124,7 @@ public class SymbolResolver extends ASTVisitor {
 		functions.peek().addMethod(new FunctionDeclaration(
 				new IntType(),
 				"read",
-				param,
+				new ArrayList<VariableDeclaration>(),
 				new ArrayList<ASTNode>()
 				));
 
@@ -136,7 +132,7 @@ public class SymbolResolver extends ASTVisitor {
 		functions.peek().addMethod(new FunctionDeclaration(
 				new FloatType(),
 				"readf",
-				param,
+				new ArrayList<VariableDeclaration>(),
 				new ArrayList<ASTNode>()
 				));
 	}
