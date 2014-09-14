@@ -151,11 +151,11 @@ public class Functions extends MultiExtendable {
 			cg.addSource("lfocc.features.functions.semantics",
 					new File("features/lfocc/features/functions/semantics/VoidAdder.java"));
 			cg.addSource("lfocc.features.functions.semantics",
-					new File("features/lfocc/features/functions/semantics/ReturnLookup.java"));
+					new File("features/lfocc/features/functions/semantics/ReturnTypeLookup.java"));
 			cg.getSemanticsGenerator().addTransformer(300,
 					"lfocc.features.functions.semantics", "VoidAdder");
 			cg.getSemanticsGenerator().addTransformer(2500,
-					"lfocc.features.functions.semantics", "ReturnLookup");
+					"lfocc.features.functions.semantics", "ReturnTypeLookup");
 		}
 		cg.getParserGenerator().addImport("lfocc.features.functions.ast.*");
 	}

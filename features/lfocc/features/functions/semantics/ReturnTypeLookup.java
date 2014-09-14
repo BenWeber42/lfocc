@@ -6,7 +6,7 @@ import lfocc.features.types.semantics.TypeDB;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
-public class ReturnLookup extends ASTVisitor {
+public class ReturnTypeLookup extends ASTVisitor {
 
 	@Override
 	public void visit(ASTNode node) throws VisitorFailure {

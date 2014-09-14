@@ -163,8 +163,7 @@ public class Variables extends Feature {
 		if (cg.hasFeature("Types")) {
 			cg.addSource("lfocc.features.variables.semantics",
 					new File("features/lfocc/features/variables/semantics/VariableTypeLookup.java"));
-			// TODO: change to 2000
-			cg.getSemanticsGenerator().addTransformer(1999,
+			cg.getSemanticsGenerator().addTransformer(2000,
 					"lfocc.features.variables.semantics", "VariableTypeLookup");
 		}
 
