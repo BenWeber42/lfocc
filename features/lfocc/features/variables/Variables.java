@@ -333,7 +333,7 @@ public class Variables extends Feature {
 			src += "   \n";
 			src += "   | expression ',' next = _variableParameterExpression\n";
 			src += "   {\n";
-			src += "      $next.add($expression);\n";
+			src += "      $next.add(0, $expression);\n";
 			src += "      $$ = $next;\n";
 			src += "   }\n";
 			src += "   ;\n";
