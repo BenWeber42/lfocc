@@ -59,6 +59,8 @@ import lfocc.framework.compiler.ast.ASTVisitor;
  * 
  * So then all requirements to lookup attributes and methods are met.
  * 
+ * This visitor works no matter whether the Types feature is activated or not.
+ * 
  * This visitor checks for:
  * - correct use of variables
  *    - variable declaration doesn't shadow or override variables in outer scope
