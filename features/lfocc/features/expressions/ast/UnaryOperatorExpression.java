@@ -5,9 +5,19 @@ import lfocc.features.types.ast.TypeSymbol;
 public class UnaryOperatorExpression extends UnaryExpression {
 
 	public static enum Operator {
-		NOT,
-		PLUS,
-		MINUS
+		NOT("!"),
+		PLUS("+"),
+		MINUS("-");
+		
+		private String str;
+		
+		private Operator(String str) {
+			this.str = str;
+		}
+		
+		public String getName() {
+			return str;
+		}
 	};
 	
 	private Operator operator;

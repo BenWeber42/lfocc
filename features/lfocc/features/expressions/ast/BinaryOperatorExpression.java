@@ -5,19 +5,28 @@ import lfocc.features.types.ast.TypeSymbol;
 public class BinaryOperatorExpression extends BinaryExpression {
 
 	public static enum Operator {
-		PLUS,
-		MINUS,
-		TIMES,
-		DIVIDE,
-		MODULO,
-		AND,
-		OR,
-		EQUAL,
-		NOT_EQUAL,
-		SMALLER,
-		SMALLER_EQUAL,
-		GREATER,
-		GREATER_EQUAL
+		PLUS("+"),
+		MINUS("-"),
+		TIMES("*"),
+		DIVIDE("/"),
+		MODULO("%"),
+		AND("&&"),
+		OR("||"),
+		EQUAL("=="),
+		NOT_EQUAL("!="),
+		SMALLER("<"),
+		SMALLER_EQUAL("<="),
+		GREATER(">"),
+		GREATER_EQUAL(">=");
+		
+		private String str;
+		private Operator(String str) {
+			this.str = str;
+		}
+		
+		public String getName() {
+			return str;
+		}
 	};
 	
 	private Operator operator;
