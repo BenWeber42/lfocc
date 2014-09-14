@@ -109,7 +109,7 @@ public class Classes extends SingleExtendable {
 
 		if (!objectMemberExtender.isEmpty()) {
 			cg.getParserGenerator().addToken("'.'", "/\\./");
-			cg.getParserGenerator().addPrecedence("'.'", 4);
+			cg.getParserGenerator().addPrecedence("'.'", 7);
 		}
 
 		if (cg.hasFeature("Expressions")) {

@@ -76,10 +76,13 @@ public class Expressions extends MultiExtendable {
 		cg.getParserGenerator().addToken("'int'", "/int/");
 		cg.getParserGenerator().addToken("'float'", "/float/");
 		cg.getParserGenerator().addToken("'boolean'", "/boolean/");
-		cg.getParserGenerator().addPrecedence("'==' '!=' '<=' '>=' '<' '>'", 0);
-		cg.getParserGenerator().addPrecedence("'+' '-' '||'", 1);
-		cg.getParserGenerator().addPrecedence("'*' '/' '%' '&&'", 2);
-		cg.getParserGenerator().addPrecedence("'!'", 3);
+		cg.getParserGenerator().addPrecedence("'||'", 0);
+		cg.getParserGenerator().addPrecedence("'&&'", 1);
+		cg.getParserGenerator().addPrecedence("'==' '!='", 2);
+		cg.getParserGenerator().addPrecedence("'<=' '>=' '<' '>'", 3);
+		cg.getParserGenerator().addPrecedence("'+' '-'", 4);
+		cg.getParserGenerator().addPrecedence("'*' '/' '%'", 5);
+		cg.getParserGenerator().addPrecedence("'!'", 6);
 
 		// FIXME: integer should also parse negative integers!
 		cg.getParserGenerator().addToken("integer", "String", "/0|[1-9][0-9]*/   { $lexem = current(); break; }");
@@ -121,8 +124,12 @@ public class Expressions extends MultiExtendable {
 		if (cg.hasFeature("Types")) {
 			cg.addSource("lfocc.features.expressions.semantics", 
 					new File("features/lfocc/features/expressions/semantics/Primitives.java"));
+			cg.addSource("lfocc.features.expressions.semantics", 
+					new File("features/lfocc/features/expressions/semantics/OperatorTypeResolver.java"));
 			cg.getSemanticsGenerator().addTransformer(500,
 					"lfocc.features.expressions.semantics", "Primitives");
+			cg.getSemanticsGenerator().addTransformer(5000,
+					"lfocc.features.expressions.semantics", "OperatorTypeResolver");
 		}
 		
 		// imports:
