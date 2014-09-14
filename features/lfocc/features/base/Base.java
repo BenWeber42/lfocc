@@ -50,6 +50,8 @@ public class Base extends Feature {
 			cg.addSource("lfocc.features.classes.ast",
 					new File("features/lfocc/features/classes/ast/ClassType.java"));
 			cg.addSource("lfocc.features.classes.ast",
+					new File("features/lfocc/features/classes/ast/NullType.java"));
+			cg.addSource("lfocc.features.classes.ast",
 					new File("features/lfocc/features/classes/ast/ClassDeclaration.java"));
 		}
 	}
