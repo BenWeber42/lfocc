@@ -11,6 +11,13 @@ import lfocc.framework.compiler.ast.ASTVisitor;
 import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.types.semantics.TypeDB;
 
+/*
+ * Collects all declared classes and checks for:
+ * - Correct inheritance
+ *    - Superclass exists
+ *    - No circular inheritance
+ *    - resolves parent class
+ */
 public class ClassCollector extends ASTVisitor { 
 	
 	private ClassType obj = null;

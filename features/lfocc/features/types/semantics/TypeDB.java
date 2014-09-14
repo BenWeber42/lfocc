@@ -6,7 +6,9 @@ import java.util.Map;
 
 import lfocc.features.types.ast.TypeSymbol;
 
-
+/*
+ * Collection of types inside a program
+ */
 public enum TypeDB {
 	INSTANCE;
 	

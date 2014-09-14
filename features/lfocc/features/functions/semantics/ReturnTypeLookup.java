@@ -6,6 +6,12 @@ import lfocc.features.types.semantics.TypeDB;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
+/*
+ * Checks for correct return types in function declarations
+ *    - return type exists
+ *    - sets return type of function declaration
+ *    - doesn't check for correct types of returned expressions
+ */
 public class ReturnTypeLookup extends ASTVisitor {
 
 	@Override

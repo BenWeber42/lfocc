@@ -128,7 +128,7 @@ public class Expressions extends MultiExtendable {
 					new File("features/lfocc/features/expressions/semantics/OperatorTypeResolver.java"));
 			cg.getSemanticsGenerator().addTransformer(500,
 					"lfocc.features.expressions.semantics", "Primitives");
-			cg.getSemanticsGenerator().addTransformer(5000,
+			cg.getSemanticsGenerator().addTransformer(4000,
 					"lfocc.features.expressions.semantics", "OperatorTypeResolver");
 		}
 		

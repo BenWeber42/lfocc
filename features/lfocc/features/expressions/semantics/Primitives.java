@@ -9,6 +9,9 @@ import lfocc.features.types.semantics.TypeDB;
 import lfocc.framework.compiler.ast.ASTVisitor;
 import lfocc.framework.compiler.ast.ASTNode;
 
+/*
+ * Registers all primitive types (int, float, boolean) into the TypeDB
+ */
 public class Primitives extends ASTVisitor {
 
 	public void visit(List<ASTNode> roots) {

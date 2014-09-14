@@ -6,6 +6,12 @@ import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
+/*
+ * Checks types of variable declarations
+ *    - type of variable declaration exists
+ *    - resolves types of variable declarations
+ *    - doesn't resolve types of variable use
+ */
 public class VariableTypeLookup extends ASTVisitor {
 
 	@Override

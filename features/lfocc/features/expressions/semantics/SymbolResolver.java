@@ -23,37 +23,64 @@ import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
 /*
- * Originally I wanted to do variable resolution, method resolution and type
- * checking in distinct stages. But there are a few snippets that don't allow
- * any orderings of variable resolution, method resolution and type checking:
+ * There are strong dependencies amongst many features when it comes to
+ * symbol resolution. The following examples show those:
  * 
- * 1) var.method(); // The method can't be resolved before the variable's type is known
- * -> first do variable resolution, then do method resolution
+ * // here the attribute can't be looked up before the return type is known
+ * variable.method().attribute
  * 
- * 2) method().attribute; // the attribute can't be resolved before the method's return type is known
- * -> first do method resolution, then do variable resolution
+ * // here the method can't be be looked up before the attribute's type is known
+ * variable.attribute.method()
  * 
- * The first two examples don't allow any ordering for variable & method resolution
- * in two distinct stages. (A fixed point iteration would be possible, but
- * potentially very slow)
+ * //Assuming a language supports operator overloading:
+ * // Then the method can't be looked up until the operator's types are resolved
+ * (A + B).method()
  * 
- * 3) (cast<Base> derived).method()); // The method can't be resolved before the expression's type is known
- * -> first resolve the expression's type, then do method resolution
+ * Due to these strong dependencies it's hard to achieve flexibility and simplicity
+ * at the same time. High flexibility would lead to high complexity (conditional
+ * code generation and code composition from many features).
  * 
- * 4) (method() + 5); // The expression's type can't be resolved before the method's return type is known
- * -> first resolve the method, then do the type checking on the expression
+ * However in our case there is luckily a not too complex solution that achieves
+ * pretty good flexibility.
  * 
- * These two examples don't allow any ordering for expression type checking
- * and method/variable resolution in two distinct stages.
- * (Again a fixed point iteration would be possible though with the same drawback)
+ * This is achieved through smart separation of the semantic checks, such that
+ * different semantic checks can be composed flexibly.
  * 
- * So these semantic checks should probably occur at the same time and allow
- * interleaving. To keep it simple they're put into this class. It's static
- * so there are static dependencies which isn't so good. But having it dynamic
- * would be quite tedious and wouldn't allow for more 'interesting' flexibility
- * in the sense that it wouldn't allow to generate interesting languages.
- * (I don't consider languages without expressions, variables or functions
- * very interesting and I don't want to focus on them.)
+ * Becaue operator overloading isn't supported the only expressions that can
+ * have attributes or methods are:
+ * - new operator
+ * - this keyword
+ * - cast operator
+ * - variable use
+ * - function call
+ * 
+ * The first three can easily be resolved (this is done in the ClassTypeLookup).
+ * Function calls and variable uses are looked up inside the symbol resolver.
+ * 
+ * So then all requirements to lookup attributes and methods are met.
+ * 
+ * This visitor checks for:
+ * - correct use of variables
+ *    - variable declaration doesn't shadow or override variables in outer scope
+ *      (this is an arbitrary decision regarding semantics that simplifies the
+ *      semantic checks)
+ *    - variable exists inside of scope when used
+ *    - resolves variable declaration of variable use
+ *    - resolves scopes of variables
+ * - correct use of function calls
+ *    - adds write, writef, writeln, read & readf functions to global scope
+ *    - only functions are called that exist
+ *    - methods don't shadow or override global functions
+ *      (this is an arbitrary decision regarding semantics that simplifies the
+ *      semantic checks)
+ *    - methods override correctly
+ *    - resolves function declarations of function calls
+ * - correct use of attributes
+ *    - attribute exists
+ *    - resolves variable declaration of attribute
+ * - correct use of method calls
+ *    - method exists
+ *    - resolves method declaration of method call
  */
 public class SymbolResolver extends ASTVisitor {
 

@@ -10,6 +10,12 @@ import lfocc.features.expressions.ast.BinaryOperatorExpression.Operator;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
+/*
+ * Checks and resolves types of operators:
+ * - Types of operator arguments are valid
+ * - Resolves types of operator expressions
+ * - doesn't check equal and not_equal operators if both arguments aren't primitive
+ */
 public class OperatorTypeResolver extends ASTVisitor {
 
 	@Override

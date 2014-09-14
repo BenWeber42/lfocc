@@ -7,6 +7,9 @@ import lfocc.features.types.semantics.TypeDB;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
+/*
+ * Adds void type to TypeDB
+ */
 public class VoidAdder extends ASTVisitor {
 	
 	public void visit(List<ASTNode> roots) {

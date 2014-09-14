@@ -10,6 +10,19 @@ import lfocc.features.types.semantics.TypeDB;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
+/*
+ * Checks for
+ * - correct use of this
+ *    - this
+ *    - resolves type of this
+ * - correct use of new
+ *    - Class of new exists
+ *    - resolves type of new
+ * - (partially) correct use of the cast operator
+ *    - cast's argument exists and is a class
+ *    - resolves type of cast
+ *    - doesn't check for valid up or down cast (done in a different stage)
+ */
 public class ClassTypeLookup extends ASTVisitor {
 	
 	private ClassType currentClass = null;
@@ -57,9 +70,6 @@ public class ClassTypeLookup extends ASTVisitor {
 			}
 			
 			cast.setType((ClassType) type);
-			
-			// TODO: in a separate stage do type checking for casts
-			// and potentially emit downcast checking runtime
 			
 			visit(cast.getChildren());
 		} else {
