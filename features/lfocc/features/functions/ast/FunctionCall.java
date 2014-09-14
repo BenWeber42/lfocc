@@ -10,9 +10,9 @@ import lfocc.framework.compiler.ast.ExtendableNode;
 
 public class FunctionCall extends ExtendableNode implements Expression {
 	
-	private String name;
-	private List<Expression> arguments;
-	private FunctionDeclaration declaration;
+	protected String name;
+	protected List<Expression> arguments;
+	protected FunctionDeclaration declaration;
 
 	public FunctionCall(String name, List<Expression> arguments) {
 		this.name = name;

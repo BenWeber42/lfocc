@@ -147,14 +147,14 @@ public class SymbolResolver extends ASTVisitor {
 		if (node instanceof GlobalScope) {
 			globalScope((GlobalScope) node);
 			return;
+		} else if (node instanceof MethodCall) {
+			methodCall((MethodCall) node);
 		} else if (node instanceof FunctionCall) {
 			functionCall((FunctionCall) node);
 		} else if (node instanceof FunctionDeclaration) {
 			insideFunction = true;
 		} else if (insideFunction && node instanceof VariableDeclaration) {
 			variableDeclaration((VariableDeclaration) node);
-		} else if (node instanceof MethodCall) {
-			methodCall((MethodCall) node);
 		} else if (node instanceof Variable) {
 			variable((Variable) node);
 		} else if (node instanceof Attribute) {
