@@ -147,6 +147,8 @@ public class Functions extends MultiExtendable {
 		cg.addSource("lfocc.features.functions.ast",
 				new File("features/lfocc/features/functions/ast/FunctionScope.java"));
 		cg.addSource("lfocc.features.functions.semantics",
+				new File("features/lfocc/features/functions/semantics/ReturnFailure.java"));
+		cg.addSource("lfocc.features.functions.semantics",
 				new File("features/lfocc/features/functions/semantics/FunctionCallFailure.java"));
 		cg.addSource("lfocc.features.functions.semantics",
 				new File("features/lfocc/features/functions/semantics/FunctionCallChecker.java"));
@@ -158,16 +160,25 @@ public class Functions extends MultiExtendable {
 					new File("features/lfocc/features/functions/semantics/VoidAdder.java"));
 			cg.addSource("lfocc.features.functions.semantics",
 					new File("features/lfocc/features/functions/semantics/ReturnTypeLookup.java"));
-		cg.addSource("lfocc.features.functions.semantics",
-				new File("features/lfocc/features/functions/semantics/ReturnFailure.java"));
-		cg.addSource("lfocc.features.functions.semantics",
-				new File("features/lfocc/features/functions/semantics/FunctionTypeChecker.java"));
+			cg.addSource("lfocc.features.functions.semantics",
+					new File("features/lfocc/features/functions/semantics/FunctionTypeChecker.java"));
 			cg.getSemanticsGenerator().addTransformer(300,
 					"lfocc.features.functions.semantics", "VoidAdder");
 			cg.getSemanticsGenerator().addTransformer(2500,
 					"lfocc.features.functions.semantics", "ReturnTypeLookup");
 			cg.getSemanticsGenerator().addTransformer(5500,
 					"lfocc.features.functions.semantics", "FunctionTypeChecker");
+		}
+		
+		if (cg.hasFeature("ControlFlow")) {
+			cg.addSource("lfocc.features.functions.semantics",
+					new File("features/lfocc/features/functions/semantics/FunctionReturnChecker.java"));
+			cg.getSemanticsGenerator().addTransformer(6000,
+					"lfocc.features.functions.semantics", "FunctionReturnChecker");
+		} else {
+			// TODO: add return checker independent of ControlFlow
+			// Languages without if, while statements aren't that interesting
+			// that's why it's ok to leave it for now
 		}
 		cg.getParserGenerator().addImport("lfocc.features.functions.ast.*");
 	}
