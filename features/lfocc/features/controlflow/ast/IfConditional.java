@@ -7,22 +7,24 @@ import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class IfConditional extends ExtendableNode implements ASTNode {
+public class IfConditional extends ExtendableNode implements Conditional {
 
-	private Expression expr;
+	private Expression condition;
 	private List<ASTNode> code;
 
-	public IfConditional(Expression expr, List<ASTNode> code) {
-		this.expr = expr;
+	public IfConditional(Expression condition, List<ASTNode> code) {
+		this.condition = condition;
 		this.code = code;
 	}
 	
-	public Expression getExpr() {
-		return expr;
+	@Override
+	public Expression getCondition() {
+		return condition;
 	}
 
-	public void setExpr(Expression expr) {
-		this.expr = expr;
+	@Override
+	public void setCondition(Expression condition) {
+		this.condition = condition;
 	}
 
 	public List<ASTNode> getCode() {
@@ -36,7 +38,7 @@ public class IfConditional extends ExtendableNode implements ASTNode {
 	@Override
 	public List<ASTNode> getChildren() {
 		ArrayList<ASTNode> children = new ArrayList<ASTNode>();
-		children.add(expr);
+		children.add(condition);
 		children.addAll(code);
 		return children;
 	}

@@ -3,7 +3,7 @@ package lfocc.features.functions.semantics;
 import java.util.Iterator;
 import java.util.List;
 
-import lfocc.features.controlflow.ast.Conditional;
+import lfocc.features.controlflow.ast.ConditionalSequence;
 import lfocc.features.controlflow.ast.ElseConditional;
 import lfocc.features.controlflow.ast.IfConditional;
 import lfocc.features.functions.ast.FunctionDeclaration;
@@ -25,8 +25,8 @@ public class FunctionReturnChecker extends ASTVisitor {
 	public void visit(ASTNode node) throws VisitorFailure {
 		if (node instanceof FunctionDeclaration) {
 			functionDeclaration((FunctionDeclaration) node);
-		} else if (node instanceof Conditional) {
-			conditional((Conditional) node);
+		} else if (node instanceof ConditionalSequence) {
+			conditional((ConditionalSequence) node);
 		} else if (node instanceof IfConditional) {
 			ifConditional((IfConditional) node);
 		} else if (node instanceof ElseConditional) {
@@ -42,7 +42,7 @@ public class FunctionReturnChecker extends ASTVisitor {
 		returns = true;
 	}
 
-	private void conditional(Conditional cond) throws VisitorFailure {
+	private void conditional(ConditionalSequence cond) throws VisitorFailure {
 		
 		returns = false;
 		

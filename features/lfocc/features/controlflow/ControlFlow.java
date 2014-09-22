@@ -97,6 +97,8 @@ public class ControlFlow extends Feature {
 		cg.addSource("lfocc.features.controlflow.ast",
 				new File("features/lfocc/features/controlflow/ast/Conditional.java"));
 		cg.addSource("lfocc.features.controlflow.ast",
+				new File("features/lfocc/features/controlflow/ast/ConditionalSequence.java"));
+		cg.addSource("lfocc.features.controlflow.ast",
 				new File("features/lfocc/features/controlflow/ast/IfConditional.java"));
 		cg.addSource("lfocc.features.controlflow.ast",
 				new File("features/lfocc/features/controlflow/ast/ElseConditional.java"));
@@ -127,11 +129,18 @@ public class ControlFlow extends Feature {
 			cg.getParserGenerator().addGrammarSource(getName(), generateForGrammar());
 			cg.getParserGenerator().addToken("'for'", "/for/");
 		}
+		
+		if (cg.hasFeature("Types")) {
+			cg.addSource("lfocc.features.controlflow.semantics",
+					new File("features/lfocc/features/controlflow/semantics/ControlFlowChecker.java"));
+			cg.getSemanticsGenerator().addTransformer(6500,
+					"lfocc.features.controlflow.semantics", "ControlFlowChecker");
+		}
 	}
 	
 	private String generateIfGrammar() {
 		String src = "";
-		src += "ifConditional (Conditional) ::= \n";
+		src += "ifConditional (ConditionalSequence) ::= \n";
 		if (ifConditional) {
 			src += "   'if' '(' expression ')' '{' codeBlock '}' ifRest\n";
 			src += "   {\n";
@@ -142,10 +151,10 @@ public class ControlFlow extends Feature {
 		}
 		src += "\n";
 
-		src += "ifRest (Conditional) ::= \n";
+		src += "ifRest (ConditionalSequence) ::= \n";
 		src += "   # empty\n";
 		src += "   {\n";
-		src += "      $$ = new Conditional();\n";
+		src += "      $$ = new ConditionalSequence();\n";
 		src += "   }\n";
 		if (elseConditional || elseIfConditional) {
 			src += "   | 'else' ifRest2\n";
@@ -155,7 +164,7 @@ public class ControlFlow extends Feature {
 		}
 		src += "   ;\n";
 		src += "\n";
-		src += "ifRest2 (Conditional) ::=\n";
+		src += "ifRest2 (ConditionalSequence) ::=\n";
 		if (elseIfConditional) {
 			src += "   'if' '(' expression ')' '{' codeBlock '}' ifRest\n";
 			src += "   {\n";
@@ -166,7 +175,7 @@ public class ControlFlow extends Feature {
 		if (elseConditional) {
 			src += "   | '{' codeBlock '}'\n";
 			src += "   {\n";
-			src += "      Conditional cond = new Conditional();\n";
+			src += "      ConditionalSequence cond = new ConditionalSequence();\n";
 			src += "      cond.setElse(new ElseConditional($codeBlock));\n";
 			src += "      $$ = cond;\n";
 			src += "   }\n";

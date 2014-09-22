@@ -8,22 +8,24 @@ import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
-public class WhileLoop extends ExtendableNode implements ASTNode {
+public class WhileLoop extends ExtendableNode implements Conditional {
 
-	private Expression expr;
+	private Expression condition;
 	private List<ASTNode> code;
 	
-	public WhileLoop(Expression expr, List<ASTNode> code) {
-		this.expr = expr;
+	public WhileLoop(Expression condition, List<ASTNode> code) {
+		this.condition = condition;
 		this.code = code;
 	}
 	
-	public Expression getExpr() {
-		return expr;
+	@Override
+	public Expression getCondition() {
+		return condition;
 	}
 
-	public void setExpr(Expression expr) {
-		this.expr = expr;
+	@Override
+	public void setCondition(Expression condition) {
+		this.condition = condition;
 	}
 
 	public List<ASTNode> getCode() {
@@ -36,7 +38,7 @@ public class WhileLoop extends ExtendableNode implements ASTNode {
 
 	@Override
 	public List<ASTNode> getChildren() {
-		ArrayList<ASTNode> children = new ArrayList<ASTNode>(Arrays.asList(expr));
+		ArrayList<ASTNode> children = new ArrayList<ASTNode>(Arrays.asList(condition));
 		children.addAll(code);
 		return children;
 	}
