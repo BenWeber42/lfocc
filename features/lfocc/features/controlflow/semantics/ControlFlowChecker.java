@@ -19,6 +19,7 @@ public class ControlFlowChecker extends ASTVisitor {
 
 	private void conditional(Conditional cond) throws ControlFlowFailure {
 		assert cond.getCondition() != null;
+		assert cond.getCondition().getType() != null;
 		
 		if (!(cond.getCondition().getType() instanceof BooleanType)) {
 			throw new ControlFlowFailure(String.format(

@@ -138,15 +138,21 @@ public class Classes extends SingleExtendable {
 				new File("features/lfocc/features/classes/ast/ClassType.java"));
 		cg.addSource("lfocc.features.classes.ast",
 				new File("features/lfocc/features/classes/ast/NullType.java"));
+		cg.addSource("lfocc.features.classes.semantics",
+				new File("features/lfocc/features/classes/semantics/ClassTypeFailure.java"));
 		
-		cg.getSemanticsGenerator().addTransformer(
-				1000, "lfocc.features.classes.semantics", "ClassCollector");
-		cg.getSemanticsGenerator().addTransformer(
-				1500, "lfocc.features.classes.semantics", "ClassTypeLookup");
 		cg.addSource("lfocc.features.classes.semantics",
 				new File("features/lfocc/features/classes/semantics/ClassCollector.java"));
 		cg.addSource("lfocc.features.classes.semantics",
 				new File("features/lfocc/features/classes/semantics/ClassTypeLookup.java"));
+		cg.addSource("lfocc.features.classes.semantics",
+				new File("features/lfocc/features/classes/semantics/ClassEqualChecker.java"));
+		cg.getSemanticsGenerator().addTransformer(1000,
+				"lfocc.features.classes.semantics", "ClassCollector");
+		cg.getSemanticsGenerator().addTransformer(1500,
+				"lfocc.features.classes.semantics", "ClassTypeLookup");
+		cg.getSemanticsGenerator().addTransformer(6500,
+				"lfocc.features.classes.semantics", "ClassEqualChecker");
 	}
 	
 	private String generateGrammar() {

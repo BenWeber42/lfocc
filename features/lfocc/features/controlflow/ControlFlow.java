@@ -133,7 +133,7 @@ public class ControlFlow extends Feature {
 		if (cg.hasFeature("Types")) {
 			cg.addSource("lfocc.features.controlflow.semantics",
 					new File("features/lfocc/features/controlflow/semantics/ControlFlowChecker.java"));
-			cg.getSemanticsGenerator().addTransformer(6500,
+			cg.getSemanticsGenerator().addTransformer(7000,
 					"lfocc.features.controlflow.semantics", "ControlFlowChecker");
 		}
 	}
