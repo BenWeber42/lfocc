@@ -77,12 +77,4 @@ public class ClassTypeLookup extends ASTVisitor {
 		}
 		
 	}
-	
-	@SuppressWarnings("serial")
-	public static class ClassTypeFailure extends VisitorFailure {
-
-		public ClassTypeFailure(String message) {
-			super(message);
-		}
-	}
 }
