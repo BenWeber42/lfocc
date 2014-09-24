@@ -147,12 +147,16 @@ public class Classes extends SingleExtendable {
 				new File("features/lfocc/features/classes/semantics/ClassTypeLookup.java"));
 		cg.addSource("lfocc.features.classes.semantics",
 				new File("features/lfocc/features/classes/semantics/ClassEqualChecker.java"));
+		cg.addSource("lfocc.features.classes.semantics",
+				new File("features/lfocc/features/classes/semantics/CastChecker.java"));
 		cg.getSemanticsGenerator().addTransformer(1000,
 				"lfocc.features.classes.semantics", "ClassCollector");
 		cg.getSemanticsGenerator().addTransformer(1500,
 				"lfocc.features.classes.semantics", "ClassTypeLookup");
 		cg.getSemanticsGenerator().addTransformer(6500,
 				"lfocc.features.classes.semantics", "ClassEqualChecker");
+		cg.getSemanticsGenerator().addTransformer(7500,
+				"lfocc.features.classes.semantics", "CastChecker");
 	}
 	
 	private String generateGrammar() {

@@ -7,6 +7,7 @@ import lfocc.features.expressions.ast.FloatType;
 import lfocc.features.expressions.ast.IntType;
 import lfocc.features.expressions.ast.UnaryOperatorExpression;
 import lfocc.features.expressions.ast.BinaryOperatorExpression.Operator;
+import lfocc.features.functions.ast.VoidType;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
@@ -51,6 +52,14 @@ public class OperatorTypeResolver extends ASTVisitor {
 				}
 				
 				binOp.setType(new BooleanType());
+			}
+			
+			// This should be in its own ASTVisitor in the functions package
+			// But because functions and expressions are so essential to
+			// interesting languages it's here for simplicity purposes
+			if (isVoid(binOp.getLeft()) || isVoid(binOp.getRight())) {
+				typeMissmatch(binOp.getOperator(),
+						binOp.getLeft(), binOp.getRight());
 			}
 			
 			return;
@@ -179,6 +188,10 @@ public class OperatorTypeResolver extends ASTVisitor {
 	
 	private boolean isFloat(Expression expr) {
 		return expr.getType() instanceof FloatType;
+	}
+	
+	private boolean isVoid(Expression expr) {
+		return expr.getType() instanceof VoidType;
 	}
 	
 	private void typeMissmatch(Operator op, Expression left, Expression right) throws OperatorTypeFailure {

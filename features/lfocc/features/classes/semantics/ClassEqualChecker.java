@@ -5,7 +5,7 @@ import lfocc.features.classes.ast.NullType;
 import lfocc.features.expressions.ast.BinaryOperatorExpression;
 import lfocc.features.expressions.ast.BinaryOperatorExpression.Operator;
 import lfocc.features.expressions.ast.BooleanType;
-import lfocc.features.types.ast.TypeSymbol;
+import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
@@ -28,12 +28,12 @@ public class ClassEqualChecker extends ASTVisitor {
 				binOp.getOperator() != Operator.NOT_EQUAL)
 			return;
 		
-		if (!isClassType(binOp.getLeft().getType())
-				&& !isClassType(binOp.getRight().getType()))
+		if (!isClassType(binOp.getLeft())
+				&& !isClassType(binOp.getRight()))
 			return;
 		
-		if (!isClassType(binOp.getLeft().getType())
-				|| !isClassType(binOp.getRight().getType())) {
+		if (!isClassType(binOp.getLeft())
+				|| !isClassType(binOp.getRight())) {
 			throw new ClassTypeFailure(String.format(
 					"Operator '%s' doesn't work for types '%s' && '%s'!",
 					binOp.getOperator().getName(),
@@ -42,8 +42,8 @@ public class ClassEqualChecker extends ASTVisitor {
 		}
 		
 		
-		if (isNullType(binOp.getLeft().getType()) ||
-				isNullType(binOp.getRight().getType())) {
+		if (isNullType(binOp.getLeft()) ||
+				isNullType(binOp.getRight())) {
 			binOp.setType(new BooleanType());
 			return;
 		}
@@ -65,12 +65,12 @@ public class ClassEqualChecker extends ASTVisitor {
 		
 	}
 	
-	private boolean isClassType(TypeSymbol type) {
-		return type instanceof ClassType || isNullType(type);
+	private boolean isClassType(Expression expr) {
+		return expr.getType() instanceof ClassType || isNullType(expr);
 	}
 	
-	private boolean isNullType(TypeSymbol type) {
-		return type instanceof NullType;
+	private boolean isNullType(Expression expr) {
+		return expr.getType() instanceof NullType;
 	}
 	
 	private boolean isParent(ClassType _super, ClassType _sub) {
