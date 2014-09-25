@@ -157,6 +157,13 @@ public class Classes extends SingleExtendable {
 				"lfocc.features.classes.semantics", "ClassEqualChecker");
 		cg.getSemanticsGenerator().addTransformer(7500,
 				"lfocc.features.classes.semantics", "CastChecker");
+		
+		if (cg.hasFeature("Assignments")) {
+			cg.addSource("lfocc.features.classes.semantics",
+					new File("features/lfocc/features/classes/semantics/ClassAssignmentChecker.java"));
+			cg.getSemanticsGenerator().addTransformer(8500,
+					"lfocc.features.classes.semantics", "ClassAssignmentChecker");
+		}
 	}
 	
 	private String generateGrammar() {

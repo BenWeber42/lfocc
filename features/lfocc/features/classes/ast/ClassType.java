@@ -33,5 +33,16 @@ public class ClassType extends TypeSymbol {
 	public void setParent(ClassType parent) {
 		this.parent = parent;
 	}
+	
+	/**
+	 * @return whether `other` is a parent of this ClassType
+	 */
+	public boolean isParent(ClassType other) {
+		if (this.equals(other))
+			return true;
+		if (parent != null)
+			return parent.isParent(other);
+		return false;
+	}
 
 }

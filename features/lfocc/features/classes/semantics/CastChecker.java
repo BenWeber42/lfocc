@@ -34,8 +34,8 @@ public class CastChecker extends ASTVisitor {
 		
 		ClassType expr = (ClassType) cast.getExpr().getType();
 		
-		if (!isParent(cast.getType(), expr) &&
-				!isParent(expr, cast.getType())) {
+		if (!expr.isParent(cast.getType()) &&
+				!cast.getType().isParent(expr)) {
 			throw new ClassTypeFailure(String.format(
 					"Can't cast from '%s' to '%s' (none is a parent of the other)!",
 					expr.getName(), cast.getType().getName()));
@@ -50,15 +50,5 @@ public class CastChecker extends ASTVisitor {
 	
 	private boolean isNullType(Expression expr) {
 		return expr.getType() instanceof NullType;
-	}
-	
-	private boolean isParent(ClassType _super, ClassType _sub) {
-		while (_sub != null) {
-			if (_sub.equals(_super))
-				return true;
-			_sub = _sub.getParent();
-		}
-		
-		return false;
 	}
 }

@@ -54,7 +54,7 @@ public class ClassEqualChecker extends ASTVisitor {
 		ClassType left = (ClassType) binOp.getLeft().getType();
 		ClassType right = (ClassType) binOp.getRight().getType();
 		
-		if (!isParent(left, right) && !isParent(right, left)) {
+		if (!left.isParent(right) && !right.isParent(left)) {
 			throw new ClassTypeFailure(String.format(
 					"Classes '%s' and '%s' can't be compared (none of them is a parent of the other)!",
 					left.getName(),
@@ -71,15 +71,5 @@ public class ClassEqualChecker extends ASTVisitor {
 	
 	private boolean isNullType(Expression expr) {
 		return expr.getType() instanceof NullType;
-	}
-	
-	private boolean isParent(ClassType _super, ClassType _sub) {
-		while (_sub != null) {
-			if (_sub.equals(_super))
-				return true;
-			_sub = _sub.getParent();
-		}
-		
-		return false;
 	}
 }

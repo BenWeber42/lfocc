@@ -9,7 +9,7 @@ import lfocc.features.expressions.ast.IntType;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
-public class AssignmentChecker extends ASTVisitor {
+public class PrimitiveAssignmentChecker extends ASTVisitor {
 	
 	@Override
 	public void visit(ASTNode node) throws VisitorFailure {
