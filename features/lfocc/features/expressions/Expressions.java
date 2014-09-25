@@ -130,6 +130,13 @@ public class Expressions extends MultiExtendable {
 					"lfocc.features.expressions.semantics", "Primitives");
 			cg.getSemanticsGenerator().addTransformer(4000,
 					"lfocc.features.expressions.semantics", "OperatorTypeResolver");
+			
+			if (cg.hasFeature("Assignments")) {
+				cg.addSource("lfocc.features.expressions.semantics", 
+						new File("features/lfocc/features/expressions/semantics/AssignmentChecker.java"));
+				cg.getSemanticsGenerator().addTransformer(8000,
+						"lfocc.features.expressions.semantics", "AssignmentChecker");
+			}
 		}
 		
 		// imports:

@@ -35,8 +35,10 @@ public class Assignments extends Feature {
 		
 		cg.getParserGenerator().addGrammarSource(getName(), generateGrammar());
 
-		cg.addSource("lfocc.features.statement.ast.Assignment",
+		cg.addSource("lfocc.features.statement.ast",
 				new File("features/lfocc/features/assignments/ast/Assignment.java"));
+		cg.addSource("lfocc.features.statement.semantics",
+				new File("features/lfocc/features/assignments/semantics/AssignmentFailure.java"));
 	}
 	
 	private String generateGrammar() {
