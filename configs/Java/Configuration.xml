@@ -15,5 +15,6 @@
 	<feature name="Exceptions" />
 	<feature name="Lambdas" />
 	<feature name="Assignments" />
+	<feature name="Javali" /> <!-- backend -->
 
 </LanguageConfiguration>

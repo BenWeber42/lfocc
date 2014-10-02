@@ -12,5 +12,6 @@
 	<feature name="Types" />
 	<feature name="Variables" config="Variables.xml" />
 	<feature name="Assignments" />
+	<feature name="Javali" /> <!-- backend -->
 
 </LanguageConfiguration>
