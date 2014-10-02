@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import lfocc.framework.compilergenerator.BackendGenerator;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.compilergenerator.Options;
 import lfocc.framework.compilergenerator.ParserGenerator;
@@ -25,7 +26,7 @@ import lfocc.framework.util.FileSystem;
 import lfocc.framework.util.JavaCompiler;
 import lfocc.framework.util.Logger;
 
-public class Application implements SemanticsGenerator, CompilerGenerator, FeatureHelper, ServiceProvider {
+public class Application implements SemanticsGenerator, CompilerGenerator, BackendGenerator, FeatureHelper, ServiceProvider {
 	
 	private String[] args;
 	private Map<String, Feature> features = new HashMap<String, Feature>();
@@ -41,9 +42,12 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 	private String currentFeature = null; // relevant for the FeatureHelper interface
 	private List<String> currentFeatureConfiguration = null;
 	private Options options = new Options();
-	private List<SourceFile> sources = new ArrayList<SourceFile>();
+	private List<SourceFile> sourceFiles = new ArrayList<SourceFile>();
+	private List<SourceCode> sourceCodes = new ArrayList<SourceCode>();
 	private Map<Integer, String> semanticsPackages = new TreeMap<Integer, String>();
 	private Map<Integer, String> semanticsNames = new TreeMap<Integer, String>();
+	private String backend = null;
+	private String backendPackage = null;
 	
 	public Application(String[] args) {
 		this.args = args;
@@ -183,12 +187,26 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		
 		// copy sources:
 		try {
-			Iterator<SourceFile> s = sources.iterator();
+			Iterator<SourceFile> s = sourceFiles.iterator();
 			while (s.hasNext()) {
 				SourceFile source = s.next();
 				String folder = srcFolder.toPath() + "/" + source.getPackage().replace(".", "/") + "/";
 				FileSystem.createFolder(folder);
 				FileSystem.copy(source.getFile().getPath(), folder + source.getFile().getName());
+			}
+		} catch (IOException e) {
+			Logger.error("Failed to copy source files to output folder!");
+			e.printStackTrace();
+			exit(-1);
+		}
+		
+		try {
+			Iterator<SourceCode> s = sourceCodes.iterator();
+			while  (s.hasNext()) {
+				SourceCode source = s.next();
+				String folder = srcFolder.toPath() + "/" + source.getPackage().replace(".", "/") + "/"; 
+				FileSystem.createFolder(folder);
+				FileSystem.writeTo(source.getCode(), folder + "/" + source.getName() + ".java");
 			}
 		} catch (IOException e) {
 			Logger.error("Failed to copy source files to output folder!");
@@ -241,6 +259,9 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		src += "import java.io.InputStreamReader;\n";
 		src += "import java.io.FileInputStream;\n";
 		src += "import java.io.File;\n";
+		src += "import java.io.Writer;\n";
+		src += "import java.io.FileWriter;\n";
+		src += "import java.io.BufferedWriter;\n";
 		src += "import java.io.FileNotFoundException;\n";
 		src += "import java.io.IOException;\n";
 		src += "import java.util.List;\n";
@@ -252,6 +273,9 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Lexer;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".parser." + cfg.name() + "Lexer.ErrorReporter;\n";
 		src += "import lfocc.compilers." + cfg.name() + ".options.Options;\n";
+		if (backend != null)
+			src += "import " + backendPackage + "." + backend + ";\n";
+			src += "import lfocc.framework.compiler.Backend;\n";
 		src += "\n";
 		Iterator<String> semantics = semanticsPackages.values().iterator();
 		while (semantics.hasNext()) {
@@ -267,6 +291,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		///////////////////////////////////////////////////////////////////////
 		src += "   private Options options;\n";
 		src += "   private ASTNode root;\n";
+		src += "   private StringBuilder out = new StringBuilder();\n";
 		src += "   \n";
 		
 		///////////////////////////////////////////////////////////////////////
@@ -359,7 +384,23 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		// generate()
 		///////////////////////////////////////////////////////////////////////
 		src += "   public void generate() {\n";
-		src += "      // TODO\n";
+		src += "      \n";
+		if (backend != null) {
+			src += "      Backend backend = new " + backend + "();\n";
+			src += "      backend.generate(out, root);\n";
+			src += "      \n";
+			// TODO: exception handling
+			src += "      try {\n";
+			src += "         Writer writer = new BufferedWriter(new FileWriter(new File(options.getOutput())));\n";
+			src += "         writer.write(out.toString());\n";
+			src += "         writer.close();\n";
+			src += "      } catch (IOException e) {\n";
+			src += "         System.out.println(\"Failed to write to output file '\" + options.getOutput() + \"'!\");\n";
+			src += "      }\n";
+		} else {
+			src += "      // no backend provided, doing nothing\n";
+		}
+		src += "      \n";
 		src += "   }\n";
 		src += "   \n";
 
@@ -408,10 +449,18 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 	public SemanticsGenerator getSemanticsGenerator() {
 		return this;
 	}
+	
+	@Override
+	public BackendGenerator getBackendGenerator() {
+		return this;
+	}
 
 	@Override
 	public void addSource(String _package, File file) {
-		sources.add(new SourceFile(_package, file));
+		sourceFiles.add(new SourceFile(_package, file));
+	}
+	public void addSource(String _package, String name, String source) {
+		sourceCodes.add(new SourceCode(_package, name, source));
 	}
 	
 	private static class SourceFile {
@@ -440,6 +489,43 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 			this.file = file;
 		}
 	}
+	
+	private static class SourceCode {
+		private String _package;
+		private String code;
+		private String name;
+		
+		public SourceCode(String _package, String name, String code) {
+			this._package = _package;
+			this.code = code;
+			this.name = name;
+		}
+		
+		public String getPackage() {
+			return _package;
+		}
+		
+		public void setPackage(String _package) {
+			this._package = _package;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		private void setName(String name) {
+			this.name = name;
+		}
+		
+		public String getCode() {
+			return code;
+		}
+		
+		public void setCode(String code) {
+			this.code = code;
+		}
+		
+	}
 
 	////////////////////////////////////////////////////////////////////////////
 	// SemanticsGenerator methods:
@@ -450,6 +536,19 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Featu
 		assert(!semanticsNames.containsKey(priority));
 		semanticsNames.put(priority, transformer);
 		semanticsPackages.put(priority, packageName);
+	}
+	
+	////////////////////////////////////////////////////////////////////////////
+	// SemanticsGenerator methods:
+	////////////////////////////////////////////////////////////////////////////
+
+	@Override
+	public void setBackend(String _package, String backend) {
+		assert this.backendPackage == null && this.backend == null;
+		assert _package != null && backend != null;
+		
+		this.backendPackage = _package;
+		this.backend = backend;
 	}
 
 	////////////////////////////////////////////////////////////////////////////
