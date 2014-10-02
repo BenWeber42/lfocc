@@ -2,3 +2,4 @@ compilers
 bin
 tests/Javali/cd/
 fails
+tests/.*\.test\.out$
