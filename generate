@@ -15,7 +15,7 @@ do
 
     echo -n "Generating language $language ... "
 
-    output=$(java -cp bin lfocc.framework.Main configs/$language/Configuration.xml 2>&1)
+    output=$(java -enableassertions -cp bin lfocc.framework.Main configs/$language/Configuration.xml 2>&1)
 
     if [ $? -ne 0 ]
     then
