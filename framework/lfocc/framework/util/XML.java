@@ -51,5 +51,9 @@ public class XML {
 	public static boolean getBooleanOption(Document doc, String name) {
 		return doc.getElementsByTagName(name).item(0).getTextContent().equals("true");
 	}
+	
+	public static String getStringOption(Document doc, String name) {
+		return doc.getElementsByTagName(name).item(0).getTextContent();
+	}
 
 }
