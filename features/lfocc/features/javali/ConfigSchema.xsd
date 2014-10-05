@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+	<xsd:element name="JavaliConfiguration"><xsd:complexType><xsd:sequence>
+
+		<xsd:element name="EntryPoint" type="EntryPoint" />
+
+	</xsd:sequence></xsd:complexType></xsd:element>
+
+	<xsd:simpleType name="EntryPoint">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Cstyle"></xsd:enumeration>
+			<xsd:enumeration value="JavaStyle"></xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>
