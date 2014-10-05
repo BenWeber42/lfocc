@@ -69,10 +69,21 @@ public class Javali extends Feature {
 		cg.addSource(_package, name, generateBackend(cg));
 		cg.getBackendGenerator().setBackend(_package, name);
 		
-		// TODO
+		cg.addSource("lfocc.features.javali.semantics", 
+				new File("features/lfocc/features/javali/semantics/EntryPointFailure.java"));
+		
 		if (javaEntry) {
 			cg.addSource("lfocc.features.javali.semantics", 
 					new File("features/lfocc/features/javali/semantics/JavaEntryChecker.java"));
+			cg.getSemanticsGenerator().addTransformer(9000,
+					"lfocc.features.javali.semantics", "JavaEntryChecker");
+		}
+		
+		if (cEntry) {
+			cg.addSource("lfocc.features.javali.semantics", 
+					new File("features/lfocc/features/javali/semantics/CEntryChecker.java"));
+			cg.getSemanticsGenerator().addTransformer(9000,
+					"lfocc.features.javali.semantics", "CEntryChecker");
 		}
 	}
 	
