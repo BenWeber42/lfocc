@@ -90,6 +90,34 @@ public class Javali extends Feature {
 	private String generateBackend(FrameworkInterface framework) {
 		String src = "";
 		
+		/*
+		 * Before code can be generated the following is to be done:
+		 * 
+		 * - To support globals (variables & functions) add GlobalScope class
+		 *   and add globals attribute of type GlobalScope to all classes.
+		 *   (This will also require to escape class and attribute names)
+		 *   Then replace global variable usage to use the globals attribute.
+		 *   Also set the globals attribute whenever an instance of a class is
+		 *   created (new operator).
+		 *   
+		 * - To support different variable scopes in functions assign unique
+		 *   variable names to existing function local variables and move
+		 *   variable declarations to the top of a function (the only place
+		 *   where Javali supports function local variable declarations).
+		 * 
+		 * - To support different control-flow constructs (for, do-while etc)
+		 *   rewrite them to control-flow constructs that Javali supports.
+		 * 
+		 * - To support different entry-point styles (C-style & Java-style)
+		 *   rewrite entry-point to a Javali-style entry-point (this may require
+		 *   renaming classes).
+		 *   
+		 * ... potentially more
+		 * 
+		 * Afterwards code generation should be straight forward.
+		 * 
+		 */
+		
 		src += "package " + _package + ";\n";
 		src += "\n";
 		src += "import lfocc.framework.compiler.Backend;\n";
