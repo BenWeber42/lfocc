@@ -23,4 +23,11 @@ public class StringUtil {
 		
 		return str;
 	}
+	
+	public static String escape(String escape, String symbol, String target) {
+		
+		String result = target.replace(escape, escape + escape);
+		result = result.replace(symbol, escape + symbol);
+		return result;
+	}
 }
