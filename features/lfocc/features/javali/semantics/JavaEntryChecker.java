@@ -37,13 +37,13 @@ public class JavaEntryChecker extends ASTVisitor {
 		ClassType mainClass = (ClassType) main;
 		
 		if (mainClass.getNode().extension(FunctionScope.class) == null) {
-			throw new EntryPointFailure("'Main' class has not 'main' method!");
+			throw new EntryPointFailure("'Main' class has no 'main' method!");
 		}
 		
 		FunctionDeclaration mainMethod = mainClass.getNode().extension(FunctionScope.class).getMethod("main");
 		
 		if (mainMethod == null) {
-			throw new EntryPointFailure("'Main' class has not 'main' method!");
+			throw new EntryPointFailure("'Main' class has no 'main' method!");
 		}
 		
 		if (!(mainMethod.getReturnType() instanceof VoidType)) {

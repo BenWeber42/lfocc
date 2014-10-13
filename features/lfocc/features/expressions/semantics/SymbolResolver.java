@@ -47,7 +47,7 @@ import lfocc.framework.compiler.ast.ASTVisitor;
  * This is achieved through smart separation of the semantic checks, such that
  * different semantic checks can be composed flexibly.
  * 
- * Becaue operator overloading isn't supported the only expressions that can
+ * Because operator overloading isn't supported the only expressions that can
  * have attributes or methods are:
  * - new operator
  * - this keyword
