@@ -9,6 +9,9 @@ import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.FrameworkInterface;
+import lfocc.framework.feature.service.ServiceProvider;
+import lfocc.features.variables.services.VariablesConfig;
+import lfocc.features.functions.services.FunctionsConfig;
 import lfocc.framework.util.XML;
 
 /**
@@ -20,6 +23,9 @@ public class Javali extends Feature {
 			"features/lfocc/features/javali/ConfigSchema.xsd";
 	private static final String name = "JavaliBackend";
 	private String _package;
+	
+	private boolean globals = false;
+	private boolean anyTransformer = false;
 	
 	/*
 	 * A Java-style entry point looks like this:
@@ -58,9 +64,21 @@ public class Javali extends Feature {
 		helper.printConfiguration(Arrays.asList(
 				"Entry-point = " + (javaEntry ? "Java-style" : "C-style")));
 		
-		helper.depends("Functions");
-		if (javaEntry)
-			helper.depends("Classes");
+		helper.depends("Functions"); // for the entry point
+		helper.depends("Variables"); // for class attributes
+			
+		// this feature isn't dependent on the 'classes' feature in the sense
+		// that the base feature adds all necessary classes of the 'classes'
+		// feature anyways.
+	}
+	
+	@Override
+	public void setupFeatureArrangements(ServiceProvider services) {
+		globals =
+				((VariablesConfig) services.getService("Variables", "VariablesConfig")).hasGlobals() ||
+				((FunctionsConfig) services.getService("Functions", "FunctionsConfig")).hasGlobals();
+		
+		anyTransformer = globals;
 	}
 	
 	public void setupCompilerGenerator(CompilerGenerator cg) {
@@ -71,6 +89,12 @@ public class Javali extends Feature {
 		
 		cg.addSource("lfocc.features.javali.semantics", 
 				new File("features/lfocc/features/javali/semantics/EntryPointFailure.java"));
+		
+		if (!cg.hasFeature("Assignments")) {
+			// this is required to add assignments for the globals attribute
+			cg.addSource("lfocc.features.assignments.ast",
+					new File("features/lfocc/features/assignments/ast/Assignment.java"));
+		}
 		
 		if (javaEntry) {
 			cg.addSource("lfocc.features.javali.semantics", 
@@ -84,6 +108,11 @@ public class Javali extends Feature {
 					new File("features/lfocc/features/javali/semantics/CEntryChecker.java"));
 			cg.getSemanticsGenerator().addTransformer(9000,
 					"lfocc.features.javali.semantics", "CEntryChecker");
+		}
+		
+		if (globals) {
+			cg.addSource("lfocc.features.javali.transformers", 
+					new File("features/lfocc/features/javali/transformers/GlobalScopeAdder.java"));
 		}
 	}
 	
@@ -122,13 +151,39 @@ public class Javali extends Feature {
 		src += "\n";
 		src += "import lfocc.framework.compiler.Backend;\n";
 		src += "import lfocc.framework.compiler.ast.ASTNode;\n";
+		src += "import lfocc.framework.compiler.ast.ASTVisitor;\n";
+		src += "import lfocc.framework.compiler.ast.ASTVisitor.VisitorFailure;\n";
+		if (anyTransformer) {
+			src += "import lfocc.features.javali.transformers.*;\n";
+		}
 		src += "\n";
 		src += "public class " + name + " implements Backend {\n";
 		src += "\n";
 		src += "   @Override\n";
-		src += "   public void generate(StringBuilder out, ASTNode root) {\n";
+		src += "   public void generate(StringBuilder out, ASTNode root) throws BackendFailure {\n";
+		src += "      transform(root);\n";
 		src += "      // TODO\n";
 		src += "      out.append(\"Hello, World!\");\n";
+		src += "   }\n";
+		src += "\n";
+		src += "   /**\n";
+		src += "    * Transforms all unsupported AST nodes into supported AST nodes\n";
+		src += "    */\n";
+		src += "   public void transform(ASTNode root) throws BackendFailure {\n";
+		src += "      \n";
+		if (anyTransformer) {
+			src += "      try {\n";
+		}
+		if (globals) {
+			src += "         ASTVisitor globalScopeAdder = new GlobalScopeAdder();\n";
+			src += "         globalScopeAdder.visit(root);\n";
+		}
+		if (anyTransformer) {
+			src += "      } catch (VisitorFailure e) {\n";
+			src += "         throw new BackendFailure(e.getMessage());\n";
+			src += "      }\n";
+		}
+		src += "      \n";
 		src += "   }\n";
 		src += "\n";
 		src += "}\n";
