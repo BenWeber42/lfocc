@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import org.w3c.dom.Document;
 
+import lfocc.features.functions.services.FunctionsConfig;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.FrameworkInterface;
@@ -61,6 +62,7 @@ public class Functions extends MultiExtendable {
 		
 		helper.registerService(getExtender(callExtender));
 		helper.registerService(getExtender(declarationExtender));
+		helper.registerService(new FunctionsConfig(globals));
 		
 	}
 	
