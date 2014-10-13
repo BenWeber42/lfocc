@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 
+import lfocc.features.variables.services.VariablesConfig;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
@@ -64,6 +65,8 @@ public class Variables extends Feature {
 			// can't assign function parameter values without expressions
 			helper.depends("Expressions");
 		}
+		
+		helper.registerService(new VariablesConfig(globals));
 	}
 	
 	@Override
