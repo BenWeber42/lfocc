@@ -276,6 +276,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 		if (backend != null)
 			src += "import " + backendPackage + "." + backend + ";\n";
 			src += "import lfocc.framework.compiler.Backend;\n";
+			src += "import lfocc.framework.compiler.Backend.BackendFailure;\n";
 		src += "\n";
 		Iterator<String> semantics = semanticsPackages.values().iterator();
 		while (semantics.hasNext()) {
@@ -387,8 +388,12 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 		src += "      \n";
 		if (backend != null) {
 			src += "      Backend backend = new " + backend + "();\n";
+			src += "      try {\n";
 			src += "      backend.generate(out, root);\n";
-			src += "      \n";
+			src += "      } catch (BackendFailure e) {\n";
+			src += "         System.out.println(\"Failed to generate code!\");\n";
+			src += "         System.exit(-1);\n";
+			src += "      }\n";
 			// TODO: exception handling
 			src += "      try {\n";
 			src += "         Writer writer = new BufferedWriter(new FileWriter(new File(options.getOutput())));\n";
@@ -396,6 +401,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 			src += "         writer.close();\n";
 			src += "      } catch (IOException e) {\n";
 			src += "         System.out.println(\"Failed to write to output file '\" + options.getOutput() + \"'!\");\n";
+			src += "         System.exit(-1);\n";
 			src += "      }\n";
 		} else {
 			src += "      // no backend provided, doing nothing\n";
