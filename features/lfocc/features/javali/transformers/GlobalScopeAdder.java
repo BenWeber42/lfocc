@@ -23,11 +23,17 @@ public class GlobalScopeAdder extends ASTVisitor {
 	@Override
 	public void visit(ASTNode node) throws VisitorFailure {
 		
+		visit(node.getChildren());
+		
 		if (node instanceof GlobalScope) {
 			globalScope((GlobalScope) node);
+		} else if (node instanceof VariableDeclaration) {
+			variableDeclaration((VariableDeclaration) node);
 		}
-		
-		visit(node.getChildren());
+	}
+	
+	private void variableDeclaration(VariableDeclaration var) {
+		var.setName(escape(ESCAPE, GLOBALS, var.getName()));
 	}
 	
 	private void globalScope(GlobalScope globals) {
@@ -44,6 +50,7 @@ public class GlobalScopeAdder extends ASTVisitor {
 		// add globalscope class
 		ClassType globalScope = new ClassType(new ClassDeclaration(GLOBAL_SCOPE));
 		globals.getChildren().add(new VariableDeclaration(globalScope, GLOBALS));
+		globals.getChildren().add(globalScope.getNode());
 		TypeDB.INSTANCE.addType(globalScope);
 		
 		// add globals attribute of type GlobalScope to each class
@@ -53,18 +60,11 @@ public class GlobalScopeAdder extends ASTVisitor {
 			if (type instanceof ClassType) {
 				ClassType clazz = (ClassType) type;
 				
-				Iterator<ASTNode> members = clazz.getNode().getMembers().iterator();
-				while (members.hasNext()) {
-					ASTNode member = members.next();
-					if (member instanceof VariableDeclaration) {
-						VariableDeclaration var = (VariableDeclaration) member;
-						var.setName(escape(ESCAPE, GLOBALS, var.getName()));
-					}
-				}
+				VariableDeclaration globalsAttribute = 
+						new VariableDeclaration(globalScope, GLOBALS);
 				
-				clazz.getNode().getMembers().add(0,
-						new VariableDeclaration(globalScope, GLOBALS)
-						);
+				clazz.getNode().getMembers().add(0, globalsAttribute);
+				clazz.getNode().extend(globalsAttribute);
 			}
 		}
 	}
