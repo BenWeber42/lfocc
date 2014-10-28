@@ -10,7 +10,12 @@ public class Variable extends ASTLeafNode implements Expression {
 	private VariableDeclaration declaration;
 	
 	public Variable(String name) {
-		this.setName(name);
+		this.name = name;
+	}
+	
+	public Variable(VariableDeclaration declaration) {
+		this.name = declaration.getName();
+		this.declaration = declaration;
 	}
 
 	public String getName() {
