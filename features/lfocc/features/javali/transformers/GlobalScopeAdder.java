@@ -49,8 +49,8 @@ public class GlobalScopeAdder extends ASTVisitor {
 		
 		// add globalscope class
 		ClassType globalScope = new ClassType(new ClassDeclaration(GLOBAL_SCOPE));
-		globals.getChildren().add(new VariableDeclaration(globalScope, GLOBALS));
-		globals.getChildren().add(globalScope.getNode());
+		globals.add(new VariableDeclaration(globalScope, GLOBALS));
+		globals.add(globalScope.getNode());
 		TypeDB.INSTANCE.addType(globalScope);
 		
 		// add globals attribute of type GlobalScope to each class

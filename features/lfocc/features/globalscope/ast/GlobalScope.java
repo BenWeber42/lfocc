@@ -17,5 +17,13 @@ public class GlobalScope extends ExtendableNode {
 	public List<ASTNode> getChildren() {
 		return children;
 	}
+	
+	public void add(ASTNode node) {
+		children.add(node);
+	}
+	
+	public void addAll(List<ASTNode> nodes) {
+		children.addAll(nodes);
+	}
 
 }

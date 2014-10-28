@@ -59,7 +59,7 @@ public class GlobalScope extends SingleExtendable {
 		src += "   \n";
 		src += "   | prev = globalScopeElement next = _globalScope\n";
 		src += "   {\n";
-		src += "      $next.getChildren().addAll($prev);\n";
+		src += "      $next.addAll($prev);\n";
 		src += "      $$ = $next;\n";
 		src += "   }\n";
 		src += "   \n";
