@@ -33,8 +33,8 @@ public class ReturnTypeLookup extends ASTVisitor {
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public static class ReturnLookupFailure extends VisitorFailure {
+		private static final long serialVersionUID = -2726806772893954595L;
 
 		public ReturnLookupFailure(String message) {
 			super(message);

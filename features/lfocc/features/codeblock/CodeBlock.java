@@ -8,10 +8,12 @@ import lfocc.framework.feature.SingleExtendable;
 
 public class CodeBlock extends SingleExtendable {
 	
+	@Override
 	public void setup(FeatureHelper helper) {
 		helper.registerService(getExtender());
 	}
 	
+	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		cg.getParserGenerator().addGrammarSource(getName(), generateGrammar());
 	}

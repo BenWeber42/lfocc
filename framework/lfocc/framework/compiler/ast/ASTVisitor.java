@@ -24,8 +24,9 @@ public abstract class ASTVisitor {
 		
 	}
 
-	@SuppressWarnings("serial")
 	public static class VisitorFailure extends Throwable {
+		private static final long serialVersionUID = 8460878448764858578L;
+
 		private String message;
 		
 		public VisitorFailure(String message) {

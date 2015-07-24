@@ -7,8 +7,9 @@ public interface Backend {
 	// TODO: excpetion in case of failure
 	public void generate(StringBuilder output, ASTNode root) throws BackendFailure;
 	
-	@SuppressWarnings("serial")
 	public static class BackendFailure extends Throwable {
+		private static final long serialVersionUID = 5414656093100058622L;
+
 		private String message;
 		
 		public BackendFailure(String message) {

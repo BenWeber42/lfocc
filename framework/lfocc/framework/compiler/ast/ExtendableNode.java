@@ -14,6 +14,7 @@ public abstract class ExtendableNode implements ASTNode {
 		extensions.put(extension.getClass(), extension);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T extension(Class<T> type) {
 		return (T) extensions.get(type);

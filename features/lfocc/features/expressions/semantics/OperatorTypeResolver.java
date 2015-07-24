@@ -162,8 +162,8 @@ public class OperatorTypeResolver extends ASTVisitor {
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public static class OperatorTypeFailure extends VisitorFailure {
+		private static final long serialVersionUID = -8986145888587366234L;
 
 		public OperatorTypeFailure(String message) {
 			super(message);

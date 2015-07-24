@@ -483,6 +483,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 			return _package;
 		}
 
+		@SuppressWarnings("unused")
 		public void setPackage(String _package) {
 			this._package = _package;
 		}
@@ -491,6 +492,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 			return file;
 		}
 
+		@SuppressWarnings("unused")
 		public void setFile(File file) {
 			this.file = file;
 		}
@@ -511,6 +513,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 			return _package;
 		}
 		
+		@SuppressWarnings("unused")
 		public void setPackage(String _package) {
 			this._package = _package;
 		}
@@ -519,6 +522,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 			return name;
 		}
 		
+		@SuppressWarnings("unused")
 		private void setName(String name) {
 			this.name = name;
 		}
@@ -527,6 +531,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 			return code;
 		}
 		
+		@SuppressWarnings("unused")
 		public void setCode(String code) {
 			this.code = code;
 		}

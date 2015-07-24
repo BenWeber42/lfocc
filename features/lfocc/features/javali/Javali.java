@@ -48,6 +48,7 @@ public class Javali extends Feature {
 	// whether a C-style entry point is configured
 	private boolean cEntry = true;
 	
+	@Override
 	public void setup(FeatureHelper helper) {
 		
 		if (helper.getConfiguration() != null) {
@@ -81,6 +82,7 @@ public class Javali extends Feature {
 		anyTransformer = globals;
 	}
 	
+	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 		
 		_package = "lfocc.compilers." + cg.getLanguageName() + ".backend";

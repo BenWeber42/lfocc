@@ -32,6 +32,7 @@ public class Functions extends MultiExtendable {
 		super(new HashSet<String>(Arrays.asList(callExtender, declarationExtender)));
 	}
 
+	@Override
 	public void setup(FeatureHelper helper) {
 
 		if (helper.getConfiguration() != null) {
@@ -66,6 +67,7 @@ public class Functions extends MultiExtendable {
 		
 	}
 	
+	@Override
 	public void setupFeatureArrangements(ServiceProvider services) {
 		
 		if (!globals && !classMembers)
@@ -126,6 +128,7 @@ public class Functions extends MultiExtendable {
 
 	}
 	
+	@Override
 	public void setupCompilerGenerator(CompilerGenerator cg) {
 
 		if (!globals && !classMembers)

@@ -95,8 +95,8 @@ public class ClassCollector extends ASTVisitor {
 		clazz.setParent((ClassType) TypeDB.INSTANCE.getType("Object"));
 	}
 	
-	@SuppressWarnings("serial")
 	public static class InheritanceFailure extends VisitorFailure {
+		private static final long serialVersionUID = 815859873435034530L;
 
 		public InheritanceFailure(String message) {
 			super(message);

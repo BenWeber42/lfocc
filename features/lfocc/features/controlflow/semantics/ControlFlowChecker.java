@@ -29,8 +29,8 @@ public class ControlFlowChecker extends ASTVisitor {
 			
 	}
 	
-	@SuppressWarnings("serial")
 	public static class ControlFlowFailure extends VisitorFailure {
+		private static final long serialVersionUID = -2364390286663999314L;
 
 		public ControlFlowFailure(String message) {
 			super(message);

@@ -382,16 +382,16 @@ public class SymbolResolver extends ASTVisitor {
 		}
 	}
 
-	@SuppressWarnings("serial")
 	public static class SymbolFailure extends VisitorFailure {
+		private static final long serialVersionUID = -7055128919685055333L;
 
 		public SymbolFailure(String message) {
 			super(message);
 		}
 	}
 
-	@SuppressWarnings("serial")
 	public static class SymbolTypeFailure extends VisitorFailure {
+		private static final long serialVersionUID = -7532951546982840176L;
 
 		public SymbolTypeFailure(String message) {
 			super(message);

@@ -33,8 +33,8 @@ public class VariableTypeLookup extends ASTVisitor {
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public static class VariableFailure extends VisitorFailure {
+		private static final long serialVersionUID = 6371314933293890502L;
 
 		public VariableFailure(String message) {
 			super(message);
