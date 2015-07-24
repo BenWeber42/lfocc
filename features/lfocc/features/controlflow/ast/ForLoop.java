@@ -5,64 +5,67 @@ import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ASTSequence;
+import lfocc.framework.compiler.ast.ASTSlot;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
 public class ForLoop extends ExtendableNode implements Conditional {
 
-	private List<ASTNode> init;
-	private Expression condition;
-	private List<ASTNode> repeat;
-	private List<ASTNode> code;
+	private ASTSlot<ASTSequence> init;
+	private ASTSlot<Expression> condition;
+	private ASTSlot<ASTSequence> repeat;
+	private ASTSlot<ASTSequence> code;
 	
 	public ForLoop(List<ASTNode> init, Expression condition,
 			List<ASTNode> repeat, List<ASTNode> code) {
 		
-		this.init = init;
-		this.condition = condition;
-		this.repeat = repeat;
-		this.code = code;
+		this.init = new ASTSlot<ASTSequence>(new ASTSequence(init));
+		this.condition = new ASTSlot<Expression>(condition);
+		this.repeat = new ASTSlot<ASTSequence>(new ASTSequence(repeat));
+		this.code = new ASTSlot<ASTSequence>(new ASTSequence(code));
 	}
 
-	public List<ASTNode> getInit() {
-		return init;
+	public ASTSequence getInit() {
+		return init.getMember();
 	}
 
-	public void setInit(List<ASTNode> init) {
-		this.init = init;
+	public void setInit(ASTSequence init) {
+		this.init.setMember(init);
 	}
 
 	@Override
 	public Expression getCondition() {
-		return condition;
+		return condition.getMember();
 	}
 
 	@Override
 	public void setCondition(Expression condition) {
-		this.condition = condition;
+		this.condition.setMember(condition);
 	}
 
-	public List<ASTNode> getRepeat() {
-		return repeat;
+	public ASTSequence getRepeat() {
+		return repeat.getMember();
 	}
 
-	public void setRepeat(List<ASTNode> repeat) {
-		this.repeat = repeat;
+	public void setRepeat(ASTSequence repeat) {
+		this.repeat.setMember(repeat);
 	}
 
-	public List<ASTNode> getCode() {
-		return code;
+	public ASTSequence getCode() {
+		return code.getMember();
 	}
 
-	public void setCode(List<ASTNode> code) {
-		this.code = code;
+	public void setCode(ASTSequence code) {
+		this.code.setMember(code);
 	}
 
 	@Override
-	public List<ASTNode> getChildren() {
-		ArrayList<ASTNode> children = new ArrayList<ASTNode>(init);
+	public List<ASTSlot<? extends ASTNode>> getChildren() {
+		List<ASTSlot<? extends ASTNode>> children = new ArrayList<ASTSlot<? extends ASTNode>>(4);
+		children.add(init);
 		children.add(condition);
-		children.addAll(code);
-		children.addAll(repeat);
+		children.add(code);
+		children.add(repeat);
 		return children;
 	}
 

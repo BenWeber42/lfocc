@@ -21,6 +21,7 @@ import lfocc.features.variables.ast.Variable;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.features.variables.ast.VariableScope;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ASTSlot;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
 /*
@@ -362,10 +363,10 @@ public class SymbolResolver extends ASTVisitor {
 		}
 	}
 	
-	private void collectScope(List<ASTNode> nodes) throws VisitorFailure {
-		Iterator<ASTNode> it = nodes.iterator();
+	private void collectScope(List<ASTSlot<? extends ASTNode>> nodes) throws VisitorFailure {
+		Iterator<ASTSlot<? extends ASTNode>> it = nodes.iterator();
 		while (it.hasNext()) {
-			ASTNode node = it.next();
+			ASTNode node = it.next().getMember();
 			if (node instanceof FunctionDeclaration) {
 				functionDeclaration((FunctionDeclaration) node);
 			} else if (node instanceof VariableDeclaration) {
@@ -375,7 +376,7 @@ public class SymbolResolver extends ASTVisitor {
 		
 		it = nodes.iterator();
 		while (it.hasNext()) {
-			ASTNode node = it.next();
+			ASTNode node = it.next().getMember();
 			if (node instanceof ClassDeclaration) {
 				classDeclaration((ClassDeclaration) node);
 			}

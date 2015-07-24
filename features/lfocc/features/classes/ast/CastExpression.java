@@ -2,6 +2,7 @@ package lfocc.features.classes.ast;
 
 import lfocc.features.expressions.ast.Expression;
 import lfocc.features.expressions.ast.UnaryExpression;
+import lfocc.framework.compiler.ast.ASTSlot;
 
 public class CastExpression extends UnaryExpression {
 
@@ -10,7 +11,7 @@ public class CastExpression extends UnaryExpression {
 	
 	public CastExpression(String cast, Expression expr) {
 		this.setCast(cast);
-		this.expr = expr;
+		this.expr = new ASTSlot<Expression>(expr);
 	}
 
 	public String getCast() {

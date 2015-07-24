@@ -33,8 +33,8 @@ public class BinaryOperatorExpression extends BinaryExpression {
 	private TypeSymbol type;
 	
 	public BinaryOperatorExpression(Operator operator, Expression left, Expression right) {
-		this.left = left;
-		this.right = right;
+		setLeft(left);
+		setRight(right);
 		this.operator = operator;
 	}
 

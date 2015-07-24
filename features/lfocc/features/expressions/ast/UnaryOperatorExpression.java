@@ -25,7 +25,7 @@ public class UnaryOperatorExpression extends UnaryExpression {
 	
 	public UnaryOperatorExpression(Operator operator, Expression expr) {
 		this.operator = operator;
-		this.expr = expr;
+		setExpr(expr);
 	}
 
 	public Operator getOperator() {

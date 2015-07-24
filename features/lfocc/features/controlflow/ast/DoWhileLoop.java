@@ -1,45 +1,47 @@
 package lfocc.features.controlflow.ast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ASTSequence;
+import lfocc.framework.compiler.ast.ASTSlot;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
 public class DoWhileLoop extends ExtendableNode implements Conditional {
 
-	private Expression condition;
-	private List<ASTNode> code;
+	private ASTSlot<Expression> condition;
+	private ASTSlot<ASTSequence> code;
 	
 	public DoWhileLoop(List<ASTNode> code, Expression condition) {
-		this.condition = condition;
-		this.code = code;
+		this.condition = new ASTSlot<Expression>(condition);
+		this.code = new ASTSlot<ASTSequence>(new ASTSequence(code));
 	}
 	
 	@Override
 	public Expression getCondition() {
-		return condition;
+		return condition.getMember();
 	}
 
 	@Override
 	public void setCondition(Expression condition) {
-		this.condition = condition;
+		this.condition.setMember(condition);
 	}
 
-	public List<ASTNode> getCode() {
-		return code;
+	public ASTSequence getCode() {
+		return code.getMember();
 	}
 
-	public void setCode(List<ASTNode> code) {
-		this.code = code;
+	public void setCode(ASTSequence code) {
+		this.code.setMember(code);
 	}
 
 	@Override
-	public List<ASTNode> getChildren() {
-		ArrayList<ASTNode> children = new ArrayList<ASTNode>(Arrays.asList(condition));
-		children.addAll(code);
+	public List<ASTSlot<? extends ASTNode>> getChildren() {
+		List<ASTSlot<? extends ASTNode>> children = new ArrayList<ASTSlot<? extends ASTNode>>(2);
+		children.add(condition);
+		children.add(code);
 		return children;
 	}
 

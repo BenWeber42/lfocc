@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ASTSequence;
+import lfocc.framework.compiler.ast.ASTSlot;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
 public class ClassDeclaration extends ExtendableNode {
 	
 	private String name;
 	private String parent;
-	private List<ASTNode> members;
+	private ASTSlot<ASTSequence> members = new ASTSlot<ASTSequence>(new ASTSequence());
 	private ClassType type;
 	
 	public ClassDeclaration(String name) {
 		this.name = name;
 		this.parent = "Object";
-		this.members = new ArrayList<ASTNode>();
 	}
 
 	public ClassDeclaration(String name, String parent, List<ASTNode> members) {
@@ -25,7 +26,8 @@ public class ClassDeclaration extends ExtendableNode {
 			this.parent = parent;
 		else
 			this.parent = "Object";
-		this.members = members;
+		
+		this.members.setMember(new ASTSequence(members));
 	}
 
 	public String getName() {
@@ -44,17 +46,19 @@ public class ClassDeclaration extends ExtendableNode {
 		this.parent = parent;
 	}
 
-	public List<ASTNode> getMembers() {
-		return members;
+	public ASTSequence getMembers() {
+		return members.getMember();
 	}
 
-	public void setMembers(List<ASTNode> members) {
-		this.members = members;
+	public void setMembers(ASTSequence members) {
+		this.members.setMember(members);
 	}
 
 	@Override
-	public List<ASTNode> getChildren() {
-		return members;
+	public List<ASTSlot<? extends ASTNode>> getChildren() {
+		List<ASTSlot<? extends ASTNode>> children = new ArrayList<ASTSlot<? extends ASTNode>>(1);
+		children.add(members);
+		return children;
 	}
 
 	public ClassType getType() {

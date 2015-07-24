@@ -6,20 +6,22 @@ import java.util.List;
 import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ASTSlot;
+import lfocc.framework.compiler.ast.ASTSequence;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
 public class FunctionDeclaration extends ExtendableNode implements ASTNode {
 
 	private String name;
 	private TypeSymbol returnType;
-	private List<VariableDeclaration> parameters;
-	private List<ASTNode> code;
+	private ASTSlot<ASTSequence> parameters;
+	private ASTSlot<ASTSequence> code;
 	
 	public FunctionDeclaration(TypeSymbol returnType, String name, List<VariableDeclaration> parameters, List<ASTNode> code) {
 		this.returnType = returnType;
 		this.name = name;
-		this.parameters = parameters;
-		this.code = code;
+		this.parameters = new ASTSlot<ASTSequence>(new ASTSequence(parameters));
+		this.code = new ASTSlot<ASTSequence>(new ASTSequence(code));
 	}
 	
 	public String getName() {
@@ -38,26 +40,27 @@ public class FunctionDeclaration extends ExtendableNode implements ASTNode {
 		this.returnType = returnType;
 	}
 
-	public List<VariableDeclaration> getParameters() {
-		return parameters;
+	public ASTSequence getParameters() {
+		return parameters.getMember();
 	}
 
-	public void setParameters(List<VariableDeclaration> parameters) {
-		this.parameters = parameters;
+	public void setParameters(ASTSequence parameters) {
+		this.parameters.setMember(parameters);
 	}
 
-	public List<ASTNode> getCode() {
-		return code;
+	public ASTSequence getCode() {
+		return code.getMember();
 	}
 
-	public void setCode(List<ASTNode> code) {
-		this.code = code;
+	public void setCode(ASTSequence code) {
+		this.code.setMember(code);
 	}
 
 	@Override
-	public List<ASTNode> getChildren() {
-		List<ASTNode> children = new ArrayList<ASTNode>(parameters);
-		children.addAll(code);
+	public List<ASTSlot<? extends ASTNode>> getChildren() {
+		List<ASTSlot<? extends ASTNode>> children = new ArrayList<ASTSlot<? extends ASTNode>>(2);
+		children.add(parameters);
+		children.add(code);
 		return children;
 	}
 

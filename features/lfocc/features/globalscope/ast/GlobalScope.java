@@ -1,29 +1,34 @@
 package lfocc.features.globalscope.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ASTSequence;
+import lfocc.framework.compiler.ast.ASTSlot;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
 public class GlobalScope extends ExtendableNode {
 	
-	private List<ASTNode> children;
+	private ASTSlot<ASTSequence> members;
 	
-	public GlobalScope(List<ASTNode> children) {
-		this.children = children;
+	public GlobalScope(List<ASTNode> members) {
+		this.members = new ASTSlot<ASTSequence>(new ASTSequence(members));
 	}
 
-	@Override
-	public List<ASTNode> getChildren() {
-		return children;
-	}
-	
 	public void add(ASTNode node) {
-		children.add(node);
+		members.getMember().add(node);
 	}
 	
 	public void addAll(List<ASTNode> nodes) {
-		children.addAll(nodes);
+		members.getMember().addAll(nodes);
 	}
 
+	@Override
+	public List<ASTSlot<? extends ASTNode>> getChildren() {
+		List<ASTSlot<? extends ASTNode>> children = new ArrayList<ASTSlot<? extends ASTNode>>(1);
+		children.add(members);
+		return children;
+	}
+	
 }

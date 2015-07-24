@@ -10,7 +10,7 @@ public class Attribute extends UnaryExpression {
 	private VariableDeclaration declaration;
 	
 	public Attribute(Expression expr, String field) {
-		this.expr = expr;
+		setExpr(expr);
 		this.setField(field);
 	}
 

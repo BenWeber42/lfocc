@@ -1,36 +1,39 @@
 package lfocc.features.expressions.ast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ASTSlot;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
 public abstract class BinaryExpression extends ExtendableNode implements Expression {
 
-	protected Expression left;
-	protected Expression right;
+	protected ASTSlot<Expression> left;
+	protected ASTSlot<Expression> right;
 	
 	@Override
-	public List<ASTNode> getChildren() {
-		return new ArrayList<ASTNode>(Arrays.asList(left, right));
+	public List<ASTSlot<? extends ASTNode>> getChildren() {
+		List<ASTSlot<? extends ASTNode>> children = new ArrayList<ASTSlot<? extends ASTNode>>();
+		children.add(left);
+		children.add(right);
+		return children;
 	}
 
 	public Expression getLeft() {
-		return left;
+		return left.getMember();
 	}
 
 	public void setLeft(Expression left) {
-		this.left = left;
+		this.left.setMember(left);
 	}
 
 	public Expression getRight() {
-		return right;
+		return right.getMember();
 	}
 
 	public void setRight(Expression right) {
-		this.right = right;
+		this.right.setMember(right);
 	}
 
 }

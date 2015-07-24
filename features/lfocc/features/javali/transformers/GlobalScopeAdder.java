@@ -23,6 +23,8 @@ public class GlobalScopeAdder extends ASTVisitor {
 	@Override
 	public void visit(ASTNode node) throws VisitorFailure {
 		
+		// use post-order traversing so that all variable names are already
+		// escaped before we encounter a GlobalScope node (root of tree)
 		visit(node.getChildren());
 		
 		if (node instanceof GlobalScope) {

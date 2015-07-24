@@ -1,34 +1,35 @@
 package lfocc.features.functions.ast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import lfocc.features.expressions.ast.Expression;
 import lfocc.framework.compiler.ast.ASTNode;
+import lfocc.framework.compiler.ast.ASTSlot;
 import lfocc.framework.compiler.ast.ExtendableNode;
 
 public class ReturnStatement extends ExtendableNode implements ASTNode {
 
-	private Expression expr;
+	private ASTSlot<Expression> expr;
 	
 	public ReturnStatement(Expression expr) {
-		this.expr = expr;
+		this.expr = new ASTSlot<Expression>(expr);
 	}
 
 	public Expression getExpr() {
-		return expr;
+		return expr.getMember();
 	}
 
 	public void setExpr(Expression expr) {
-		this.expr = expr;
+		this.expr.setMember(expr);
 	}
 
 	@Override
-	public List<ASTNode> getChildren() {
+	public List<ASTSlot<? extends ASTNode>> getChildren() {
+		List<ASTSlot<? extends ASTNode>> children = new ArrayList<ASTSlot<? extends ASTNode>>();
 		if (expr == null)
-			return new ArrayList<ASTNode>();
-		return new ArrayList<ASTNode>(Arrays.asList(expr));
+			children.add(expr);
+		return children;
 	}
 
 }
