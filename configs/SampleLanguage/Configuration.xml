@@ -13,6 +13,6 @@
 	<feature name="Classes" config="Classes.xml" />
 	<feature name="Variables" config="Variables.xml" />
 	<feature name="Assignments" />
-	<feature name="Javali" /> <!-- backend -->
+	<feature name="X86" /> <!-- backend -->
 
 </LanguageConfiguration>
