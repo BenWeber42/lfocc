@@ -1,11 +1,13 @@
 package lfocc.framework.compiler;
 
+import java.io.File;
+
 import lfocc.framework.compiler.ast.ASTNode;
 
 
 public interface Backend {
-	// TODO: excpetion in case of failure
-	public void generate(StringBuilder output, ASTNode root) throws BackendFailure;
+	// TODO: exception in case of failure
+	public void generate(File output, ASTNode root) throws BackendFailure;
 	
 	public static class BackendFailure extends Throwable {
 		private static final long serialVersionUID = 5414656093100058622L;

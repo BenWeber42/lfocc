@@ -292,7 +292,6 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 		///////////////////////////////////////////////////////////////////////
 		src += "   private Options options;\n";
 		src += "   private ASTNode root;\n";
-		src += "   private StringBuilder out = new StringBuilder();\n";
 		src += "   \n";
 		
 		///////////////////////////////////////////////////////////////////////
@@ -389,18 +388,10 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 		if (backend != null) {
 			src += "      Backend backend = new " + backend + "();\n";
 			src += "      try {\n";
-			src += "      backend.generate(out, root);\n";
+			src += "         backend.generate(new File(options.getOutput()), root);\n";
 			src += "      } catch (BackendFailure e) {\n";
 			src += "         System.out.println(\"Failed to generate code!\");\n";
-			src += "         System.exit(-1);\n";
-			src += "      }\n";
-			// TODO: exception handling
-			src += "      try {\n";
-			src += "         Writer writer = new BufferedWriter(new FileWriter(new File(options.getOutput())));\n";
-			src += "         writer.write(out.toString());\n";
-			src += "         writer.close();\n";
-			src += "      } catch (IOException e) {\n";
-			src += "         System.out.println(\"Failed to write to output file '\" + options.getOutput() + \"'!\");\n";
+			src += "         System.out.println(e.getMessage());\n";
 			src += "         System.exit(-1);\n";
 			src += "      }\n";
 		} else {

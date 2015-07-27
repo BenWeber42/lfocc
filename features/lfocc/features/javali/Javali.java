@@ -151,6 +151,8 @@ public class Javali extends Feature {
 		
 		src += "package " + _package + ";\n";
 		src += "\n";
+		src += "import java.io.File;\n";
+		src += "\n";
 		src += "import lfocc.framework.compiler.Backend;\n";
 		src += "import lfocc.framework.compiler.ast.ASTNode;\n";
 		src += "import lfocc.framework.compiler.ast.ASTVisitor;\n";
@@ -162,10 +164,9 @@ public class Javali extends Feature {
 		src += "public class " + name + " implements Backend {\n";
 		src += "\n";
 		src += "   @Override\n";
-		src += "   public void generate(StringBuilder out, ASTNode root) throws BackendFailure {\n";
+		src += "   public void generate(File out, ASTNode root) throws BackendFailure {\n";
 		src += "      transform(root);\n";
 		src += "      // TODO\n";
-		src += "      out.append(\"Hello, World!\");\n";
 		src += "   }\n";
 		src += "\n";
 		src += "   /**\n";
