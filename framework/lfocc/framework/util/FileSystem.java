@@ -123,6 +123,9 @@ public class FileSystem {
 		File f = new File(folder);
 		List<String> gathered = new LinkedList<String>();
 		
+		if (f.listFiles() == null)
+			return gathered;
+		
 		Iterator<File> files = Arrays.asList(f.listFiles()).iterator();
 		while (files.hasNext()) {
 			File file = files.next();

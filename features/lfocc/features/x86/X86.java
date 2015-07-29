@@ -76,6 +76,11 @@ public class X86 extends Feature {
 			cg.getSemanticsGenerator().addTransformer(9000,
 					"lfocc.features.x86.semantics", "CEntryChecker");
 		}
+		
+		cg.addSource("lfocc.features.x86.backend",
+				new File("features/lfocc/features/x86/backend/X86Backend.java"));
+		cg.getBackendGenerator().setBackend(
+				"lfocc.features.x86.backend", "X86Backend");
 
 	}
 	

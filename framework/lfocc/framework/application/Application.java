@@ -158,6 +158,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 		// copy runtime & infrastructure
 		try {
 			List<String> runtime = FileSystem.getNestedFiles("framework/lfocc/framework/compiler/");
+			runtime.addAll(FileSystem.getNestedFiles("framework/lfocc/framework/util/"));
 			Iterator<String> r = runtime.iterator();
 			while (r.hasNext()) {
 				String file = r.next();
