@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
+import lfocc.features.globalscope.ast.GlobalScope;
 import lfocc.framework.compiler.Backend;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.util.Command;
@@ -13,11 +14,11 @@ import lfocc.framework.util.Command.CommandOutput;
 import lfocc.framework.util.StringUtil;
 
 public class X86Backend implements Backend {
-//
-//	@Override
+
+	@Override
 	public void generate(File output, ASTNode root) throws BackendFailure {
 		
-		// TODO: parametrize assembly file suffix
+		// LATER: parametrize assembly file suffix
 		File assembler = new File(output + ".s");
 		try {
 			Writer writer = new BufferedWriter(new FileWriter(assembler));
@@ -39,6 +40,9 @@ public class X86Backend implements Backend {
 	
 	private String generateAssembler(ASTNode root) throws BackendFailure {
 		// simple hello world program to test correct gcc call
+
+		// TODO: remove
+		/*
 		String src = "";
         src += "        .section        .rodata\n";
         src += ".LC0:\n";
@@ -76,8 +80,11 @@ public class X86Backend implements Backend {
         src += "        .size   main, .-main\n";
         src += "        .ident  \"GCC: (Ubuntu 4.9.2-10ubuntu13) 4.9.2\"\n";
         src += "        .section        .note.GNU-stack,\"\",@progbits\n";
+        */
+		
+		assert root instanceof GlobalScope;
 
-        return src;
+		return new CodeGenerator().generate((GlobalScope) root);
 	}
 
 }

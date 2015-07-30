@@ -17,6 +17,7 @@ public class X86 extends Feature {
 
 	private boolean javaEntry = false;
 	private boolean cEntry = true;
+	private String languageName;
 		
 	/*
 	 * A Java-style entry point looks like this:
@@ -52,9 +53,12 @@ public class X86 extends Feature {
 				"Entry-point = " + (javaEntry ? "Java-style" : "C-style")));
 
 		helper.depends("Functions"); // for the entry point
+		helper.depends("GlobalScope"); // can't generate any code otherwise
 		
 		if (javaEntry)
 			helper.depends("Classes"); // for the Main class
+		
+		languageName = helper.getLanguageName();
 	}
 	
 	@Override
@@ -81,7 +85,52 @@ public class X86 extends Feature {
 				new File("features/lfocc/features/x86/backend/X86Backend.java"));
 		cg.getBackendGenerator().setBackend(
 				"lfocc.features.x86.backend", "X86Backend");
+		
+		cg.addSource("lfocc.features.x86.backend",
+				new File("features/lfocc/features/x86/backend/CodeGeneratorInterface.java"));
+		cg.addSource("lfocc.features.x86.backend", "CodeGenerator", generateCodeGenerator());
+		
+		if (javaEntry)
+			cg.addSource("lfocc.features.x86.backend",
+					new File("features/lfocc/features/x86/backend/JavaEntryAdder.java"));
+		else
+			cg.addSource("lfocc.features.x86.backend",
+					new File("features/lfocc/features/x86/backend/CEntryAdder.java"));
 
+	}
+	
+	public String generateCodeGenerator() {
+		String src = "";
+		
+		// TODO: finish
+		
+		src += "package lfocc.features.x86.backend;\n";
+		src += "\n";
+		src += "import lfocc.features.globalscope.ast.GlobalScope;\n";
+		if (javaEntry)
+			src += "import lfocc.features.x86.backend.JavaEntryAdder;\n";
+		src += "\n";
+		src += "\n";
+		src += "public class CodeGenerator implements CodeGeneratorInterface {\n";
+		src += "   \n";
+		src += "   \n";
+		src += "   @Override\n";
+		src += "   public String generate(GlobalScope root) {\n";
+		src += "      \n";
+
+		if (javaEntry)
+			src += "      JavaEntryAdder.addJavaEntry(root);\n";
+		else
+			src += "      CEntryAdder.addCEntry(root);\n";
+
+		src += "      \n";
+		src += "      \n";
+		src += "      return null;\n";
+		src += "   }\n";
+		src += "   \n";
+		src += "}\n";
+
+		return src;
 	}
 	
 }
