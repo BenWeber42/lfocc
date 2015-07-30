@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+import lfocc.features.base.ast.ScopeKind;
 import lfocc.features.classes.ast.ClassDeclaration;
 import lfocc.features.classes.ast.ClassType;
 import lfocc.features.expressions.ast.FloatType;
@@ -299,6 +300,13 @@ public class SymbolResolver extends ASTVisitor {
 		}
 		
 		variables.peek().addVariable(var);
+		
+		if (insideFunction)
+			var.extend(ScopeKind.LOCAL);
+		else if (currentClass != null)
+			var.extend(ScopeKind.CLASS_MEMBER);
+		else
+			var.extend(ScopeKind.GLOBAL);
 	}
 
 	private void functionDeclaration(FunctionDeclaration func) throws VisitorFailure {
@@ -320,6 +328,11 @@ public class SymbolResolver extends ASTVisitor {
 		}
 		
 		func.extend(new VariableScope(variables.peek()));
+		
+		if (currentClass != null)
+			func.extend(ScopeKind.CLASS_MEMBER);
+		else
+			func.extend(ScopeKind.GLOBAL);
 	}
 	
 	private void checkFunctionInheritance(FunctionDeclaration func) throws SymbolFailure {

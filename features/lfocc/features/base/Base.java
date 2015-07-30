@@ -33,6 +33,9 @@ public class Base extends Feature {
 		cg.getParserGenerator().addImport("java.util.Iterator");
 		cg.getParserGenerator().addImport("lfocc.framework.compiler.ast.*");
 		
+		cg.addSource("lfocc.features.base.ast",
+				new File("features/lfocc/features/base/ast/ScopeKind.java"));
+		
 		if (!cg.hasFeature("Types")) {
 			/*
 			 * Even without static typing the TypeSymbol interface is required
