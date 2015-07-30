@@ -87,7 +87,7 @@ public class ParserGenerator {
 	public boolean generate(File path, File target) {
 
 		// Process with lapg: 
-		// TODO: lapg doesn't seem to respect the -o flag
+		// LATER: lapg doesn't seem to respect the -o flag
 		CommandOutput output = Command.executeWithOutput(new String[]{
 				"java", "-jar", "./lib/lapg-1.3.10.jar",
 				//"-o", path.getPath(),
@@ -102,7 +102,7 @@ public class ParserGenerator {
 			return false;
 		}
 		
-		// TODO: improve detection of conflicts
+		// LATER: improve detection of conflicts
 		boolean error = false;
 		if (output.output().size() > 1)
 			error = true;

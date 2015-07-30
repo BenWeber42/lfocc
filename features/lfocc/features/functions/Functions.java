@@ -181,7 +181,7 @@ public class Functions extends MultiExtendable {
 			cg.getSemanticsGenerator().addTransformer(6000,
 					"lfocc.features.functions.semantics", "FunctionReturnChecker");
 		} else {
-			// TODO: add return checker independent of ControlFlow
+			// LATER: add return checker independent of ControlFlow
 			// Languages without if, while statements aren't that interesting
 			// that's why it's ok to leave it for now
 		}

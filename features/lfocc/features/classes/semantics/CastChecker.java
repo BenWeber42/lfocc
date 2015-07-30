@@ -43,7 +43,7 @@ public class CastChecker extends ASTVisitor {
 		
 	}
 	
-	// TODO: remove code clones (ClassEqualChecker)
+	// LATER: remove code clones (ClassEqualChecker)
 	private boolean isClassType(Expression expr) {
 		return expr.getType() instanceof ClassType || isNullType(expr);
 	}

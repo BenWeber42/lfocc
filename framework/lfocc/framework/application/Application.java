@@ -74,7 +74,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 	}
 	
 	private void loadFeatures() {
-		// TODO: put 'bin' path into global configuration
+		// LATER: put 'bin' path into global configuration
 		FeatureLoader loader = new FeatureLoader("bin");
 		try {
 			loader.load(configLoader.getFeatures());
@@ -126,7 +126,7 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 	}
 	
 	private void setupOutputFolder() {
-		// TODO: parameterize output folders
+		// LATER: parameterize output folders
 		try {
 			outputFolder = FileSystem.createFolder("compilers/" +
 					cfg.name()

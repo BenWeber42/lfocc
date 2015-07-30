@@ -84,7 +84,7 @@ public class Expressions extends MultiExtendable {
 		cg.getParserGenerator().addPrecedence("'*' '/' '%'", 5);
 		cg.getParserGenerator().addPrecedence("'!'", 6);
 
-		// FIXME: integer should also parse negative integers!
+		// LATER: integer should also parse negative integers!
 		cg.getParserGenerator().addToken("integer", "String", "/0|[1-9][0-9]*/   { $lexem = current(); break; }");
 		cg.getParserGenerator().addToken("hex", "String", "/0x[a-fA-F0-9]+/   { $lexem = current().substring(2); break; }");
 		cg.getParserGenerator().addToken("float", "String", "/(0|[1-9][0-9]*)\\.[0-9]+/ { $lexem = current(); break; }");
