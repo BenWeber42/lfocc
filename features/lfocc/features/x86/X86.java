@@ -85,6 +85,8 @@ public class X86 extends Feature {
 		
 		cg.addSource("lfocc.features.x86.backend",
 				new File("features/lfocc/features/x86/backend/CodeGeneratorInterface.java"));
+		cg.addSource("lfocc.features.x86.backend",
+				new File("features/lfocc/features/x86/backend/CodeGeneratorHelper.java"));
 		cg.addSource("lfocc.features.x86.backend", "CodeGenerator", generateCodeGenerator());
 		
 		if (javaEntry)
@@ -106,6 +108,8 @@ public class X86 extends Feature {
 		src += "import lfocc.features.globalscope.ast.GlobalScope;\n";
 		if (javaEntry)
 			src += "import lfocc.features.x86.backend.JavaEntryAdder;\n";
+		else
+			src += "import lfocc.features.x86.backend.CEntryAdder;\n";
 		src += "\n";
 		src += "\n";
 		src += "public class CodeGenerator implements CodeGeneratorInterface {\n";
@@ -114,15 +118,18 @@ public class X86 extends Feature {
 		src += "   @Override\n";
 		src += "   public String generate(GlobalScope root) {\n";
 		src += "      \n";
-
+		src += "      prepare(root);\n";
+		src += "      \n";
+		src += "      return \"\";\n";
+		src += "   }\n";
+		src += "   \n";
+		src += "   private void prepare(GlobalScope root) {\n";
+		src += "      \n";
 		if (javaEntry)
 			src += "      JavaEntryAdder.addJavaEntry(root);\n";
 		else
 			src += "      CEntryAdder.addCEntry(root);\n";
-
 		src += "      \n";
-		src += "      \n";
-		src += "      return \"\";\n";
 		src += "   }\n";
 		src += "   \n";
 		src += "}\n";

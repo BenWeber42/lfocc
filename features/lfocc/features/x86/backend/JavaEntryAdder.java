@@ -15,7 +15,7 @@ import lfocc.features.globalscope.ast.GlobalScope;
 import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.types.semantics.TypeDB;
 import lfocc.features.variables.ast.VariableDeclaration;
-import lfocc.features.x86.backend.CodeGeneratorInterface.NoNameEscape;
+import lfocc.features.x86.backend.CodeGeneratorHelper.NoNameEscape;
 import lfocc.framework.compiler.ast.ASTNode;
 
 

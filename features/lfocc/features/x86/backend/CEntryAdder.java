@@ -2,7 +2,7 @@ package lfocc.features.x86.backend;
 
 import lfocc.features.functions.ast.FunctionScope;
 import lfocc.features.globalscope.ast.GlobalScope;
-import lfocc.features.x86.backend.CodeGeneratorInterface.NoNameEscape;
+import lfocc.features.x86.backend.CodeGeneratorHelper.NoNameEscape;
 
 public class CEntryAdder {
 	
