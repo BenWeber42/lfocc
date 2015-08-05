@@ -37,6 +37,6 @@ public class VariableScope {
 	}
 	
 	public boolean empty() {
-		return variables.values().size() == 0;
+		return variables.isEmpty();
 	}
 }

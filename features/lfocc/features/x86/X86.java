@@ -17,7 +17,6 @@ public class X86 extends Feature {
 
 	private boolean javaEntry = false;
 	private boolean cEntry = true;
-	private String languageName;
 		
 	/*
 	 * A Java-style entry point looks like this:
@@ -57,8 +56,6 @@ public class X86 extends Feature {
 		
 		if (javaEntry)
 			helper.depends("Classes"); // for the Main class
-		
-		languageName = helper.getLanguageName();
 	}
 	
 	@Override
@@ -125,7 +122,7 @@ public class X86 extends Feature {
 
 		src += "      \n";
 		src += "      \n";
-		src += "      return null;\n";
+		src += "      return \"\";\n";
 		src += "   }\n";
 		src += "   \n";
 		src += "}\n";

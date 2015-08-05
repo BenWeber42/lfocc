@@ -25,6 +25,7 @@ public interface CodeGeneratorInterface {
  	* Marker class to extend AST nodes with so that names don't get escaped by
  	* the backend.
  	*/
-	static public class NoNameEscape {}
+	public static class NoNameEscape {}
 	// TODO: escaping
+	
 }
