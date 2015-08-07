@@ -1,4 +1,4 @@
-package lfocc.features.x86.backend;
+package lfocc.features.x86.backend.preparation;
 
 import lfocc.features.functions.ast.FunctionScope;
 import lfocc.features.globalscope.ast.GlobalScope;

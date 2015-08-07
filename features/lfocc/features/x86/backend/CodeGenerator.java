@@ -1,6 +1,7 @@
 package lfocc.features.x86.backend;
 
 import lfocc.features.globalscope.ast.GlobalScope;
+import lfocc.framework.compiler.ast.ASTNode;
 
 /**
  * Dummy class so that java can compile the x86 feature
@@ -13,6 +14,11 @@ public class CodeGenerator implements CodeGeneratorInterface {
 
 	@Override
 	public String generate(GlobalScope root) {
+		return null;
+	}
+	
+	@Override
+	public String dispatch(ASTNode node) {
 		return null;
 	}
 

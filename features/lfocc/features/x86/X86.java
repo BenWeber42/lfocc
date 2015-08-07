@@ -8,6 +8,7 @@ import org.w3c.dom.Document;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
+import lfocc.framework.feature.FrameworkInterface;
 import lfocc.framework.util.XML;
 
 public class X86 extends Feature {
@@ -87,40 +88,55 @@ public class X86 extends Feature {
 				new File("features/lfocc/features/x86/backend/CodeGeneratorInterface.java"));
 		cg.addSource("lfocc.features.x86.backend",
 				new File("features/lfocc/features/x86/backend/CodeGeneratorHelper.java"));
-		cg.addSource("lfocc.features.x86.backend", "CodeGenerator", generateCodeGenerator());
+		cg.addSource("lfocc.features.x86.backend", "CodeGenerator", generateCodeGenerator(cg));
 		
 		if (javaEntry)
 			cg.addSource("lfocc.features.x86.backend",
-					new File("features/lfocc/features/x86/backend/JavaEntryAdder.java"));
+					new File("features/lfocc/features/x86/backend/preparation/JavaEntryAdder.java"));
 		else
-			cg.addSource("lfocc.features.x86.backend",
-					new File("features/lfocc/features/x86/backend/CEntryAdder.java"));
+			cg.addSource("lfocc.features.x86.backend.preparation",
+					new File("features/lfocc/features/x86/backend/preparation/CEntryAdder.java"));
+
+		cg.addSource("lfocc.features.x86.backend.generators",
+				new File("features/lfocc/features/x86/backend/generators/FunctionCodeGen.java"));
+		
+		if (cg.hasFeature("Classes"))
+			cg.addSource("lfocc.features.x86.backend.generators",
+					new File("features/lfocc/features/x86/backend/generators/ClassCodeGenerator.java"));
 
 	}
 	
-	public String generateCodeGenerator() {
+	public String generateCodeGenerator(FrameworkInterface language) {
 		String src = "";
 		
 		// TODO: finish
 		
 		src += "package lfocc.features.x86.backend;\n";
 		src += "\n";
+		src += "import lfocc.framework.compiler.ast.ASTNode;\n";
+		src += "import lfocc.framework.compiler.Backend.BackendFailure;\n";
 		src += "import lfocc.features.globalscope.ast.GlobalScope;\n";
 		if (javaEntry)
-			src += "import lfocc.features.x86.backend.JavaEntryAdder;\n";
+			src += "import lfocc.features.x86.backend.preparation.JavaEntryAdder;\n";
 		else
-			src += "import lfocc.features.x86.backend.CEntryAdder;\n";
+			src += "import lfocc.features.x86.backend.preparation.CEntryAdder;\n";
+		src += "import lfocc.features.x86.backend.generators.FunctionCodeGen;\n";
+		src += "import lfocc.features.functions.ast.FunctionDeclaration;\n";
+		if (language.hasFeature("Classes")) {
+			src += "import lfocc.features.x86.backend.generators.ClassCodeGenerator;\n";
+			src += "import lfocc.features.classes.ast.ClassDeclaration;\n";
+		}
 		src += "\n";
 		src += "\n";
 		src += "public class CodeGenerator implements CodeGeneratorInterface {\n";
 		src += "   \n";
 		src += "   \n";
 		src += "   @Override\n";
-		src += "   public String generate(GlobalScope root) {\n";
+		src += "   public String generate(GlobalScope root) throws BackendFailure{\n";
 		src += "      \n";
 		src += "      prepare(root);\n";
 		src += "      \n";
-		src += "      return \"\";\n";
+		src += "      return dispatch(root);\n";
 		src += "   }\n";
 		src += "   \n";
 		src += "   private void prepare(GlobalScope root) {\n";
@@ -129,6 +145,33 @@ public class X86 extends Feature {
 			src += "      JavaEntryAdder.addJavaEntry(root);\n";
 		else
 			src += "      CEntryAdder.addCEntry(root);\n";
+		src += "      \n";
+		src += "   }\n";
+		src += "   \n";
+		src += "   @Override\n";
+		src += "   public String dispatch(ASTNode node) throws BackendFailure {\n";
+		src += "      \n";
+		src += "      if (node instanceof GlobalScope) {\n";
+		src += "         String src = \"\";\n";
+		src += "         \n";
+		src += "         for (ASTNode child: node.getChildren())\n";
+		src += "            src += dispatch(child);\n";
+		src += "         \n";
+		src += "         return src;\n";
+		src += "      } else if (node instanceof FunctionDeclaration) {\n";
+		src += "         \n";
+		src += "         return FunctionCodeGen.functionDeclaration((FunctionDeclaration) node);\n";
+		src += "         \n";
+		if (language.hasFeature("Classes")) {
+			src += "      } else if (node instanceof ClassDeclaration) {\n";
+			src += "         \n";
+			src += "         return ClassCodeGenerator.classDeclaration((ClassDeclaration) node);\n";
+			src += "         \n";
+		}
+		src += "      } else {\n";
+		src += "         throw new BackendFailure(String.format(\"Internal Error: Unknown AST node '%s'!\"\n";
+		src += "                                    , node.getClass().getSimpleName()));\n";
+		src += "      }\n";
 		src += "      \n";
 		src += "   }\n";
 		src += "   \n";
