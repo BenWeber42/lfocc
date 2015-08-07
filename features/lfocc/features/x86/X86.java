@@ -168,9 +168,12 @@ public class X86 extends Feature {
 			src += "         return ClassCodeGenerator.classDeclaration((ClassDeclaration) node);\n";
 			src += "         \n";
 		}
+		if (language.hasFeature("Variables")) {
+			// TODO
+		}
 		src += "      } else {\n";
-		src += "         throw new BackendFailure(String.format(\"Internal Error: Unknown AST node '%s'!\"\n";
-		src += "                                    , node.getClass().getSimpleName()));\n";
+		src += "         throw new BackendFailure(String.format(\"Internal Error: Unknown AST node '%s'!\",\n";
+		src += "                                    node.getClass().getSimpleName()));\n";
 		src += "      }\n";
 		src += "      \n";
 		src += "   }\n";
