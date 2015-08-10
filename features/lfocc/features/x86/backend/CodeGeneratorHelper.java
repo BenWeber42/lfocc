@@ -23,6 +23,12 @@ public class CodeGeneratorHelper {
 	 */
 	public static class NoNameEscape {}
 	
+	/**
+	 * Marker class to expose the symbol to the linker (mainly relevant for the
+	 * main function/entry point)
+	 */
+	public static class ExposeLinker {}
+	
 	public static String escape(String str) {
 		return ESCAPE_STRING + str;
 	}

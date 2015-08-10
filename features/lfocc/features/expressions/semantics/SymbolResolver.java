@@ -317,7 +317,7 @@ public class SymbolResolver extends ASTVisitor {
 			// Double declaration -> error
 			throw new SymbolFailure(String.format("Method '%s' already declared!",
 					func.getName()));
-		} else if (overrides(func, currentClass.getParent())){
+		} else if (overrides(func, currentClass.getParent())) {
 			// check correct overriding
 			checkFunctionInheritance(func);
 		} else {

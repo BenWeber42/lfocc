@@ -104,6 +104,8 @@ public class X86 extends Feature {
 			cg.addSource("lfocc.features.x86.backend.generators",
 					new File("features/lfocc/features/x86/backend/generators/ClassCodeGenerator.java"));
 
+		cg.addSource("lfocc.features.x86.backend.preparation",
+				new File("features/lfocc/features/x86/backend/preparation/FunctionOffsetGenerator.java"));
 	}
 	
 	public String generateCodeGenerator(FrameworkInterface language) {
@@ -111,15 +113,18 @@ public class X86 extends Feature {
 		
 		// TODO: finish
 		
+		// LATER: organize imports
 		src += "package lfocc.features.x86.backend;\n";
 		src += "\n";
 		src += "import lfocc.framework.compiler.ast.ASTNode;\n";
+		src += "import lfocc.framework.compiler.ast.ASTVisitor.VisitorFailure;\n";
 		src += "import lfocc.framework.compiler.Backend.BackendFailure;\n";
 		src += "import lfocc.features.globalscope.ast.GlobalScope;\n";
 		if (javaEntry)
 			src += "import lfocc.features.x86.backend.preparation.JavaEntryAdder;\n";
 		else
 			src += "import lfocc.features.x86.backend.preparation.CEntryAdder;\n";
+		src += "import lfocc.features.x86.backend.preparation.FunctionOffsetGenerator;\n";
 		src += "import lfocc.features.x86.backend.generators.FunctionCodeGen;\n";
 		src += "import lfocc.features.functions.ast.FunctionDeclaration;\n";
 		if (language.hasFeature("Classes")) {
@@ -132,19 +137,24 @@ public class X86 extends Feature {
 		src += "   \n";
 		src += "   \n";
 		src += "   @Override\n";
-		src += "   public String generate(GlobalScope root) throws BackendFailure{\n";
+		src += "   public String generate(GlobalScope root) throws BackendFailure {\n";
 		src += "      \n";
 		src += "      prepare(root);\n";
 		src += "      \n";
 		src += "      return dispatch(root);\n";
 		src += "   }\n";
 		src += "   \n";
-		src += "   private void prepare(GlobalScope root) {\n";
+		src += "   private void prepare(GlobalScope root) throws BackendFailure {\n";
 		src += "      \n";
 		if (javaEntry)
 			src += "      JavaEntryAdder.addJavaEntry(root);\n";
 		else
 			src += "      CEntryAdder.addCEntry(root);\n";
+		src += "      try {\n";
+        src += "      new FunctionOffsetGenerator().visit(root);\n";
+		src += "      } catch (VisitorFailure v) {\n";
+		src += "         throw new BackendFailure(v.getMessage());\n";
+		src += "      }\n";
 		src += "      \n";
 		src += "   }\n";
 		src += "   \n";

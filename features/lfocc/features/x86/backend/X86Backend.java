@@ -32,7 +32,7 @@ public class X86Backend implements Backend {
 				new String[] {"gcc", "-m32", "-o", output.getAbsolutePath(), assembler.getAbsolutePath()});
 		
 		// FIXME: activate again to test backend
-		if (false && !compilationOutput.success()) {
+		if (!compilationOutput.success()) {
 			throw new BackendFailure("Failed to compile assembly!\n"
 					+ StringUtil.join("\n", compilationOutput.output()));
 		}

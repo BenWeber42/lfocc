@@ -36,6 +36,10 @@ public class VariableScope {
 		return parent;
 	}
 	
+	public Iterable<VariableDeclaration> getLocalIterable() {
+		return variables.values();
+	}
+	
 	public boolean empty() {
 		return variables.isEmpty();
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lfocc.features.base.ast.ScopeKind;
 import lfocc.features.classes.ast.ClassType;
 import lfocc.features.classes.ast.NewOperator;
 import lfocc.features.expressions.ast.Expression;
@@ -15,6 +16,8 @@ import lfocc.features.globalscope.ast.GlobalScope;
 import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.types.semantics.TypeDB;
 import lfocc.features.variables.ast.VariableDeclaration;
+import lfocc.features.variables.ast.VariableScope;
+import lfocc.features.x86.backend.CodeGeneratorHelper.ExposeLinker;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NoNameEscape;
 import lfocc.framework.compiler.ast.ASTNode;
 
@@ -40,7 +43,9 @@ public class JavaEntryAdder {
 						)
 				);
 
+		entryPoint.extend(ScopeKind.GLOBAL);
 		entryPoint.extend(new NoNameEscape());
+		entryPoint.extend(new ExposeLinker());
 	}
 
 	public static void addJavaEntry(GlobalScope globalScope) {
@@ -51,6 +56,7 @@ public class JavaEntryAdder {
 		
 		newMain.setType(mainClass);
 		mainCall.setDeclaration(mainClass.getNode().extension(FunctionScope.class).getLocalMethod("main"));
+		entryPoint.extend(new VariableScope(globalScope.extension(VariableScope.class)));
 		
 		globalScope.add(entryPoint);
 	}
