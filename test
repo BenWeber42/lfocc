@@ -26,10 +26,10 @@ then
 else
     single="yes"
     testcases=$1
-    echo "Doing testcases $testcases."
+    echo "Doing testcase $testcases."
 fi
 
-testcases=$(echo "$testcases" | awk -F'.' '{ print $1 }')
+testcases=$(echo "$testcases" | sed "s/\.lang$//" | sed "s/^\.\///")
 
 pass=0
 fail=0
@@ -68,6 +68,12 @@ do
         echo "OK!"
         pass=$((pass+1))
     fi
+
+    if [ $single = "yes" ]
+    then
+        echo "$output"
+    fi
+
     total=$((total+1))
 done
 
