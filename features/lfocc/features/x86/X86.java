@@ -5,10 +5,12 @@ import java.util.Arrays;
 
 import org.w3c.dom.Document;
 
+import lfocc.features.variables.services.VariablesConfig;
 import lfocc.framework.compilergenerator.CompilerGenerator;
 import lfocc.framework.feature.Feature;
 import lfocc.framework.feature.FeatureHelper;
 import lfocc.framework.feature.FrameworkInterface;
+import lfocc.framework.feature.service.ServiceProvider;
 import lfocc.framework.util.XML;
 
 public class X86 extends Feature {
@@ -18,6 +20,7 @@ public class X86 extends Feature {
 
 	private boolean javaEntry = false;
 	private boolean cEntry = true;
+	private VariablesConfig variables;
 		
 	/*
 	 * A Java-style entry point looks like this:
@@ -57,6 +60,11 @@ public class X86 extends Feature {
 		
 		if (javaEntry)
 			helper.depends("Classes"); // for the Main class
+	}
+
+	public void setupFeatureArrangements(ServiceProvider provider) {
+		if (provider.hasFeature("Variables"))
+			variables = (VariablesConfig) provider.getService("Variables", "VariablesConfig");
 	}
 	
 	@Override
@@ -106,12 +114,18 @@ public class X86 extends Feature {
 
 		cg.addSource("lfocc.features.x86.backend.preparation",
 				new File("features/lfocc/features/x86/backend/preparation/FunctionOffsetGenerator.java"));
+
+		if (cg.hasFeature("Classes"))
+			cg.addSource("lfocc.features.x86.backend.preparation",
+					new File("features/lfocc/features/x86/backend/preparation/ClassPreparer.java"));
+
+		if (cg.hasFeature("Variables") && variables.hasClassMembers())
+			cg.addSource("lfocc.features.x86.backend.preparation",
+					new File("features/lfocc/features/x86/backend/preparation/ClassVariablePreparer.java"));
 	}
 	
 	public String generateCodeGenerator(FrameworkInterface language) {
 		String src = "";
-		
-		// TODO: finish
 		
 		// LATER: organize imports
 		src += "package lfocc.features.x86.backend;\n";
@@ -128,9 +142,12 @@ public class X86 extends Feature {
 		src += "import lfocc.features.x86.backend.generators.FunctionCodeGen;\n";
 		src += "import lfocc.features.functions.ast.FunctionDeclaration;\n";
 		if (language.hasFeature("Classes")) {
+			src += "import lfocc.features.x86.backend.preparation.ClassPreparer;\n";
 			src += "import lfocc.features.x86.backend.generators.ClassCodeGenerator;\n";
 			src += "import lfocc.features.classes.ast.ClassDeclaration;\n";
 		}
+		if (language.hasFeature("Variables") && variables.hasClassMembers())
+			src += "import lfocc.features.x86.backend.preparation.ClassVariablePreparer;\n";
 		src += "\n";
 		src += "\n";
 		src += "public class CodeGenerator implements CodeGeneratorInterface {\n";
@@ -151,7 +168,11 @@ public class X86 extends Feature {
 		else
 			src += "      CEntryAdder.addCEntry(root);\n";
 		src += "      try {\n";
-        src += "      new FunctionOffsetGenerator().visit(root);\n";
+        src += "         new FunctionOffsetGenerator().visit(root);\n";
+        if (language.hasFeature("Classes"))
+        	src += "         new ClassPreparer().visit(root);\n";
+        if (language.hasFeature("Variables") && variables.hasClassMembers())
+        	src += "         new ClassVariablePreparer().visit(root);\n";
 		src += "      } catch (VisitorFailure v) {\n";
 		src += "         throw new BackendFailure(v.getMessage());\n";
 		src += "      }\n";

@@ -1,15 +1,18 @@
 package lfocc.features.x86.backend.generators;
 
+
 import lfocc.features.base.ast.ScopeKind;
 import lfocc.features.functions.ast.FunctionCall;
 import lfocc.features.functions.ast.FunctionDeclaration;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
 import lfocc.features.x86.backend.CodeGeneratorHelper.ExposeLinker;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NoNameEscape;
+import lfocc.features.x86.backend.CodeGeneratorHelper.NameSpace;
 import lfocc.features.x86.backend.preparation.FunctionOffsetGenerator.FunctionOffsets;
 
 public class FunctionCodeGen {
 	
+	private static final String CLASS_ESCAPE = "class__";
 	private static final String GLOBAL_ESCAPE = "func__";
 	private static final String PROLOGUE =
 			"   push %ebp\n" +
@@ -19,19 +22,13 @@ public class FunctionCodeGen {
 	
 	public static String functionDeclaration(FunctionDeclaration funcDecl) {
 		
-		if (getScope(funcDecl) == ScopeKind.GLOBAL)
-			return globalDeclaration(funcDecl);
-		else
-			return classMemberDeclaration(funcDecl);
-	}
-	
-	private static String globalDeclaration(FunctionDeclaration funcDecl) {
+		String label = getLabel(funcDecl);
 		String src = "";
 
 		src += ".text\n";
 		if (funcDecl.extension(ExposeLinker.class) != null)
-			src += ".global " + getLabel(funcDecl) + "\n";
-		src += getLabel(funcDecl) + ":\n";
+			src += ".global " + label + "\n";
+		src += label + ":\n";
 		src += PROLOGUE;
 		src += "   subl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
 
@@ -41,11 +38,6 @@ public class FunctionCodeGen {
 		return src;
 	}
 
-	private static String classMemberDeclaration(FunctionDeclaration funcDecl) {
-		// TODO
-		return "";
-	}
-	
 	private static ScopeKind getScope(FunctionDeclaration funcDecl) {
 		ScopeKind scopeKind = funcDecl.extension(ScopeKind.class);
 		assert scopeKind != null && scopeKind != ScopeKind.LOCAL;
@@ -61,13 +53,18 @@ public class FunctionCodeGen {
 		if (funcDecl.extension(NoNameEscape.class) != null)
 			return funcDecl.getName();
 		
+		String nameSpaceStr = "";
+		
+		NameSpace nameSpace;
+		if ((nameSpace = funcDecl.extension(NameSpace.class)) != null)
+			nameSpaceStr = nameSpace.namespace;
+
 		boolean global = getScope(funcDecl) == ScopeKind.GLOBAL;
 		
 		if (global)
-			return CodeGeneratorHelper.escape(GLOBAL_ESCAPE + funcDecl.getName());
+			return CodeGeneratorHelper.escape(GLOBAL_ESCAPE + nameSpaceStr + funcDecl.getName());
 		else
-			// TODO
-			return "";
+			return CodeGeneratorHelper.escape(CLASS_ESCAPE + nameSpaceStr + funcDecl.getName());
 	}
 
 

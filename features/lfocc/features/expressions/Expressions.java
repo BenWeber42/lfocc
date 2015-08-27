@@ -27,7 +27,6 @@ public class Expressions extends MultiExtendable {
 	public void setup(FeatureHelper helper) {
 		helper.registerService(getExtender(expressionExtender));
 		helper.registerService(getExtender(assignableExpressionExtender));
-		
 	}
 	
 	@Override

@@ -5,9 +5,11 @@ import lfocc.framework.feature.service.Service;
 public class VariablesConfig extends Service {
 	
 	private boolean hasGlobals;
+	private boolean hasClassMembers;
 
-	public VariablesConfig(boolean hasGlobals) {
+	public VariablesConfig(boolean hasGlobals, boolean hasClassMembers) {
 		this.hasGlobals = hasGlobals;
+		this.hasClassMembers = hasClassMembers;
 	}
 	
 	@Override
@@ -17,6 +19,10 @@ public class VariablesConfig extends Service {
 	
 	public boolean hasGlobals() {
 		return hasGlobals;
+	}
+
+	public boolean hasClassMembers() {
+		return hasClassMembers;
 	}
 
 }

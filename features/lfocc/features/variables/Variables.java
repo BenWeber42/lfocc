@@ -66,7 +66,7 @@ public class Variables extends Feature {
 			helper.depends("Expressions");
 		}
 		
-		helper.registerService(new VariablesConfig(globals));
+		helper.registerService(new VariablesConfig(globals, classMembers));
 	}
 	
 	@Override
