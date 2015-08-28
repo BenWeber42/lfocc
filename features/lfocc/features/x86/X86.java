@@ -106,7 +106,7 @@ public class X86 extends Feature {
 					new File("features/lfocc/features/x86/backend/preparation/CEntryAdder.java"));
 
 		cg.addSource("lfocc.features.x86.backend.generators",
-				new File("features/lfocc/features/x86/backend/generators/FunctionCodeGen.java"));
+				new File("features/lfocc/features/x86/backend/generators/FunctionCodeGenerator.java"));
 		
 		if (cg.hasFeature("Classes"))
 			cg.addSource("lfocc.features.x86.backend.generators",
@@ -122,6 +122,11 @@ public class X86 extends Feature {
 		if (cg.hasFeature("Variables") && variables.hasClassMembers())
 			cg.addSource("lfocc.features.x86.backend.preparation",
 					new File("features/lfocc/features/x86/backend/preparation/ClassVariablePreparer.java"));
+
+		if (cg.hasFeature("Variables"))
+			cg.addSource("lfocc.features.x86.backend.generators",
+					new File("features/lfocc/features/x86/backend/generators/VariableCodeGenerator.java"));
+
 	}
 	
 	public String generateCodeGenerator(FrameworkInterface language) {
@@ -139,7 +144,7 @@ public class X86 extends Feature {
 		else
 			src += "import lfocc.features.x86.backend.preparation.CEntryAdder;\n";
 		src += "import lfocc.features.x86.backend.preparation.FunctionOffsetGenerator;\n";
-		src += "import lfocc.features.x86.backend.generators.FunctionCodeGen;\n";
+		src += "import lfocc.features.x86.backend.generators.FunctionCodeGenerator;\n";
 		src += "import lfocc.features.functions.ast.FunctionDeclaration;\n";
 		if (language.hasFeature("Classes")) {
 			src += "import lfocc.features.x86.backend.preparation.ClassPreparer;\n";
@@ -148,6 +153,10 @@ public class X86 extends Feature {
 		}
 		if (language.hasFeature("Variables") && variables.hasClassMembers())
 			src += "import lfocc.features.x86.backend.preparation.ClassVariablePreparer;\n";
+		if (language.hasFeature("Variables")) {
+			src += "import lfocc.features.x86.backend.generators.VariableCodeGenerator;\n";
+			src += "import lfocc.features.variables.ast.VariableDeclaration;\n";
+		}
 		src += "\n";
 		src += "\n";
 		src += "public class CodeGenerator implements CodeGeneratorInterface {\n";
@@ -191,16 +200,19 @@ public class X86 extends Feature {
 		src += "         return src;\n";
 		src += "      } else if (node instanceof FunctionDeclaration) {\n";
 		src += "         \n";
-		src += "         return FunctionCodeGen.functionDeclaration((FunctionDeclaration) node);\n";
+		src += "         return FunctionCodeGenerator.functionDeclaration((FunctionDeclaration) node);\n";
 		src += "         \n";
 		if (language.hasFeature("Classes")) {
 			src += "      } else if (node instanceof ClassDeclaration) {\n";
 			src += "         \n";
-			src += "         return ClassCodeGenerator.classDeclaration((ClassDeclaration) node);\n";
+			src += "         return ClassCodeGenerator.classDeclaration((ClassDeclaration) node, this);\n";
 			src += "         \n";
 		}
 		if (language.hasFeature("Variables")) {
-			// TODO
+			src += "      } else if (node instanceof VariableDeclaration) {\n";
+			src += "         \n";
+			src += "         return VariableCodeGenerator.variableDeclaration((VariableDeclaration) node);\n";
+			src += "         \n";
 		}
 		src += "      } else {\n";
 		src += "         throw new BackendFailure(String.format(\"Internal Error: Unknown AST node '%s'!\",\n";

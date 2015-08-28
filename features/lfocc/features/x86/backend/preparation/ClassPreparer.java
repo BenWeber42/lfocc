@@ -1,11 +1,16 @@
 package lfocc.features.x86.backend.preparation;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import lfocc.features.classes.ast.ClassDeclaration;
+import lfocc.features.classes.ast.ClassType;
 import lfocc.features.functions.ast.FunctionDeclaration;
+import lfocc.features.globalscope.ast.GlobalScope;
+import lfocc.features.types.semantics.TypeDB;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
@@ -22,7 +27,10 @@ public class ClassPreparer extends ASTVisitor {
 	@Override
 	public void visit(ASTNode node) throws VisitorFailure {
 		
-		if (node instanceof ClassDeclaration)
+		if (node instanceof GlobalScope) {
+			((GlobalScope) node).add(((ClassType) TypeDB.INSTANCE.getType("Object")).getNode());
+			super.visit(node);
+		} else if (node instanceof ClassDeclaration)
 			classDeclaration((ClassDeclaration) node);
 		else
 			super.visit(node);
@@ -51,6 +59,7 @@ public class ClassPreparer extends ASTVisitor {
 		// keep space for link to parent
 		private int offset = CodeGeneratorHelper.WORD_SIZE;
 		private Map<String, Integer> offsets = new HashMap<String, Integer>();
+		private List<FunctionDeclaration> jumpTable = new ArrayList<FunctionDeclaration>();
 		
 		public ClassTable(ClassDeclaration classDecl) {
 			assert classDecl.getType().getParent() == null ||
@@ -60,17 +69,28 @@ public class ClassPreparer extends ASTVisitor {
 				ClassTable parent = classDecl.getType().getParent().getNode().extension(ClassTable.class);
 				offsets.putAll(parent.offsets);
 				offset = parent.offset;
+				jumpTable.addAll(parent.jumpTable);
 			}
 			
 			for (ASTNode member: classDecl.getMembers()) {
-				if (member instanceof FunctionDeclaration &&
-						!offsets.containsKey(((FunctionDeclaration) member).getName())) {
+				if (member instanceof FunctionDeclaration) {
+					FunctionDeclaration func = (FunctionDeclaration) member;
 
-					offsets.put(((FunctionDeclaration) member).getName(), offset);
-					offset += CodeGeneratorHelper.WORD_SIZE;
+					if (offsets.containsKey(func.getName())) {
+						jumpTable.set(offsets.get(func.getName())/CodeGeneratorHelper.WORD_SIZE - 1, func);
+					} else {
+						offsets.put(func.getName(), offset);
+						offset += CodeGeneratorHelper.WORD_SIZE;
+						jumpTable.add(func);
+					}
 				}
 			}
 			
+			assert jumpTable.size()*CodeGeneratorHelper.WORD_SIZE + CodeGeneratorHelper.WORD_SIZE == offset;
+		}
+		
+		public Iterable<FunctionDeclaration> getJumpTable() {
+			return jumpTable;
 		}
 	}
 	

@@ -10,7 +10,7 @@ import lfocc.features.x86.backend.CodeGeneratorHelper.NoNameEscape;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NameSpace;
 import lfocc.features.x86.backend.preparation.FunctionOffsetGenerator.FunctionOffsets;
 
-public class FunctionCodeGen {
+public class FunctionCodeGenerator {
 	
 	private static final String CLASS_ESCAPE = "class__";
 	private static final String GLOBAL_ESCAPE = "func__";
@@ -23,7 +23,15 @@ public class FunctionCodeGen {
 	public static String functionDeclaration(FunctionDeclaration funcDecl) {
 		
 		String label = getLabel(funcDecl);
-		String src = "";
+		ScopeKind scope = getScope(funcDecl);
+		String src = "\n\n";
+		
+		src += "/**\n";
+		if (scope == ScopeKind.GLOBAL)
+			src += " * Global function " + funcDecl.getName() + "\n";
+		else
+			src += " * Class member function " + funcDecl.getName() + "\n";
+		src += " */\n";
 
 		src += ".text\n";
 		if (funcDecl.extension(ExposeLinker.class) != null)
