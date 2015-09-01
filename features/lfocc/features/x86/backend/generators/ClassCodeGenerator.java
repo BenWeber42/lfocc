@@ -7,7 +7,6 @@ import lfocc.features.x86.backend.CodeGeneratorInterface;
 import lfocc.features.x86.backend.preparation.ClassPreparer.ClassTable;
 import lfocc.features.x86.backend.preparation.ClassPreparer.InstanceTable;
 import lfocc.framework.compiler.Backend.BackendFailure;
-import lfocc.framework.compiler.ast.ASTNode;
 
 public class ClassCodeGenerator {
 
@@ -22,8 +21,7 @@ public class ClassCodeGenerator {
 		
 		src += generateClassTable(classDecl);
 		
-		for (ASTNode child: classDecl.getChildren())
-			src += codeGen.dispatch(child);
+		src += codeGen.dispatch(classDecl.getChildren());
 		
 		return src;
 	}

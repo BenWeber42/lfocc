@@ -7,8 +7,10 @@ import lfocc.features.functions.ast.FunctionDeclaration;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
 import lfocc.features.x86.backend.CodeGeneratorHelper.ExposeLinker;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NoNameEscape;
+import lfocc.features.x86.backend.CodeGeneratorInterface;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NameSpace;
 import lfocc.features.x86.backend.preparation.FunctionOffsetGenerator.FunctionOffsets;
+import lfocc.framework.compiler.Backend.BackendFailure;
 
 public class FunctionCodeGenerator {
 	
@@ -20,7 +22,7 @@ public class FunctionCodeGenerator {
 	private static final String EPILOGUE =
 			"   ret\n";
 	
-	public static String functionDeclaration(FunctionDeclaration funcDecl) {
+	public static String functionDeclaration(FunctionDeclaration funcDecl, CodeGeneratorInterface codeGen) throws BackendFailure {
 		
 		String label = getLabel(funcDecl);
 		ScopeKind scope = getScope(funcDecl);
@@ -40,7 +42,8 @@ public class FunctionCodeGenerator {
 		src += PROLOGUE;
 		src += "   subl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
 
-		// TODO: Function Body
+		// TODO: activate
+		//src += codeGen.dispatch(funcDecl.getChildren());
 		
 		src += EPILOGUE;
 		return src;

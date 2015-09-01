@@ -96,6 +96,8 @@ public class X86 extends Feature {
 				new File("features/lfocc/features/x86/backend/CodeGeneratorInterface.java"));
 		cg.addSource("lfocc.features.x86.backend",
 				new File("features/lfocc/features/x86/backend/CodeGeneratorHelper.java"));
+		cg.addSource("lfocc.features.x86.backend",
+				new File("features/lfocc/features/x86/backend/RegisterManager.java"));
 		cg.addSource("lfocc.features.x86.backend", "CodeGenerator", generateCodeGenerator(cg));
 		
 		if (javaEntry)
@@ -135,9 +137,12 @@ public class X86 extends Feature {
 		// LATER: organize imports
 		src += "package lfocc.features.x86.backend;\n";
 		src += "\n";
+		src += "import java.util.List;\n";
+		src += "\n";
 		src += "import lfocc.framework.compiler.ast.ASTNode;\n";
 		src += "import lfocc.framework.compiler.ast.ASTVisitor.VisitorFailure;\n";
 		src += "import lfocc.framework.compiler.Backend.BackendFailure;\n";
+		src += "import lfocc.features.x86.backend.RegisterManager;\n";
 		src += "import lfocc.features.globalscope.ast.GlobalScope;\n";
 		if (javaEntry)
 			src += "import lfocc.features.x86.backend.preparation.JavaEntryAdder;\n";
@@ -161,6 +166,12 @@ public class X86 extends Feature {
 		src += "\n";
 		src += "public class CodeGenerator implements CodeGeneratorInterface {\n";
 		src += "   \n";
+		src += "   private RegisterManager regs = new RegisterManager();\n";
+		src += "   \n";
+		src += "   @Override\n";
+		src += "   public RegisterManager getRegisterManager() {\n";
+		src += "      return regs;\n";
+		src += "   }\n";
 		src += "   \n";
 		src += "   @Override\n";
 		src += "   public String generate(GlobalScope root) throws BackendFailure {\n";
@@ -189,6 +200,16 @@ public class X86 extends Feature {
 		src += "   }\n";
 		src += "   \n";
 		src += "   @Override\n";
+		src += "   public String dispatch(List<ASTNode> nodes) throws BackendFailure {\n";
+		src += "      \n";
+		src += "      String src = \"\";\n";
+		src += "      for (ASTNode node: nodes)\n";
+		src += "         src += dispatch(node);\n";
+		src += "      \n";
+		src += "      return src;\n";
+		src += "   }\n";
+		src += "   \n";
+		src += "   @Override\n";
 		src += "   public String dispatch(ASTNode node) throws BackendFailure {\n";
 		src += "      \n";
 		src += "      if (node instanceof GlobalScope) {\n";
@@ -200,7 +221,7 @@ public class X86 extends Feature {
 		src += "         return src;\n";
 		src += "      } else if (node instanceof FunctionDeclaration) {\n";
 		src += "         \n";
-		src += "         return FunctionCodeGenerator.functionDeclaration((FunctionDeclaration) node);\n";
+		src += "         return FunctionCodeGenerator.functionDeclaration((FunctionDeclaration) node, this);\n";
 		src += "         \n";
 		if (language.hasFeature("Classes")) {
 			src += "      } else if (node instanceof ClassDeclaration) {\n";

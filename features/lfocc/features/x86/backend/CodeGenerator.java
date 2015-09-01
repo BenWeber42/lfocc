@@ -1,5 +1,7 @@
 package lfocc.features.x86.backend;
 
+import java.util.List;
+
 import lfocc.features.globalscope.ast.GlobalScope;
 import lfocc.framework.compiler.ast.ASTNode;
 
@@ -19,6 +21,16 @@ public class CodeGenerator implements CodeGeneratorInterface {
 	
 	@Override
 	public String dispatch(ASTNode node) {
+		return null;
+	}
+
+	@Override
+	public String dispatch(List<ASTNode> node) {
+		return null;
+	}
+	
+	@Override
+	public RegisterManager getRegisterManager() {
 		return null;
 	}
 
