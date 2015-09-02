@@ -2,8 +2,10 @@ package lfocc.features.x86.backend.generators;
 
 
 import lfocc.features.base.ast.ScopeKind;
+import lfocc.features.expressions.ast.Expression;
 import lfocc.features.functions.ast.FunctionCall;
 import lfocc.features.functions.ast.FunctionDeclaration;
+import lfocc.features.functions.ast.ReturnStatement;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
 import lfocc.features.x86.backend.CodeGeneratorHelper.ExposeLinker;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NoNameEscape;
@@ -42,8 +44,7 @@ public class FunctionCodeGenerator {
 		src += PROLOGUE;
 		src += "   subl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
 
-		// TODO: activate
-		//src += codeGen.dispatch(funcDecl.getChildren());
+		src += codeGen.dispatch(funcDecl.getChildren());
 		
 		src += EPILOGUE;
 		return src;
@@ -76,6 +77,22 @@ public class FunctionCodeGenerator {
 			return CodeGeneratorHelper.escape(GLOBAL_ESCAPE + nameSpaceStr + funcDecl.getName());
 		else
 			return CodeGeneratorHelper.escape(CLASS_ESCAPE + nameSpaceStr + funcDecl.getName());
+	}
+	
+	public static String returnStatement(ReturnStatement ret, CodeGeneratorInterface codeGen) throws BackendFailure {
+		String src = "";
+		Expression expr = ret.getExpr();
+		if (expr != null)
+			src += codeGen.dispatch(ret.getExpr());
+		// TODO: implement
+		return src;
+	}
+	
+	public static String functionCall(FunctionCall call) {
+		String src = "";
+		// TODO: implement
+		// don't forget about MethodCall!
+		return src;
 	}
 
 

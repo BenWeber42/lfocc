@@ -117,6 +117,9 @@ public class X86 extends Feature {
 		cg.addSource("lfocc.features.x86.backend.preparation",
 				new File("features/lfocc/features/x86/backend/preparation/FunctionOffsetGenerator.java"));
 
+		cg.addSource("lfocc.features.x86.backend.generators",
+				new File("features/lfocc/features/x86/backend/generators/ExpressionCodeGenerator.java"));
+
 		if (cg.hasFeature("Classes"))
 			cg.addSource("lfocc.features.x86.backend.preparation",
 					new File("features/lfocc/features/x86/backend/preparation/ClassPreparer.java"));
@@ -129,6 +132,13 @@ public class X86 extends Feature {
 			cg.addSource("lfocc.features.x86.backend.generators",
 					new File("features/lfocc/features/x86/backend/generators/VariableCodeGenerator.java"));
 
+		if (cg.hasFeature("Assignments"))
+			cg.addSource("lfocc.features.x86.backend.generators",
+					new File("features/lfocc/features/x86/backend/generators/AssignmentCodeGenerator.java"));
+
+		if (cg.hasFeature("ControlFlow"))
+			cg.addSource("lfocc.features.x86.backend.generators",
+					new File("features/lfocc/features/x86/backend/generators/ControlFlowCodeGenerator.java"));
 	}
 	
 	public String generateCodeGenerator(FrameworkInterface language) {
@@ -151,16 +161,41 @@ public class X86 extends Feature {
 		src += "import lfocc.features.x86.backend.preparation.FunctionOffsetGenerator;\n";
 		src += "import lfocc.features.x86.backend.generators.FunctionCodeGenerator;\n";
 		src += "import lfocc.features.functions.ast.FunctionDeclaration;\n";
+		src += "import lfocc.features.functions.ast.FunctionCall;\n";
+		src += "import lfocc.features.functions.ast.ReturnStatement;\n";
+		src += "import lfocc.features.x86.backend.generators.ExpressionCodeGenerator;\n";
+		src += "import lfocc.features.expressions.ast.IntConst;\n";
+		src += "import lfocc.features.expressions.ast.BooleanConst;\n";
+		src += "import lfocc.features.expressions.ast.FloatConst;\n";
+		src += "import lfocc.features.expressions.ast.BinaryOperatorExpression;\n";
+		src += "import lfocc.features.expressions.ast.UnaryOperatorExpression;\n";
 		if (language.hasFeature("Classes")) {
 			src += "import lfocc.features.x86.backend.preparation.ClassPreparer;\n";
 			src += "import lfocc.features.x86.backend.generators.ClassCodeGenerator;\n";
 			src += "import lfocc.features.classes.ast.ClassDeclaration;\n";
+			src += "import lfocc.features.classes.ast.NewOperator;\n";
+			src += "import lfocc.features.classes.ast.NullExpression;\n";
+			src += "import lfocc.features.classes.ast.ThisReference;\n";
+			src += "import lfocc.features.classes.ast.CastExpression;\n";
 		}
 		if (language.hasFeature("Variables") && variables.hasClassMembers())
 			src += "import lfocc.features.x86.backend.preparation.ClassVariablePreparer;\n";
 		if (language.hasFeature("Variables")) {
 			src += "import lfocc.features.x86.backend.generators.VariableCodeGenerator;\n";
 			src += "import lfocc.features.variables.ast.VariableDeclaration;\n";
+			src += "import lfocc.features.variables.ast.Variable;\n";
+			src += "import lfocc.features.variables.ast.Attribute;\n";
+		}
+		if (language.hasFeature("Assignments")) {
+			src += "import lfocc.features.x86.backend.generators.AssignmentCodeGenerator;\n";
+			src += "import lfocc.features.assignments.ast.Assignment;\n";
+		}
+		if (language.hasFeature("ControlFlow")) {
+			src += "import lfocc.features.x86.backend.generators.ControlFlowCodeGenerator;\n";
+			src += "import lfocc.features.controlflow.ast.ConditionalSequence;\n";
+			src += "import lfocc.features.controlflow.ast.WhileLoop;\n";
+			src += "import lfocc.features.controlflow.ast.ForLoop;\n";
+			src += "import lfocc.features.controlflow.ast.DoWhileLoop;\n";
 		}
 		src += "\n";
 		src += "\n";
@@ -173,6 +208,9 @@ public class X86 extends Feature {
 		src += "      return regs;\n";
 		src += "   }\n";
 		src += "   \n";
+		////////////////////////////////////////////////////////////////////////
+		// public String generate(GlobalScope root)
+		////////////////////////////////////////////////////////////////////////
 		src += "   @Override\n";
 		src += "   public String generate(GlobalScope root) throws BackendFailure {\n";
 		src += "      \n";
@@ -181,6 +219,9 @@ public class X86 extends Feature {
 		src += "      return dispatch(root);\n";
 		src += "   }\n";
 		src += "   \n";
+		////////////////////////////////////////////////////////////////////////
+		// private void prepare(GlobalScope root)
+		////////////////////////////////////////////////////////////////////////
 		src += "   private void prepare(GlobalScope root) throws BackendFailure {\n";
 		src += "      \n";
 		if (javaEntry)
@@ -199,6 +240,9 @@ public class X86 extends Feature {
 		src += "      \n";
 		src += "   }\n";
 		src += "   \n";
+		////////////////////////////////////////////////////////////////////////
+		// public void String dispatch(List<ASTNode> nodes)
+		////////////////////////////////////////////////////////////////////////
 		src += "   @Override\n";
 		src += "   public String dispatch(List<ASTNode> nodes) throws BackendFailure {\n";
 		src += "      \n";
@@ -209,30 +253,106 @@ public class X86 extends Feature {
 		src += "      return src;\n";
 		src += "   }\n";
 		src += "   \n";
+		////////////////////////////////////////////////////////////////////////
+		// public void String dispatch(ASTNode node)
+		////////////////////////////////////////////////////////////////////////
 		src += "   @Override\n";
 		src += "   public String dispatch(ASTNode node) throws BackendFailure {\n";
 		src += "      \n";
 		src += "      if (node instanceof GlobalScope) {\n";
-		src += "         String src = \"\";\n";
 		src += "         \n";
-		src += "         for (ASTNode child: node.getChildren())\n";
-		src += "            src += dispatch(child);\n";
+		src += "         return dispatch(node.getChildren());\n";
 		src += "         \n";
-		src += "         return src;\n";
 		src += "      } else if (node instanceof FunctionDeclaration) {\n";
 		src += "         \n";
 		src += "         return FunctionCodeGenerator.functionDeclaration((FunctionDeclaration) node, this);\n";
+		src += "         \n";
+		src += "      } else if (node instanceof ReturnStatement) {\n";
+		src += "         \n";
+		src += "         return FunctionCodeGenerator.returnStatement((ReturnStatement) node, this);\n";
+		src += "         \n";
+		src += "      } else if (node instanceof FunctionCall) {\n";
+		src += "         \n";
+		src += "         return FunctionCodeGenerator.functionCall((FunctionCall) node);\n";
+		src += "         \n";
+		src += "      } else if (node instanceof IntConst) {\n";
+		src += "         \n";
+		src += "         return ExpressionCodeGenerator.intConst((IntConst) node, regs);\n";
+		src += "         \n";
+		src += "      } else if (node instanceof BooleanConst) {\n";
+		src += "         \n";
+		src += "         return ExpressionCodeGenerator.booleanConst((BooleanConst) node, regs);\n";
+		src += "         \n";
+		src += "      } else if (node instanceof FloatConst) {\n";
+		src += "         \n";
+		src += "         return ExpressionCodeGenerator.floatConst((FloatConst) node, regs);\n";
+		src += "         \n";
+		src += "      } else if (node instanceof BinaryOperatorExpression) {\n";
+		src += "         \n";
+		src += "         return ExpressionCodeGenerator.binaryOperator((BinaryOperatorExpression) node, regs);\n";
+		src += "         \n";
+		src += "      } else if (node instanceof UnaryOperatorExpression) {\n";
+		src += "         \n";
+		src += "         return ExpressionCodeGenerator.unaryOperator((UnaryOperatorExpression) node, regs);\n";
 		src += "         \n";
 		if (language.hasFeature("Classes")) {
 			src += "      } else if (node instanceof ClassDeclaration) {\n";
 			src += "         \n";
 			src += "         return ClassCodeGenerator.classDeclaration((ClassDeclaration) node, this);\n";
 			src += "         \n";
+			src += "      } else if (node instanceof NewOperator) {\n";
+			src += "         \n";
+			src += "         return ClassCodeGenerator.newOperator((NewOperator) node);\n";
+			src += "         \n";
+			src += "      } else if (node instanceof NullExpression) {\n";
+			src += "         \n";
+			src += "         return ClassCodeGenerator.nullExpression((NullExpression) node);\n";
+			src += "         \n";
+			src += "      } else if (node instanceof ThisReference) {\n";
+			src += "         \n";
+			src += "         return ClassCodeGenerator.thisReference((ThisReference) node);\n";
+			src += "         \n";
+			src += "      } else if (node instanceof CastExpression) {\n";
+			src += "         \n";
+			src += "         return ClassCodeGenerator.castExpression((CastExpression) node);\n";
+			src += "         \n";
 		}
 		if (language.hasFeature("Variables")) {
 			src += "      } else if (node instanceof VariableDeclaration) {\n";
 			src += "         \n";
 			src += "         return VariableCodeGenerator.variableDeclaration((VariableDeclaration) node);\n";
+			src += "         \n";
+			src += "      } else if (node instanceof Variable) {\n";
+			src += "         \n";
+			src += "         return VariableCodeGenerator.variable((Variable) node);\n";
+			src += "         \n";
+			src += "      } else if (node instanceof Attribute) {\n";
+			src += "         \n";
+			src += "         return VariableCodeGenerator.attribute((Attribute) node);\n";
+			src += "         \n";
+		}
+		if (language.hasFeature("Assignments")) {
+			src += "      } else if (node instanceof Assignment) {\n";
+			src += "         \n";
+			src += "         return AssignmentCodeGenerator.assignment((Assignment) node);\n";
+			src += "         \n";
+		}
+		if (language.hasFeature("ControlFlow")) {
+			src += "      } else if (node instanceof ConditionalSequence) {\n";
+			src += "         \n";
+			src += "         return ControlFlowCodeGenerator.conditionalSequence((ConditionalSequence) node);\n";
+			src += "         \n";
+			src += "      } else if (node instanceof WhileLoop) {\n";
+			src += "         \n";
+			src += "         return ControlFlowCodeGenerator.whileLoop((WhileLoop) node);\n";
+			src += "         \n";
+			src += "      } else if (node instanceof ForLoop) {\n";
+			src += "         \n";
+			src += "         return ControlFlowCodeGenerator.forLoop((ForLoop) node);\n";
+			src += "         \n";
+			src += "      } else if (node instanceof DoWhileLoop) {\n";
+			src += "         \n";
+			src += "         return ControlFlowCodeGenerator.doWhileLoop((DoWhileLoop) node);\n";
 			src += "         \n";
 		}
 		src += "      } else {\n";
@@ -243,6 +363,22 @@ public class X86 extends Feature {
 		src += "   }\n";
 		src += "   \n";
 		src += "}\n";
+
+		return src;
+	}
+	
+	private String runWithFreeRegisters(String call, int num) {
+		String src = "";
+
+		src += "         String src = \"\";\n";
+		src += "         \n";
+		src += "         src += regs.pushRegisters(" + num + ")\n";
+		src += "         \n";
+		src += "         src += " + call + ";\n";
+		src += "         \n";
+		src += "         src += regs.popRegisters();\n";
+		src += "         \n";
+		src += "         return src;\n";
 
 		return src;
 	}

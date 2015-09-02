@@ -1,6 +1,10 @@
 package lfocc.features.x86.backend.generators;
 
+import lfocc.features.classes.ast.CastExpression;
 import lfocc.features.classes.ast.ClassDeclaration;
+import lfocc.features.classes.ast.NewOperator;
+import lfocc.features.classes.ast.ThisReference;
+import lfocc.features.classes.ast.NullExpression;
 import lfocc.features.functions.ast.FunctionDeclaration;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
 import lfocc.features.x86.backend.CodeGeneratorInterface;
@@ -50,4 +54,27 @@ public class ClassCodeGenerator {
 		return CodeGeneratorHelper.escape(CLASS_ESCAPE + classDecl.getName());
 	}
 	
+	public static String newOperator(NewOperator newOp) {
+		String src = "";
+		// TODO: implement
+		return src;
+	}
+	
+	public static String nullExpression(NullExpression nullExpr) {
+		String src = "";
+		// TODO: implement
+		return src;
+	}
+	
+	public static String thisReference(ThisReference thisRef) {
+		String src = "";
+		// TODO: implement
+		return src;
+	}
+	
+	public static String castExpression(CastExpression cast) {
+		String src = "";
+		// TODO: implement
+		return src;
+	}
 }

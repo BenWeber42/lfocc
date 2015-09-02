@@ -1,6 +1,8 @@
 package lfocc.features.x86.backend.generators;
 
 import lfocc.features.base.ast.ScopeKind;
+import lfocc.features.variables.ast.Attribute;
+import lfocc.features.variables.ast.Variable;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
 
@@ -32,5 +34,17 @@ public class VariableCodeGenerator {
 	public static String getLabel(VariableDeclaration varDecl) {
 		assert varDecl.extension(ScopeKind.class) == ScopeKind.GLOBAL;
 		return CodeGeneratorHelper.escape(GLOBAL_VARIABLE_ESCAPE + varDecl.getName());
+	}
+
+	public static String attribute(Attribute attribute) {
+		String src = "";
+		// TODO: implement
+		return src;
+	}
+
+	public static String variable(Variable attribute) {
+		String src = "";
+		// TODO: implement
+		return src;
 	}
 }

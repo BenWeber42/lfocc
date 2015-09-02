@@ -1,5 +1,8 @@
 package lfocc.features.x86.backend;
 
+import lfocc.features.expressions.ast.Expression;
+import lfocc.features.x86.backend.RegisterManager.Register;
+
 public class CodeGeneratorHelper {
 	public final static int WORD_SIZE = 4;
 
@@ -44,5 +47,33 @@ public class CodeGeneratorHelper {
 	
 	public static String escape(String str) {
 		return ESCAPE_STRING + str;
+	}
+
+	/**
+	 * Helper class to determine into which register an expression will be
+	 * evaluated.
+	 */
+	public static class ReturnRegister {
+		public final Register reg;
+
+		private ReturnRegister(Register reg) {
+			this.reg = reg;
+		}
+	
+		public static void setRegister(Expression expr, Register reg) {
+			expr.extend(new ReturnRegister(reg));
+		}
+
+		public static Register getRegister(Expression expr) {
+			ReturnRegister reg = expr.extension(ReturnRegister.class);
+
+			assert reg != null;
+
+			return reg.reg;
+		}
+		
+		public static boolean hasRegister(Expression expr) {
+			return expr.extension(Register.class) != null;
+		}
 	}
 }
