@@ -334,7 +334,7 @@ public class X86 extends Feature {
 		if (language.hasFeature("Assignments")) {
 			src += "      } else if (node instanceof Assignment) {\n";
 			src += "         \n";
-			src += "         return AssignmentCodeGenerator.assignment((Assignment) node);\n";
+			src += "         return AssignmentCodeGenerator.assignment((Assignment) node, this);\n";
 			src += "         \n";
 		}
 		if (language.hasFeature("ControlFlow")) {
