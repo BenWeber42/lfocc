@@ -273,7 +273,7 @@ public class X86 extends Feature {
 		src += "         \n";
 		src += "      } else if (node instanceof FunctionCall) {\n";
 		src += "         \n";
-		src += "         return FunctionCodeGenerator.functionCall((FunctionCall) node);\n";
+		src += "         return FunctionCodeGenerator.functionCall((FunctionCall) node, this);\n";
 		src += "         \n";
 		src += "      } else if (node instanceof IntConst) {\n";
 		src += "         \n";
@@ -289,11 +289,11 @@ public class X86 extends Feature {
 		src += "         \n";
 		src += "      } else if (node instanceof BinaryOperatorExpression) {\n";
 		src += "         \n";
-		src += "         return ExpressionCodeGenerator.binaryOperator((BinaryOperatorExpression) node, regs);\n";
+		src += "         return ExpressionCodeGenerator.binaryOperator((BinaryOperatorExpression) node, this);\n";
 		src += "         \n";
 		src += "      } else if (node instanceof UnaryOperatorExpression) {\n";
 		src += "         \n";
-		src += "         return ExpressionCodeGenerator.unaryOperator((UnaryOperatorExpression) node, regs);\n";
+		src += "         return ExpressionCodeGenerator.unaryOperator((UnaryOperatorExpression) node, this);\n";
 		src += "         \n";
 		if (language.hasFeature("Classes")) {
 			src += "      } else if (node instanceof ClassDeclaration) {\n";
@@ -302,19 +302,19 @@ public class X86 extends Feature {
 			src += "         \n";
 			src += "      } else if (node instanceof NewOperator) {\n";
 			src += "         \n";
-			src += "         return ClassCodeGenerator.newOperator((NewOperator) node);\n";
+			src += "         return ClassCodeGenerator.newOperator((NewOperator) node, this);\n";
 			src += "         \n";
 			src += "      } else if (node instanceof NullExpression) {\n";
 			src += "         \n";
-			src += "         return ClassCodeGenerator.nullExpression((NullExpression) node);\n";
+			src += "         return ClassCodeGenerator.nullExpression((NullExpression) node, regs);\n";
 			src += "         \n";
 			src += "      } else if (node instanceof ThisReference) {\n";
 			src += "         \n";
-			src += "         return ClassCodeGenerator.thisReference((ThisReference) node);\n";
+			src += "         return ClassCodeGenerator.thisReference((ThisReference) node, regs);\n";
 			src += "         \n";
 			src += "      } else if (node instanceof CastExpression) {\n";
 			src += "         \n";
-			src += "         return ClassCodeGenerator.castExpression((CastExpression) node);\n";
+			src += "         return ClassCodeGenerator.castExpression((CastExpression) node, this);\n";
 			src += "         \n";
 		}
 		if (language.hasFeature("Variables")) {
@@ -324,11 +324,11 @@ public class X86 extends Feature {
 			src += "         \n";
 			src += "      } else if (node instanceof Variable) {\n";
 			src += "         \n";
-			src += "         return VariableCodeGenerator.variable((Variable) node);\n";
+			src += "         return VariableCodeGenerator.variable((Variable) node, regs);\n";
 			src += "         \n";
 			src += "      } else if (node instanceof Attribute) {\n";
 			src += "         \n";
-			src += "         return VariableCodeGenerator.attribute((Attribute) node);\n";
+			src += "         return VariableCodeGenerator.attribute((Attribute) node, regs);\n";
 			src += "         \n";
 		}
 		if (language.hasFeature("Assignments")) {
@@ -363,22 +363,6 @@ public class X86 extends Feature {
 		src += "   }\n";
 		src += "   \n";
 		src += "}\n";
-
-		return src;
-	}
-	
-	private String runWithFreeRegisters(String call, int num) {
-		String src = "";
-
-		src += "         String src = \"\";\n";
-		src += "         \n";
-		src += "         src += regs.pushRegisters(" + num + ")\n";
-		src += "         \n";
-		src += "         src += " + call + ";\n";
-		src += "         \n";
-		src += "         src += regs.popRegisters();\n";
-		src += "         \n";
-		src += "         return src;\n";
 
 		return src;
 	}

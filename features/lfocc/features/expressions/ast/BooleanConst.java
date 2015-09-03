@@ -15,7 +15,7 @@ public class BooleanConst extends ASTLeafNode implements Expression {
 		this.value = value;
 	}
 
-	public boolean isValue() {
+	public boolean getValue() {
 		return value;
 	}
 

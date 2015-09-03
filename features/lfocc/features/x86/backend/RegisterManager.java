@@ -5,88 +5,56 @@ import java.util.List;
 
 public class RegisterManager {
 	
-	private List<Register> available = new ArrayList<Register>();
+	private List<Register> free = new ArrayList<Register>();
 	private List<Register> taken = new ArrayList<Register>();
-	private List<List<Register>> registerStack = new ArrayList<List<Register>>();
 	
 	public RegisterManager() {
-		available.add(Register.eax);
-		available.add(Register.ebx);
-		available.add(Register.ecx);
-		available.add(Register.edx);
-		available.add(Register.edi);
-		available.add(Register.esi);
+		free.add(Register.eax);
+		free.add(Register.ebx);
+		free.add(Register.ecx);
+		free.add(Register.edx);
+		free.add(Register.edi);
+		free.add(Register.esi);
 	}
 	
 	public boolean hasRegister() {
-		return !available.isEmpty();
+		return !free.isEmpty();
 	}
 	
-	public int freeRegisters() {
-		return available.size();
-	}
-	
-	public Register acquireRegister() {
+	public Register acquire() {
 		assert hasRegister();
 		
-		Register reg = available.remove(available.size() - 1);
-		taken.add(reg);
+		Register reg = free.get(free.size() - 1);
+		acquire(reg);
 		return reg;
 	}
 	
-	public void releaseRegister(Register reg) {
-		assert !available.contains(reg);
+	private void acquire(Register reg) {
+		assert free.contains(reg);
+		assert !taken.contains(reg);
+
+		free.remove(reg);
+		taken.add(reg);
+	}
+	
+	public void release(Register reg) {
+		assert !free.contains(reg);
 		assert taken.contains(reg);
 		
 		taken.remove(reg);
-		available.add(reg);
+		free.add(reg);
 	}
 	
-	/**
-	 * Generate x86 assembly until num registers are free
-	 * (see {@link #popRegisters()}
-	 * 
-	 * Warning: {@link #popRegisters()} and @{link {@link #pushRegisters(int)}
-	 * have to be called in a stack fashion.
-	 */
-	public String pushRegisters(int num) {
-		List<Register> regs = new ArrayList<Register>();
-		String src = "";
-		
-		while (freeRegisters() < num) {
-			Register reg = getAcquiredRegister();
-			regs.add(reg);
-			releaseRegister(reg);
-			src += "   pushl %" + reg + "\n";
-		}
-		
-		registerStack.add(regs);
-		return src;
+	public String push(Register reg) {
+		release(reg);
+		return "   pushl %" + reg + "\n";
 	}
 	
-	/**
-	 * Generates x86 assembly that will pop the previously saved registers
-	 * (see {@link #pushRegisters(int)})
-	 * 
-	 * Warning: {@link #popRegisters()} and @{link {@link #pushRegisters(int)}
-	 * have to be called in a stack fashion.
-	 */
-	public String popRegisters() {
-		assert registerStack.size() >= 1;
-		
-		List<Register> regs = registerStack.remove(registerStack.size() - 1);
-		String src = "";
-		
-		for (Register reg: regs)
-			src = "   popl %" + reg + "\n" + src;
-		
-		return src;
+	public String pop(Register reg) {
+		acquire(reg);
+		return "   popl %" + reg + "\n";
 	}
-	
-	private Register getAcquiredRegister() {
-		return taken.get(taken.size() - 1);
-	}
-	
+
 	public enum Register {
 		eax("eax"),
 		ebx("ebx"),

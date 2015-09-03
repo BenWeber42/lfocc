@@ -7,7 +7,10 @@ import lfocc.features.classes.ast.ThisReference;
 import lfocc.features.classes.ast.NullExpression;
 import lfocc.features.functions.ast.FunctionDeclaration;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
+import lfocc.features.x86.backend.CodeGeneratorHelper.ReturnRegister;
 import lfocc.features.x86.backend.CodeGeneratorInterface;
+import lfocc.features.x86.backend.RegisterManager;
+import lfocc.features.x86.backend.RegisterManager.Register;
 import lfocc.features.x86.backend.preparation.ClassPreparer.ClassTable;
 import lfocc.features.x86.backend.preparation.ClassPreparer.InstanceTable;
 import lfocc.framework.compiler.Backend.BackendFailure;
@@ -54,27 +57,47 @@ public class ClassCodeGenerator {
 		return CodeGeneratorHelper.escape(CLASS_ESCAPE + classDecl.getName());
 	}
 	
-	public static String newOperator(NewOperator newOp) {
+	public static String newOperator(NewOperator newOp, CodeGeneratorInterface codeGen) {
 		String src = "";
-		// TODO: implement
+		RegisterManager regs = codeGen.getRegisterManager();
+
+		// TODO: implement properly
+		
+		Register reg = regs.acquire();
+		src += "   movl $" + 0 + ", %" + reg + "\n";
+		ReturnRegister.setRegister(newOp, reg);
+
 		return src;
 	}
 	
-	public static String nullExpression(NullExpression nullExpr) {
+	public static String nullExpression(NullExpression nullExpr, RegisterManager regs) {
 		String src = "";
-		// TODO: implement
+		Register reg = regs.acquire();
+		src += "   movl $" + 0 + ", %" + reg + "\n";
+		ReturnRegister.setRegister(nullExpr, reg);
 		return src;
 	}
 	
-	public static String thisReference(ThisReference thisRef) {
+	public static String thisReference(ThisReference thisRef, RegisterManager regs) {
 		String src = "";
-		// TODO: implement
+
+		// TODO: implement properly
+		
+		Register reg = regs.acquire();
+		src += "   movl $" + 0 + ", %" + reg + "\n";
+		ReturnRegister.setRegister(thisRef, reg);
+
 		return src;
 	}
 	
-	public static String castExpression(CastExpression cast) {
+	public static String castExpression(CastExpression cast, CodeGeneratorInterface codeGen) throws BackendFailure {
 		String src = "";
-		// TODO: implement
+		src += codeGen.dispatch(cast.getExpr());
+
+		// TODO: implement properly
+		
+		ReturnRegister.setRegister(cast, ReturnRegister.getRegister(cast.getExpr()));
+
 		return src;
 	}
 }

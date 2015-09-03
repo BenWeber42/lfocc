@@ -5,6 +5,9 @@ import lfocc.features.variables.ast.Attribute;
 import lfocc.features.variables.ast.Variable;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
+import lfocc.features.x86.backend.CodeGeneratorHelper.ReturnRegister;
+import lfocc.features.x86.backend.RegisterManager;
+import lfocc.features.x86.backend.RegisterManager.Register;
 
 public class VariableCodeGenerator {
 	
@@ -36,15 +39,23 @@ public class VariableCodeGenerator {
 		return CodeGeneratorHelper.escape(GLOBAL_VARIABLE_ESCAPE + varDecl.getName());
 	}
 
-	public static String attribute(Attribute attribute) {
+	public static String attribute(Attribute attribute, RegisterManager regs) {
 		String src = "";
-		// TODO: implement
+
+		Register reg = regs.acquire();
+		src += "   movl $" + 0 + ", %" + reg + "\n";
+		// TODO: implement properly
+		ReturnRegister.setRegister(attribute, reg);
 		return src;
 	}
 
-	public static String variable(Variable attribute) {
+	public static String variable(Variable attribute, RegisterManager regs) {
 		String src = "";
-		// TODO: implement
+		
+		Register reg = regs.acquire();
+		src += "   movl $" + 0 + ", %" + reg + "\n";
+		// TODO: implement properly
+		ReturnRegister.setRegister(attribute, reg);
 		return src;
 	}
 }

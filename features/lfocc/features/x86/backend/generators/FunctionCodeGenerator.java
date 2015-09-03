@@ -9,7 +9,10 @@ import lfocc.features.functions.ast.ReturnStatement;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
 import lfocc.features.x86.backend.CodeGeneratorHelper.ExposeLinker;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NoNameEscape;
+import lfocc.features.x86.backend.CodeGeneratorHelper.ReturnRegister;
 import lfocc.features.x86.backend.CodeGeneratorInterface;
+import lfocc.features.x86.backend.RegisterManager;
+import lfocc.features.x86.backend.RegisterManager.Register;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NameSpace;
 import lfocc.features.x86.backend.preparation.FunctionOffsetGenerator.FunctionOffsets;
 import lfocc.framework.compiler.Backend.BackendFailure;
@@ -82,16 +85,26 @@ public class FunctionCodeGenerator {
 	public static String returnStatement(ReturnStatement ret, CodeGeneratorInterface codeGen) throws BackendFailure {
 		String src = "";
 		Expression expr = ret.getExpr();
-		if (expr != null)
+		if (expr != null) {
 			src += codeGen.dispatch(ret.getExpr());
+			codeGen.getRegisterManager().release(ReturnRegister.getRegister(ret.getExpr()));
+		}
 		// TODO: implement
 		return src;
 	}
 	
-	public static String functionCall(FunctionCall call) {
+	public static String functionCall(FunctionCall call, CodeGeneratorInterface codeGen) {
 		String src = "";
-		// TODO: implement
+		RegisterManager regs = codeGen.getRegisterManager();
+
+		// TODO: implement properly
 		// don't forget about MethodCall!
+		// release registers if functionCall is used as statement
+		
+		Register reg = regs.acquire();
+		src += "   movl $" + 0 + ", %" + reg + "\n";
+		ReturnRegister.setRegister(call, reg);
+
 		return src;
 	}
 
