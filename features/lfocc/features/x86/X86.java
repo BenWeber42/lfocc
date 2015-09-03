@@ -329,7 +329,7 @@ public class X86 extends Feature {
 			src += "         \n";
 			src += "      } else if (node instanceof Attribute) {\n";
 			src += "         \n";
-			src += "         return VariableCodeGenerator.attribute((Attribute) node, regs);\n";
+			src += "         return VariableCodeGenerator.attribute((Attribute) node, this);\n";
 			src += "         \n";
 		}
 		if (language.hasFeature("Assignments")) {
@@ -370,7 +370,7 @@ public class X86 extends Feature {
 		src += "      \n";
 		if (language.hasFeature("Variables")) {
 			src += "      if (node instanceof Variable) {\n";
-			src += "         return VariableCodeGenerator.getAddressOfVariable((Variable) node, this);";
+			src += "         return VariableCodeGenerator.getAddressOfVariable((Variable) node, regs);";
 			src += "      } else if (node instanceof Attribute) {\n";
 			src += "         return VariableCodeGenerator.getAddressOfAttribute((Attribute) node, this);";
 			src += "      } else {\n";

@@ -9,6 +9,7 @@ import lfocc.features.x86.backend.CodeGeneratorHelper.ReturnRegister;
 import lfocc.features.x86.backend.CodeGeneratorInterface;
 import lfocc.features.x86.backend.RegisterManager;
 import lfocc.features.x86.backend.RegisterManager.Register;
+import lfocc.framework.compiler.Backend.BackendFailure;
 
 public class VariableCodeGenerator {
 	
@@ -40,16 +41,6 @@ public class VariableCodeGenerator {
 		return CodeGeneratorHelper.escape(GLOBAL_VARIABLE_ESCAPE + varDecl.getName());
 	}
 
-	public static String attribute(Attribute attribute, RegisterManager regs) {
-		String src = "";
-
-		Register reg = regs.acquire();
-		src += "   movl $" + 0 + ", %" + reg + "\n";
-		// TODO: implement properly
-		ReturnRegister.setRegister(attribute, reg);
-		return src;
-	}
-
 	public static String variable(Variable attribute, RegisterManager regs) {
 		String src = "";
 		
@@ -59,10 +50,20 @@ public class VariableCodeGenerator {
 		ReturnRegister.setRegister(attribute, reg);
 		return src;
 	}
-	
-	public static String getAddressOfVariable(Variable variable, CodeGeneratorInterface codeGen) {
+
+	public static String attribute(Attribute attribute, CodeGeneratorInterface codeGen) throws BackendFailure {
 		String src = "";
-		RegisterManager regs = codeGen.getRegisterManager();
+		
+		// TODO: implement properly
+		src += codeGen.dispatch(attribute.getExpr());
+		
+		Register reg = ReturnRegister.getRegister(attribute.getExpr());
+		ReturnRegister.setRegister(attribute, reg);
+		return src;
+	}
+
+	public static String getAddressOfVariable(Variable variable, RegisterManager regs) {
+		String src = "";
 
 		Register reg = regs.acquire();
 		src += "   movl $" + 0 + ", %" + reg + "\n";
@@ -71,13 +72,13 @@ public class VariableCodeGenerator {
 		return src;
 	}
 
-	public static String getAddressOfAttribute(Attribute attribute, CodeGeneratorInterface codeGen) {
+	public static String getAddressOfAttribute(Attribute attribute, CodeGeneratorInterface codeGen) throws BackendFailure {
 		String src = "";
-		RegisterManager regs = codeGen.getRegisterManager();
 
-		Register reg = regs.acquire();
-		src += "   movl $" + 0 + ", %" + reg + "\n";
 		// TODO: implement properly
+		src += codeGen.dispatch(attribute.getExpr());
+		
+		Register reg = ReturnRegister.getRegister(attribute.getExpr());
 		ReturnRegister.setRegister(attribute, reg);
 		return src;
 	}
