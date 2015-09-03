@@ -99,11 +99,13 @@ public class FunctionCodeGenerator {
 
 		// TODO: implement properly
 		// don't forget about MethodCall!
-		// release registers if functionCall is used as statement
 		
 		Register reg = regs.acquire();
 		src += "   movl $" + 0 + ", %" + reg + "\n";
 		ReturnRegister.setRegister(call, reg);
+		
+		if (!call.isExpression())
+			regs.release(reg);
 
 		return src;
 	}

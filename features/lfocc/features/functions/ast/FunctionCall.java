@@ -13,6 +13,7 @@ public class FunctionCall extends ExtendableNode implements Expression {
 	protected String name;
 	protected List<Expression> arguments;
 	protected FunctionDeclaration declaration;
+	private boolean expression = true;
 
 	public FunctionCall(String name, List<Expression> arguments) {
 		this.name = name;
@@ -53,5 +54,19 @@ public class FunctionCall extends ExtendableNode implements Expression {
 		assert declaration != null;
 		return declaration.getReturnType();
 	}
-
+	
+	/**
+	 * Whether the call appears as an expression or statement
+	 */
+	public boolean isExpression() {
+		return expression;
+	}
+	
+	/**
+	 * Sets whether the call appears as an expression or statement
+	 */
+	public void setExpression(boolean expression) {
+		this.expression = expression;
+	}
+	
 }

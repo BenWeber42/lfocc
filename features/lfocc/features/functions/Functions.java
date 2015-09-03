@@ -99,6 +99,7 @@ public class Functions extends MultiExtendable {
 			extender.addSyntaxRule(
 					"functionCall" +
 					"   {\n" +
+					"      $functionCall.setExpression(false);\n" +
 					"      $$ = new ArrayList<ASTNode>(Arrays.asList($functionCall));\n" +
 					"   }\n"
 					);
@@ -217,7 +218,7 @@ public class Functions extends MultiExtendable {
 		}
 		src += "   ;\n";
 		src += "\n";
-		src += "functionCall (Expression) ::=\n";
+		src += "functionCall (FunctionCall) ::=\n";
 		src += "   identifier '(' parameterExpression ')'\n";
 		src += "   {\n";
 		src += "      $$ = new FunctionCall($identifier, $parameterExpression);\n";
