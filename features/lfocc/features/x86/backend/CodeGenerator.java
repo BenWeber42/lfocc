@@ -2,7 +2,9 @@ package lfocc.features.x86.backend;
 
 import java.util.List;
 
+import lfocc.features.expressions.ast.Expression;
 import lfocc.features.globalscope.ast.GlobalScope;
+import lfocc.framework.compiler.Backend.BackendFailure;
 import lfocc.framework.compiler.ast.ASTNode;
 
 /**
@@ -26,6 +28,11 @@ public class CodeGenerator implements CodeGeneratorInterface {
 
 	@Override
 	public String dispatch(List<? extends ASTNode> node) {
+		return null;
+	}
+
+	@Override
+	public String getAddress(Expression node) throws BackendFailure {
 		return null;
 	}
 	

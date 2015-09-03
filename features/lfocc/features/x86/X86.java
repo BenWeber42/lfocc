@@ -151,6 +151,7 @@ public class X86 extends Feature {
 		src += "\n";
 		src += "import lfocc.framework.compiler.ast.ASTNode;\n";
 		src += "import lfocc.framework.compiler.ast.ASTVisitor.VisitorFailure;\n";
+		src += "import lfocc.features.expressions.ast.Expression;\n";
 		src += "import lfocc.framework.compiler.Backend.BackendFailure;\n";
 		src += "import lfocc.features.x86.backend.RegisterManager;\n";
 		src += "import lfocc.features.globalscope.ast.GlobalScope;\n";
@@ -360,6 +361,27 @@ public class X86 extends Feature {
 		src += "                                    node.getClass().getSimpleName()));\n";
 		src += "      }\n";
 		src += "      \n";
+		src += "   }\n";
+		////////////////////////////////////////////////////////////////////////
+		// public String getAddress(Expression node)
+		////////////////////////////////////////////////////////////////////////
+		src += "   @Override\n";
+		src += "   public String getAddress(Expression node) throws BackendFailure {\n";
+		src += "      \n";
+		if (language.hasFeature("Variables")) {
+			src += "      if (node instanceof Variable) {\n";
+			src += "         return VariableCodeGenerator.getAddressOfVariable((Variable) node, this);";
+			src += "      } else if (node instanceof Attribute) {\n";
+			src += "         return VariableCodeGenerator.getAddressOfAttribute((Attribute) node, this);";
+			src += "      } else {\n";
+			src += "         throw new BackendFailure(String.format(\"Internal Error: Can't take address of AST node '%s'!\",\n";
+			src += "                                    node.getClass().getSimpleName()));\n";
+			src += "      }\n";
+		} else {
+			src += "      throw new BackendFailure(" + 
+						  "\"Internal Error: Can't take address of any AST node of language '" +
+						  language.getLanguageName() + "'!\");\n";
+		}
 		src += "   }\n";
 		src += "   \n";
 		src += "}\n";

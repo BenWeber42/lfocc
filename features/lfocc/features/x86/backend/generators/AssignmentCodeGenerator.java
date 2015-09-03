@@ -12,7 +12,7 @@ public class AssignmentCodeGenerator {
 		String src = "";
 		RegisterManager regs = codeGen.getRegisterManager();
 		
-		src += codeGen.dispatch(assign.getTarget());
+		src += codeGen.getAddress(assign.getTarget());
 		src += codeGen.dispatch(assign.getValue());
 
 		// TODO: implement

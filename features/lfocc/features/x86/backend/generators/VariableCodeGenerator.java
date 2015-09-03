@@ -6,6 +6,7 @@ import lfocc.features.variables.ast.Variable;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
 import lfocc.features.x86.backend.CodeGeneratorHelper.ReturnRegister;
+import lfocc.features.x86.backend.CodeGeneratorInterface;
 import lfocc.features.x86.backend.RegisterManager;
 import lfocc.features.x86.backend.RegisterManager.Register;
 
@@ -52,6 +53,28 @@ public class VariableCodeGenerator {
 	public static String variable(Variable attribute, RegisterManager regs) {
 		String src = "";
 		
+		Register reg = regs.acquire();
+		src += "   movl $" + 0 + ", %" + reg + "\n";
+		// TODO: implement properly
+		ReturnRegister.setRegister(attribute, reg);
+		return src;
+	}
+	
+	public static String getAddressOfVariable(Variable variable, CodeGeneratorInterface codeGen) {
+		String src = "";
+		RegisterManager regs = codeGen.getRegisterManager();
+
+		Register reg = regs.acquire();
+		src += "   movl $" + 0 + ", %" + reg + "\n";
+		// TODO: implement properly
+		ReturnRegister.setRegister(variable, reg);
+		return src;
+	}
+
+	public static String getAddressOfAttribute(Attribute attribute, CodeGeneratorInterface codeGen) {
+		String src = "";
+		RegisterManager regs = codeGen.getRegisterManager();
+
 		Register reg = regs.acquire();
 		src += "   movl $" + 0 + ", %" + reg + "\n";
 		// TODO: implement properly
