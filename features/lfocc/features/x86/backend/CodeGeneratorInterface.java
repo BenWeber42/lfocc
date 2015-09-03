@@ -9,6 +9,6 @@ import lfocc.framework.compiler.ast.ASTNode;
 public interface CodeGeneratorInterface {
 	public String generate(GlobalScope root) throws BackendFailure;
 	public String dispatch(ASTNode node) throws BackendFailure;
-	public String dispatch(List<ASTNode> nodes) throws BackendFailure;
+	public String dispatch(List<? extends ASTNode> nodes) throws BackendFailure;
 	public RegisterManager getRegisterManager();
 }

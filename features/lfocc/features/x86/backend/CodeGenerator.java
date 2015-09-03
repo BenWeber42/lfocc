@@ -25,7 +25,7 @@ public class CodeGenerator implements CodeGeneratorInterface {
 	}
 
 	@Override
-	public String dispatch(List<ASTNode> node) {
+	public String dispatch(List<? extends ASTNode> node) {
 		return null;
 	}
 	
