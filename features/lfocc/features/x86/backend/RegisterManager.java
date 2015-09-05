@@ -29,7 +29,7 @@ public class RegisterManager {
 		return reg;
 	}
 	
-	private void acquire(Register reg) {
+	public void acquire(Register reg) {
 		assert free.contains(reg);
 		assert !taken.contains(reg);
 
@@ -37,7 +37,7 @@ public class RegisterManager {
 		taken.add(reg);
 	}
 	
-	public void release(Register reg) {
+	public void free(Register reg) {
 		assert !free.contains(reg);
 		assert taken.contains(reg);
 		
@@ -46,13 +46,17 @@ public class RegisterManager {
 	}
 	
 	public String push(Register reg) {
-		release(reg);
+		free(reg);
 		return "   pushl %" + reg + "\n";
 	}
 	
 	public String pop(Register reg) {
 		acquire(reg);
 		return "   popl %" + reg + "\n";
+	}
+	
+	public boolean isFree(Register reg) {
+		return free.contains(reg);
 	}
 
 	public enum Register {

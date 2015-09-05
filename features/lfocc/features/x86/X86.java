@@ -110,9 +110,12 @@ public class X86 extends Feature {
 		cg.addSource("lfocc.features.x86.backend.generators",
 				new File("features/lfocc/features/x86/backend/generators/FunctionCodeGenerator.java"));
 		
-		if (cg.hasFeature("Classes"))
+		if (cg.hasFeature("Classes")) {
 			cg.addSource("lfocc.features.x86.backend.generators",
 					new File("features/lfocc/features/x86/backend/generators/ClassCodeGenerator.java"));
+			cg.addSource("lfocc.features.x86.backend.generators",
+					new File("features/lfocc/features/x86/backend/generators/MethodCodeGenerator.java"));
+		}
 
 		cg.addSource("lfocc.features.x86.backend.preparation",
 				new File("features/lfocc/features/x86/backend/preparation/FunctionOffsetGenerator.java"));
@@ -151,6 +154,7 @@ public class X86 extends Feature {
 		src += "\n";
 		src += "import lfocc.framework.compiler.ast.ASTNode;\n";
 		src += "import lfocc.framework.compiler.ast.ASTVisitor.VisitorFailure;\n";
+		src += "import lfocc.features.base.ast.ScopeKind;\n";
 		src += "import lfocc.features.expressions.ast.Expression;\n";
 		src += "import lfocc.framework.compiler.Backend.BackendFailure;\n";
 		src += "import lfocc.features.x86.backend.RegisterManager;\n";
@@ -173,6 +177,7 @@ public class X86 extends Feature {
 		if (language.hasFeature("Classes")) {
 			src += "import lfocc.features.x86.backend.preparation.ClassPreparer;\n";
 			src += "import lfocc.features.x86.backend.generators.ClassCodeGenerator;\n";
+			src += "import lfocc.features.x86.backend.generators.MethodCodeGenerator;\n";
 			src += "import lfocc.features.classes.ast.ClassDeclaration;\n";
 			src += "import lfocc.features.classes.ast.NewOperator;\n";
 			src += "import lfocc.features.classes.ast.NullExpression;\n";
@@ -274,7 +279,25 @@ public class X86 extends Feature {
 		src += "         \n";
 		src += "      } else if (node instanceof FunctionCall) {\n";
 		src += "         \n";
-		src += "         return FunctionCodeGenerator.functionCall((FunctionCall) node, this);\n";
+		src += "         FunctionCall call = (FunctionCall) node;\n";
+		src += "         \n";
+		src += "         if (call.getDeclaration().extension(ScopeKind.class) == null) {\n";
+		src += "            System.err.format(\"Function '%s' has no ScopeKind extension!\\n\", call.getName());\n";
+		src += "            \n";
+		src += "            \n";
+		src += "         }\n";
+		src += "         \n";
+		src += "         assert call.getDeclaration().extension(ScopeKind.class) != null;\n";
+		src += "         \n";
+		if (language.hasFeature("Classes")) {
+			src += "         if (call.getDeclaration().extension(ScopeKind.class) == ScopeKind.CLASS_MEMBER) {\n";
+			src += "            return MethodCodeGenerator.functionCall((FunctionCall) node, this);\n";
+			src += "         } else {\n";
+			src += "            return FunctionCodeGenerator.functionCall((FunctionCall) node, this);\n";
+			src += "         }\n";
+		} else {
+			src += "         return FunctionCodeGenerator.functionCall((FunctionCall) node, this);\n";
+		}
 		src += "         \n";
 		src += "      } else if (node instanceof IntConst) {\n";
 		src += "         \n";

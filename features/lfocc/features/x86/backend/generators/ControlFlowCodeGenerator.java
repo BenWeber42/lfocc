@@ -18,7 +18,7 @@ public class ControlFlowCodeGenerator {
 		
 		for (IfConditional ifCond: conditionalSequence.getConditionals()) {
 			src += codeGen.dispatch(ifCond.getCondition());
-			regs.release(ReturnRegister.getRegister(ifCond.getCondition()));
+			regs.free(ReturnRegister.getRegister(ifCond.getCondition()));
 			src += codeGen.dispatch(ifCond.getCode());
 		}
 
@@ -36,7 +36,7 @@ public class ControlFlowCodeGenerator {
 		// TODO: implement
 		
 		src += codeGen.dispatch(loop.getCondition());
-		regs.release(ReturnRegister.getRegister(loop.getCondition()));
+		regs.free(ReturnRegister.getRegister(loop.getCondition()));
 		
 		codeGen.dispatch(loop.getCode());
 		return src;
@@ -49,7 +49,7 @@ public class ControlFlowCodeGenerator {
 		// TODO: implement
 		
 		src += codeGen.dispatch(loop.getCondition());
-		regs.release(ReturnRegister.getRegister(loop.getCondition()));
+		regs.free(ReturnRegister.getRegister(loop.getCondition()));
 		
 		codeGen.dispatch(loop.getCode());
 		return src;
@@ -62,7 +62,7 @@ public class ControlFlowCodeGenerator {
 		// TODO: implement
 		
 		src += codeGen.dispatch(loop.getCondition());
-		regs.release(ReturnRegister.getRegister(loop.getCondition()));
+		regs.free(ReturnRegister.getRegister(loop.getCondition()));
 		
 		codeGen.dispatch(loop.getCode());
 		return src;

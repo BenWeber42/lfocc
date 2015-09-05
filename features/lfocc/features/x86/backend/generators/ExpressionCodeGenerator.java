@@ -60,7 +60,7 @@ public class ExpressionCodeGenerator {
 		assert right != null ? ReturnRegister.getRegister(binOp.getRight()) == right : true;
 
 		right = ReturnRegister.getRegister(binOp.getRight());
-		regs.release(right);
+		regs.free(right);
 		
 		if (pushed)
 			src += regs.pop(right);

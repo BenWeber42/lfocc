@@ -87,7 +87,7 @@ public class FunctionCodeGenerator {
 		Expression expr = ret.getExpr();
 		if (expr != null) {
 			src += codeGen.dispatch(ret.getExpr());
-			codeGen.getRegisterManager().release(ReturnRegister.getRegister(ret.getExpr()));
+			codeGen.getRegisterManager().free(ReturnRegister.getRegister(ret.getExpr()));
 		}
 		// TODO: implement
 		return src;
@@ -96,19 +96,53 @@ public class FunctionCodeGenerator {
 	public static String functionCall(FunctionCall call, CodeGeneratorInterface codeGen) {
 		String src = "";
 		RegisterManager regs = codeGen.getRegisterManager();
+		
+		assert call.getDeclaration().extension(ScopeKind.class) == ScopeKind.GLOBAL;
 
 		// TODO: implement properly
 		// don't forget about MethodCall!
-		
+
 		Register reg = regs.acquire();
-		src += "   movl $" + 0 + ", %" + reg + "\n";
 		ReturnRegister.setRegister(call, reg);
+		regs.free(reg);
+		
+		// take care of caller-saved registers (eax, ecx, edx)
+		boolean eaxSaved = false;
+		if (!regs.isFree(Register.eax)) {
+			regs.push(Register.eax);
+			eaxSaved = true;
+		}
+		boolean ecxSaved = false;
+		if (!regs.isFree(Register.ecx)) {
+			regs.push(Register.ecx);
+			ecxSaved = true;
+		}
+		boolean edxSaved = false;
+		if (!regs.isFree(Register.edx)) {
+			regs.push(Register.edx);
+			edxSaved = true;
+		}
+		
+		// compute call address
+
+		// do call
+		
+		if (reg != Register.eax)
+			src += "   movl %eax, %" + reg + "\n";
+
+		// pop caller-saved registers
+		if (edxSaved)
+			regs.pop(Register.edx);
+		if (ecxSaved)
+			regs.pop(Register.ecx);
+		if (eaxSaved)
+			regs.pop(Register.eax);
+		
+		regs.acquire(reg);
 		
 		if (!call.isExpression())
-			regs.release(reg);
+			regs.free(reg);
 
 		return src;
 	}
-
-
 }

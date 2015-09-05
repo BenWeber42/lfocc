@@ -17,8 +17,8 @@ public class AssignmentCodeGenerator {
 
 		// TODO: implement
 		
-		regs.release(ReturnRegister.getRegister(assign.getTarget()));
-		regs.release(ReturnRegister.getRegister(assign.getValue()));
+		regs.free(ReturnRegister.getRegister(assign.getTarget()));
+		regs.free(ReturnRegister.getRegister(assign.getValue()));
 		return src;
 	}
 }
