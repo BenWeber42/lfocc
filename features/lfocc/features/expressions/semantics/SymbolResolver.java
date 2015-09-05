@@ -97,45 +97,56 @@ public class SymbolResolver extends ASTVisitor {
 		variables.push(new VariableScope(null));
 		functions.push(new FunctionScope(null));
 
+		FunctionDeclaration func;
 		// add global write function
-		functions.peek().addMethod(new FunctionDeclaration(
+		func = new FunctionDeclaration(
 				new VoidType(),
 				"write",
 				new ArrayList<VariableDeclaration>(Arrays.asList(new VariableDeclaration(new IntType(), "i"))),
 				new ArrayList<ASTNode>()
-				));
+				);
+		func.extend(ScopeKind.GLOBAL);
+		functions.peek().addMethod(func);
 
 		// add global writef function
-		functions.peek().addMethod(new FunctionDeclaration(
+		func = new FunctionDeclaration(
 				new VoidType(),
 				"writef",
 				new ArrayList<VariableDeclaration>(Arrays.asList(new VariableDeclaration(new FloatType(), "f"))),
 				new ArrayList<ASTNode>()
-				));
+				);
+		func.extend(ScopeKind.GLOBAL);
+		functions.peek().addMethod(func);
 
 		// add global writeln function
-		functions.peek().addMethod(new FunctionDeclaration(
+		func = new FunctionDeclaration(
 				new VoidType(),
 				"writeln",
 				new ArrayList<VariableDeclaration>(),
 				new ArrayList<ASTNode>()
-				));
+				);
+		func.extend(ScopeKind.GLOBAL);
+		functions.peek().addMethod(func);
 
 		// add global read function
-		functions.peek().addMethod(new FunctionDeclaration(
+		func = new FunctionDeclaration(
 				new IntType(),
 				"read",
 				new ArrayList<VariableDeclaration>(),
 				new ArrayList<ASTNode>()
-				));
+				);
+		func.extend(ScopeKind.GLOBAL);
+		functions.peek().addMethod(func);
 
 		// add global readf function
-		functions.peek().addMethod(new FunctionDeclaration(
+		func = new FunctionDeclaration(
 				new FloatType(),
 				"readf",
 				new ArrayList<VariableDeclaration>(),
 				new ArrayList<ASTNode>()
-				));
+				);
+		func.extend(ScopeKind.GLOBAL);
+		functions.peek().addMethod(func);
 	}
 
 	@Override
