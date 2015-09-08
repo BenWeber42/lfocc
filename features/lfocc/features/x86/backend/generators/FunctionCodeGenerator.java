@@ -22,6 +22,10 @@ public class FunctionCodeGenerator {
 	private static final String CLASS_ESCAPE = "class__";
 	private static final String GLOBAL_ESCAPE = "func__";
 	
+	public static String getRuntime() {
+		return "";
+	}
+	
 	public static String functionDeclaration(FunctionDeclaration funcDecl, CodeGeneratorInterface codeGen) throws BackendFailure {
 		
 		String label = getLabel(funcDecl);

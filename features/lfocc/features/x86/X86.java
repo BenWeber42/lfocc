@@ -209,9 +209,21 @@ public class X86 extends Feature {
 		src += "   \n";
 		src += "   private RegisterManager regs = new RegisterManager();\n";
 		src += "   \n";
+		////////////////////////////////////////////////////////////////////////
+		// public RegisterManager getRegisterManager()
+		////////////////////////////////////////////////////////////////////////
 		src += "   @Override\n";
 		src += "   public RegisterManager getRegisterManager() {\n";
 		src += "      return regs;\n";
+		src += "   }\n";
+		src += "   \n";
+		////////////////////////////////////////////////////////////////////////
+		// public String getRuntime()
+		////////////////////////////////////////////////////////////////////////
+		src += "   private static String getRuntime() {\n";
+		src += "      String src = \"\";\n";
+		src += "      src += FunctionCodeGenerator.getRuntime();\n";
+		src += "      return src;\n";
 		src += "   }\n";
 		src += "   \n";
 		////////////////////////////////////////////////////////////////////////
@@ -222,7 +234,7 @@ public class X86 extends Feature {
 		src += "      \n";
 		src += "      prepare(root);\n";
 		src += "      \n";
-		src += "      return dispatch(root);\n";
+		src += "      return getRuntime() + dispatch(root);\n";
 		src += "   }\n";
 		src += "   \n";
 		////////////////////////////////////////////////////////////////////////
