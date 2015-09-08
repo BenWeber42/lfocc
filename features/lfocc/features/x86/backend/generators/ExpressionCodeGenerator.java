@@ -16,7 +16,7 @@ public class ExpressionCodeGenerator {
 	public static String intConst(IntConst intConst, RegisterManager regs) {
 		String src = "";
 		Register reg = regs.acquire();
-		src += "movl $" + intConst.getValue() + ", %" + reg + "\n";
+		src += "   movl $" + intConst.getValue() + ", %" + reg + "\n";
 		ReturnRegister.setRegister(intConst, reg);
 		return src;
 	}
@@ -24,7 +24,7 @@ public class ExpressionCodeGenerator {
 	public static String booleanConst(BooleanConst boolConst, RegisterManager regs) {
 		String src = "";
 		Register reg = regs.acquire();
-		src += "movl $" + ( boolConst.getValue() ? "1" : "0") + ", %" + reg + "\n";
+		src += "   movl $" + ( boolConst.getValue() ? "1" : "0") + ", %" + reg + "\n";
 		ReturnRegister.setRegister(boolConst, reg);
 		return src;
 	}
@@ -32,7 +32,7 @@ public class ExpressionCodeGenerator {
 	public static String floatConst(FloatConst floatConst, RegisterManager regs) {
 		String src = "";
 		Register reg = regs.acquire();
-		src += "movl $" + Float.floatToRawIntBits(floatConst.getValue()) + ", %" + reg + "\n";
+		src += "   movl $" + Float.floatToRawIntBits(floatConst.getValue()) + ", %" + reg + "\n";
 		ReturnRegister.setRegister(floatConst, reg);
 		return src;
 	}
