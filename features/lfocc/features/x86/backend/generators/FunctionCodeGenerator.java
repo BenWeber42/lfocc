@@ -44,6 +44,9 @@ public class FunctionCodeGenerator {
 
 		src += codeGen.dispatch(funcDecl.getChildren());
 		
+		// free allocated space for locals
+		src += "   addl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
+		
 		return src;
 	}
 
@@ -87,7 +90,7 @@ public class FunctionCodeGenerator {
 		return src;
 	}
 	
-	public static String functionCall(FunctionCall call, CodeGeneratorInterface codeGen) {
+	public static String functionCall(FunctionCall call, CodeGeneratorInterface codeGen) throws BackendFailure {
 		String src = "";
 		RegisterManager regs = codeGen.getRegisterManager();
 		
@@ -117,14 +120,27 @@ public class FunctionCodeGenerator {
 			edxSaved = true;
 		}
 		
-		// evaluate arguments
+		// make new call frame
+		src += "   push %ebp\n";
+		src += "   movl %esp, %ebp\n";
 		
-		// compute call address
-
+		// evaluate arguments
+		String argsSrc = "";
+		for (Expression arg: call.getArguments()) {
+			String _src = "";
+			_src += codeGen.dispatch(arg);
+			_src += regs.push(ReturnRegister.getRegister(arg));
+			argsSrc = _src + argsSrc;
+		}
+		src += argsSrc;
+		
 		// do call
+		src += "   call " + getLabel(call) + "\n";
 		
 		// clean up stack
+		src += "   addl $" + call.getArguments().size()*CodeGeneratorHelper.WORD_SIZE + ", %esp\n";
 		
+		// save return value
 		if (reg != Register.eax)
 			src += "   movl %eax, %" + reg + "\n";
 

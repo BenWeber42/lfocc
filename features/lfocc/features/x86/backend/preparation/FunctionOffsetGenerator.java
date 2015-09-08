@@ -63,10 +63,10 @@ public class FunctionOffsetGenerator extends ASTVisitor {
 			for (VariableDeclaration varDecl: funcDecl.extension(VariableScope.class).getLocalIterable()) {
 				
 				if (offsets.containsKey(varDecl.getName()))
-					continue;
+					continue; // must be a parameter
 				
-				offsets.put(varDecl.getName(), offset);
 				offset += CodeGeneratorHelper.WORD_SIZE;
+				offsets.put(varDecl.getName(), offset);
 			}
 			
 			localSize = offset - localSize;
