@@ -23,7 +23,29 @@ public class FunctionCodeGenerator {
 	private static final String GLOBAL_ESCAPE = "func__";
 	
 	public static String getRuntime() {
-		return "";
+		String src = "";
+		
+		// TODO: implement runtime properly
+		src += "/**\n";
+		src += " * Functions' Runtime:\n";
+		src += " */\n";
+		src += "\n";
+		src += ".text\n";
+		src += getGlobalLabel("write", "") + ":\n";
+		src += ".text\n";
+		src += getGlobalLabel("writef", "") + ":\n";
+		src += ".text\n";
+		src += getGlobalLabel("writeln", "") + ":\n";
+		src += ".text\n";
+		src += getGlobalLabel("read", "") + ":\n";
+		src += ".text\n";
+		src += getGlobalLabel("readf", "") + ":\n";
+		src += "\n";
+		src += "\n";
+		src += "\n";
+		src += "\n";
+
+		return src;
 	}
 	
 	public static String functionDeclaration(FunctionDeclaration funcDecl, CodeGeneratorInterface codeGen) throws BackendFailure {
@@ -78,9 +100,17 @@ public class FunctionCodeGenerator {
 		boolean global = getScope(funcDecl) == ScopeKind.GLOBAL;
 		
 		if (global)
-			return CodeGeneratorHelper.escape(GLOBAL_ESCAPE + nameSpaceStr + funcDecl.getName());
+			return getGlobalLabel(funcDecl.getName(), nameSpaceStr);
 		else
-			return CodeGeneratorHelper.escape(CLASS_ESCAPE + nameSpaceStr + funcDecl.getName());
+			return getClassLabel(funcDecl.getName(), nameSpaceStr);
+	}
+	
+	private static String getGlobalLabel(String name, String namespace) {
+			return CodeGeneratorHelper.escape(GLOBAL_ESCAPE + namespace + name);
+	}
+	
+	private static String getClassLabel(String name, String namespace) {
+			return CodeGeneratorHelper.escape(CLASS_ESCAPE + namespace + name);
 	}
 	
 	public static String returnStatement(ReturnStatement ret, CodeGeneratorInterface codeGen) throws BackendFailure {
