@@ -21,11 +21,6 @@ public class FunctionCodeGenerator {
 	
 	private static final String CLASS_ESCAPE = "class__";
 	private static final String GLOBAL_ESCAPE = "func__";
-	private static final String PROLOGUE =
-			"   push %ebp\n" +
-			"   mov %ebp, %esp\n";
-	private static final String EPILOGUE =
-			"   ret\n";
 	
 	public static String functionDeclaration(FunctionDeclaration funcDecl, CodeGeneratorInterface codeGen) throws BackendFailure {
 		
@@ -44,12 +39,11 @@ public class FunctionCodeGenerator {
 		if (funcDecl.extension(ExposeLinker.class) != null)
 			src += ".global " + label + "\n";
 		src += label + ":\n";
-		src += PROLOGUE;
+		// allocate space for locals
 		src += "   subl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
 
 		src += codeGen.dispatch(funcDecl.getChildren());
 		
-		src += EPILOGUE;
 		return src;
 	}
 
@@ -123,9 +117,13 @@ public class FunctionCodeGenerator {
 			edxSaved = true;
 		}
 		
+		// evaluate arguments
+		
 		// compute call address
 
 		// do call
+		
+		// clean up stack
 		
 		if (reg != Register.eax)
 			src += "   movl %eax, %" + reg + "\n";

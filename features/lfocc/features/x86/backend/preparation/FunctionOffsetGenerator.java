@@ -30,30 +30,46 @@ public class FunctionOffsetGenerator extends ASTVisitor {
 	}
 	
 	public static class FunctionOffsets {
-		private int localOffset = 0;
-		private int parameterOffset = 3*CodeGeneratorHelper.WORD_SIZE;
+		
+		/*
+		 * Uses cdecl calling convention
+		 */
+
+		/** size of locals in bytes */
+		private int localSize = 0;
+		private int offset;
 		private Map<String, Integer> offsets = new HashMap<String, Integer>();
 		
 		public FunctionOffsets(FunctionDeclaration funcDecl) {
 			
+			offset = funcDecl.getParameters().size()*CodeGeneratorHelper.WORD_SIZE;
+
+			int reverser = 0;
 			for (VariableDeclaration varDecl: funcDecl.getParameters()) {
-				offsets.put(varDecl.getName(), parameterOffset);
-				parameterOffset += CodeGeneratorHelper.WORD_SIZE;
+				offsets.put(varDecl.getName(), offset - reverser);
+				reverser += CodeGeneratorHelper.WORD_SIZE;
 			}
 			
+			// GCC pushes the this pointer last
 			if (funcDecl.extension(ScopeKind.class) == ScopeKind.CLASS_MEMBER) {
-				offsets.put("this", parameterOffset);
-				parameterOffset += CodeGeneratorHelper.WORD_SIZE;
+				offset += CodeGeneratorHelper.WORD_SIZE;
+				offsets.put("this", offset);
 			}
+
+			// at this offset there will be the return address on the stack
+			offset += CodeGeneratorHelper.WORD_SIZE;
+			localSize = offset;
 			
 			for (VariableDeclaration varDecl: funcDecl.extension(VariableScope.class).getLocalIterable()) {
 				
 				if (offsets.containsKey(varDecl.getName()))
 					continue;
 				
-				offsets.put(varDecl.getName(), localOffset);
-				localOffset -= CodeGeneratorHelper.WORD_SIZE;
+				offsets.put(varDecl.getName(), offset);
+				offset += CodeGeneratorHelper.WORD_SIZE;
 			}
+			
+			localSize = offset - localSize;
 		}
 		
 		/**
@@ -68,7 +84,7 @@ public class FunctionOffsetGenerator extends ASTVisitor {
 		 * Returns the size required for all locals (non-parameters)
 		 */
 		public int getSize() {
-			return localOffset;
+			return localSize;
 		}
 	}
 }
