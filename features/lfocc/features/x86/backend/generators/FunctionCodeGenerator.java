@@ -26,22 +26,88 @@ public class FunctionCodeGenerator {
 		String src = "";
 		
 		// TODO: implement runtime properly
+		final String write_fmt = CodeGeneratorHelper.escape("runtime_write_fmt");
+		final String read_fmt = CodeGeneratorHelper.escape("runtime_read_fmt");
+		final String writef_fmt = CodeGeneratorHelper.escape("runtime_writef_fmt");
+		final String readf_fmt = CodeGeneratorHelper.escape("runtime_readf_fmt");
+		final String writeln_fmt = CodeGeneratorHelper.escape("runtime_writeln_fmt");
+
 		src += "/**\n";
 		src += " * Functions' Runtime:\n";
 		src += " */\n";
 		src += "\n";
+		src += ".data\n";
+		src += "\n";
+		src += write_fmt + ":\n";
+		src += read_fmt + ":\n";
+		src += "   .string \"%d\\0\"\n";
+		src += "\n";
+		src += writef_fmt + ":\n";
+		src += readf_fmt + ":\n";
+		src += "   .string \"%f\\0\"\n";
+		src += "\n";
+		src += writeln_fmt + ":\n";
+		src += "   .string \"\\n\\0\"\n";
+		src += "\n";
 		src += ".text\n";
+		src += "\n";
 		src += getGlobalLabel("write", "") + ":\n";
-		src += ".text\n";
+		src += "   movl -4(%ebp), %eax\n";
+		src += "   pushl %ebp\n";
+		src += "   movl %esp, %ebp\n";
+		src += "   pushl %eax\n";
+		src += "   pushl $" + write_fmt + "\n";
+		src += "   call printf\n";
+		src += "   addl $8, %esp\n";
+		src += "   popl %ebp\n";
+		src += "   ret\n";
+		src += "\n";
 		src += getGlobalLabel("writef", "") + ":\n";
-		src += ".text\n";
+		src += "   flds -4(%ebp)\n";
+		src += "   pushl %ebp\n";
+		src += "   movl %esp, %ebp\n";
+		src += "   subl $8, %esp\n";
+		src += "   fstpl (%esp)\n";
+		src += "   pushl $" + writef_fmt + "\n";
+		src += "   call printf\n";
+		src += "   addl $12, %esp\n";
+		src += "   popl %ebp\n";
+		src += "   ret\n";
+		src += "\n";
 		src += getGlobalLabel("writeln", "") + ":\n";
-		src += ".text\n";
+		src += "   pushl %ebp\n";
+		src += "   movl %esp, %ebp\n";
+		src += "   pushl $" + writeln_fmt + "\n";
+		src += "   call printf\n";
+		src += "   addl $4, %esp\n";
+		src += "   popl %ebp\n";
+		src += "   ret\n";
+		src += "\n";
 		src += getGlobalLabel("read", "") + ":\n";
-		src += ".text\n";
+		src += "   subl $4, %esp\n";
+		src += "   movl %esp, %eax\n";
+		src += "   pushl %ebp\n";
+		src += "   movl %esp, %ebp\n";
+		src += "   pushl %eax\n";
+		src += "   pushl $" + read_fmt + "\n";
+		src += "   call scanf\n";
+		src += "   addl $8, %esp\n";
+		src += "   popl %ebp\n";
+		src += "   popl %eax\n";
+		src += "   ret\n";
+		src += "\n";
 		src += getGlobalLabel("readf", "") + ":\n";
-		src += "\n";
-		src += "\n";
+		src += "   subl $4, %esp\n";
+		src += "   movl %esp, %eax\n";
+		src += "   pushl %ebp\n";
+		src += "   movl %esp, %ebp\n";
+		src += "   pushl %eax\n";
+		src += "   pushl $" + readf_fmt + "\n";
+		src += "   call scanf\n";
+		src += "   addl $8, %esp\n";
+		src += "   popl %ebp\n";
+		src += "   popl %eax\n";
+		src += "   ret\n";
 		src += "\n";
 		src += "\n";
 
@@ -52,7 +118,9 @@ public class FunctionCodeGenerator {
 		
 		String label = getLabel(funcDecl);
 		ScopeKind scope = getScope(funcDecl);
-		String src = "\n\n";
+		String src = "";
+		
+		// TODO: take care of callee-saved registers ebx, esi & edi
 		
 		src += "/**\n";
 		if (scope == ScopeKind.GLOBAL)
@@ -70,8 +138,8 @@ public class FunctionCodeGenerator {
 
 		src += codeGen.dispatch(funcDecl.getChildren());
 		
-		// free allocated space for locals
-		src += "   addl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
+		src += "   movl $0, %eax\n";
+		src += "   ret\n\n\n";
 		
 		return src;
 	}
@@ -175,8 +243,10 @@ public class FunctionCodeGenerator {
 		src += "   addl $" + call.getArguments().size()*CodeGeneratorHelper.WORD_SIZE + ", %esp\n";
 		
 		// save return value
-		if (reg != Register.eax)
+		if (!call.getDeclaration().getReturnType().getName().equals("void") && reg != Register.eax)
 			src += "   movl %eax, %" + reg + "\n";
+		
+		src += "   popl %ebp\n";
 
 		// pop caller-saved registers
 		if (edxSaved)

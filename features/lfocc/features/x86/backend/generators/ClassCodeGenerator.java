@@ -21,7 +21,7 @@ public class ClassCodeGenerator {
 	
 	public static String classDeclaration(ClassDeclaration classDecl, CodeGeneratorInterface codeGen) throws BackendFailure {
 		
-		String src = "\n\n";
+		String src = "";
 		src += "/**\n";
 		src += " * Class " + classDecl.getName() + "\n";
 		src += " */\n";
@@ -49,6 +49,8 @@ public class ClassCodeGenerator {
 			src += "   .long 0x0\n";
 		for (FunctionDeclaration func: classTable.getJumpTable())
 			src += "   .long " + FunctionCodeGenerator.getLabel(func) + "\n";
+		
+		src += "\n\n";
 		
 		return src;
 	}
