@@ -25,7 +25,6 @@ public class FunctionCodeGenerator {
 	public static String getRuntime() {
 		String src = "";
 		
-		// TODO: implement runtime properly
 		final String write_fmt = CodeGeneratorHelper.escape("runtime_write_fmt");
 		final String read_fmt = CodeGeneratorHelper.escape("runtime_read_fmt");
 		final String writef_fmt = CodeGeneratorHelper.escape("runtime_writef_fmt");
@@ -139,6 +138,7 @@ public class FunctionCodeGenerator {
 		src += codeGen.dispatch(funcDecl.getChildren());
 		
 		src += "   movl $0, %eax\n";
+		src += "   addl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
 		src += "   ret\n\n\n";
 		
 		return src;
