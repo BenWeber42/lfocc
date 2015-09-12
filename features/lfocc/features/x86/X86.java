@@ -118,7 +118,7 @@ public class X86 extends Feature {
 		}
 
 		cg.addSource("lfocc.features.x86.backend.preparation",
-				new File("features/lfocc/features/x86/backend/preparation/FunctionOffsetGenerator.java"));
+				new File("features/lfocc/features/x86/backend/preparation/FunctionPreparer.java"));
 
 		cg.addSource("lfocc.features.x86.backend.generators",
 				new File("features/lfocc/features/x86/backend/generators/ExpressionCodeGenerator.java"));
@@ -163,7 +163,7 @@ public class X86 extends Feature {
 			src += "import lfocc.features.x86.backend.preparation.JavaEntryAdder;\n";
 		else
 			src += "import lfocc.features.x86.backend.preparation.CEntryAdder;\n";
-		src += "import lfocc.features.x86.backend.preparation.FunctionOffsetGenerator;\n";
+		src += "import lfocc.features.x86.backend.preparation.FunctionPreparer;\n";
 		src += "import lfocc.features.x86.backend.generators.FunctionCodeGenerator;\n";
 		src += "import lfocc.features.functions.ast.FunctionDeclaration;\n";
 		src += "import lfocc.features.functions.ast.FunctionCall;\n";
@@ -247,7 +247,7 @@ public class X86 extends Feature {
 		else
 			src += "      CEntryAdder.addCEntry(root);\n";
 		src += "      try {\n";
-        src += "         new FunctionOffsetGenerator().visit(root);\n";
+        src += "         new FunctionPreparer().visit(root);\n";
         if (language.hasFeature("Classes"))
         	src += "         new ClassPreparer().visit(root);\n";
         if (language.hasFeature("Variables") && variables.hasClassMembers())

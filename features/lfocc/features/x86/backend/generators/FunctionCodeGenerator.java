@@ -14,7 +14,7 @@ import lfocc.features.x86.backend.CodeGeneratorInterface;
 import lfocc.features.x86.backend.RegisterManager;
 import lfocc.features.x86.backend.RegisterManager.Register;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NameSpace;
-import lfocc.features.x86.backend.preparation.FunctionOffsetGenerator.FunctionOffsets;
+import lfocc.features.x86.backend.preparation.FunctionPreparer.FunctionOffsets;
 import lfocc.framework.compiler.Backend.BackendFailure;
 
 public class FunctionCodeGenerator {
@@ -119,8 +119,6 @@ public class FunctionCodeGenerator {
 		ScopeKind scope = getScope(funcDecl);
 		RegisterManager regs = codeGen.getRegisterManager();
 		String src = "";
-		
-		// TODO: take care of callee-saved registers ebx, esi & edi
 		
 		src += "/**\n";
 		if (scope == ScopeKind.GLOBAL)

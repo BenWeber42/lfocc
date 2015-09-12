@@ -5,6 +5,7 @@ import java.util.Map;
 
 import lfocc.features.base.ast.ScopeKind;
 import lfocc.features.functions.ast.FunctionDeclaration;
+import lfocc.features.functions.ast.ReturnStatement;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.features.variables.ast.VariableScope;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
@@ -13,20 +14,52 @@ import lfocc.framework.compiler.ast.ASTVisitor;
 
 /**
  * Generates the offsets of the locals for each function
+ * and sets the function declaration for each return statement
  */
-public class FunctionOffsetGenerator extends ASTVisitor {
+public class FunctionPreparer extends ASTVisitor {
 	
+	private FunctionDeclaration decl = null;
 
 	@Override
 	public void visit(ASTNode node) throws VisitorFailure {
 		if (node instanceof FunctionDeclaration)
 			functionDeclaration((FunctionDeclaration) node);
+		else if (node instanceof ReturnStatement)
+			returnStatement((ReturnStatement) node);
 		else
 			super.visit(node);
 	}
 	
-	private void functionDeclaration(FunctionDeclaration funcDecl) {
+	private void returnStatement(ReturnStatement ret) {
+		assert decl != null;
+		ReturnDeclaration.setDeclaration(ret, decl);
+	}
+	
+	private void functionDeclaration(FunctionDeclaration funcDecl) throws VisitorFailure {
 		funcDecl.extend(new FunctionOffsets(funcDecl));
+		
+		decl = funcDecl;
+		super.visit(funcDecl);
+		decl = null;
+	}
+	
+	public static class ReturnDeclaration {
+		private final FunctionDeclaration functionDeclaration;
+		
+		private ReturnDeclaration(FunctionDeclaration decl) {
+			this.functionDeclaration = decl;
+		}
+		
+		public static void setDeclaration(ReturnStatement ret, FunctionDeclaration decl) {
+			assert decl != null;
+			ret.extend(new ReturnDeclaration(decl));
+		}
+		
+		public static FunctionDeclaration getDeclaration(ReturnStatement ret) {
+			ReturnDeclaration decl = ret.extension(ReturnDeclaration.class);
+			assert decl != null;
+			return decl.functionDeclaration;
+		}
 	}
 	
 	public static class FunctionOffsets {
