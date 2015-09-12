@@ -376,7 +376,7 @@ public class X86 extends Feature {
 			src += "         \n";
 			src += "      } else if (node instanceof ThisReference) {\n";
 			src += "         \n";
-			src += "         return ClassCodeGenerator.thisReference((ThisReference) node, regs);\n";
+			src += "         return ClassCodeGenerator.thisReference((ThisReference) node, this);\n";
 			src += "         \n";
 			src += "      } else if (node instanceof CastExpression) {\n";
 			src += "         \n";

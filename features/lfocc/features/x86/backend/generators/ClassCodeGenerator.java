@@ -80,14 +80,13 @@ public class ClassCodeGenerator {
 		return src;
 	}
 	
-	public static String thisReference(ThisReference thisRef, RegisterManager regs) {
+	public static String thisReference(ThisReference thisRef, ThisOffsetProvider codeGen) {
 		String src = "";
 
-		// TODO: implement properly
-		
-		Register reg = regs.acquire();
-		src += "   movl $" + 0 + ", %" + reg + "\n";
+		Register reg = codeGen.getRegisterManager().acquire();
 		ReturnRegister.setRegister(thisRef, reg);
+
+		src += "   movl -" + codeGen.getThisOffset() + "(%ebp), %" + reg + "\n";
 
 		return src;
 	}
