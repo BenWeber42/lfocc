@@ -3,6 +3,7 @@ package lfocc.features.x86.backend.preparation;
 import java.util.HashSet;
 import java.util.Set;
 
+import lfocc.features.base.ast.ScopeKind;
 import lfocc.features.classes.ast.ClassDeclaration;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.features.x86.backend.preparation.ClassPreparer.InstanceTable;
@@ -19,6 +20,26 @@ public class ClassVariablePreparer extends ASTVisitor {
 			classDeclaration((ClassDeclaration) node);
 		else
 			super.visit(node);
+	}
+	
+	public static class AttributeOffset {
+		public final int offset;
+		
+		private AttributeOffset(int offset) {
+			this.offset = offset;
+		}
+		
+		public static void setOffset(VariableDeclaration var, int offset) {
+			assert var.extension(ScopeKind.class) == ScopeKind.CLASS_MEMBER;
+			var.extend(new AttributeOffset(offset));
+		}
+		
+		public static int getOffset(VariableDeclaration var) {
+			assert var.extension(ScopeKind.class) == ScopeKind.CLASS_MEMBER;
+			AttributeOffset offset = var.extension(AttributeOffset.class);
+			assert offset != null;
+			return offset.offset;
+		}
 	}
 	
 	private void classDeclaration(ClassDeclaration classDecl) {
@@ -45,7 +66,13 @@ public class ClassVariablePreparer extends ASTVisitor {
 		
 		for (ASTNode member: classDecl.getMembers()) {
 			if (member instanceof VariableDeclaration) {
-				table.add(((VariableDeclaration) member).getName());
+				VariableDeclaration var = (VariableDeclaration) member;
+				String name = var.getName();
+
+				if (!table.has(name))
+					table.add(name);
+				
+				AttributeOffset.setOffset(var, table.get(name));
 			}
 		}
 	}

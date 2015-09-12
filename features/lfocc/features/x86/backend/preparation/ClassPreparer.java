@@ -122,10 +122,18 @@ public class ClassPreparer extends ASTVisitor {
 		int offset = CodeGeneratorHelper.WORD_SIZE;
 		Map<String, Integer> offsets = new HashMap<String, Integer>();
 		
+		public boolean has(String name) {
+			return offsets.containsKey(name);
+		}
+		
+		public int get(String name) {
+			assert has(name);
+			return offsets.get(name);
+		}
+		
 		public void add(String name) {
-			if (offsets.containsKey(name))
-				return;
-			
+			assert !has(name);
+
 			offsets.put(name, offset);
 			offset += CodeGeneratorHelper.WORD_SIZE;
 		}
@@ -136,7 +144,7 @@ public class ClassPreparer extends ASTVisitor {
 		 * particularly when the dynamic type differs from the static type
 		 * so that function calls get resolved correctly.
 		 * 
-		 * Therefor, the InstanceTable will always contain a link to the
+		 * Therefore, the InstanceTable will always contain a link to the
 		 * ClassTable. But only if variables can be classmembers, will it be
 		 * filled with those offsets (see ClassVariablePreparer).
 		 */
