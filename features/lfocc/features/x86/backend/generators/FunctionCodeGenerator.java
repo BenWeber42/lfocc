@@ -15,6 +15,7 @@ import lfocc.features.x86.backend.RegisterManager;
 import lfocc.features.x86.backend.RegisterManager.Register;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NameSpace;
 import lfocc.features.x86.backend.preparation.FunctionPreparer.FunctionOffsets;
+import lfocc.features.x86.backend.preparation.FunctionPreparer.ReturnDeclaration;
 import lfocc.framework.compiler.Backend.BackendFailure;
 
 public class FunctionCodeGenerator {
@@ -145,6 +146,7 @@ public class FunctionCodeGenerator {
 		
 		src += codeGen.dispatch(funcDecl.getChildren());
 		
+		// clean up stack
 		src += regs.pop(Register.edi);
 		src += regs.pop(Register.esi);
 		src += regs.pop(Register.ebx);
@@ -198,12 +200,29 @@ public class FunctionCodeGenerator {
 	
 	public static String returnStatement(ReturnStatement ret, CodeGeneratorInterface codeGen) throws BackendFailure {
 		String src = "";
+		RegisterManager regs = codeGen.getRegisterManager();
+		FunctionDeclaration funcDecl = ReturnDeclaration.getDeclaration(ret);
 		Expression expr = ret.getExpr();
+
 		if (expr != null) {
 			src += codeGen.dispatch(ret.getExpr());
-			codeGen.getRegisterManager().free(ReturnRegister.getRegister(ret.getExpr()));
+			Register reg = ReturnRegister.getRegister(ret.getExpr());
+			if (reg != Register.eax)
+				src += "   movl %" + reg + ", %eax\n";
+			regs.free(reg);
 		}
-		// TODO: implement
+
+		// clean up stack
+		src += regs.pop(Register.edi);
+		src += regs.pop(Register.esi);
+		src += regs.pop(Register.ebx);
+		regs.free(Register.ebx);
+		regs.free(Register.esi);
+		regs.free(Register.edi);
+
+		src += "   addl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
+		src += "   ret\n\n\n";
+		
 		return src;
 	}
 	
