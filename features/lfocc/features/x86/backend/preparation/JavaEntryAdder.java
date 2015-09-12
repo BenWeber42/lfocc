@@ -56,6 +56,7 @@ public class JavaEntryAdder {
 		
 		newMain.setType(mainClass);
 		mainCall.setDeclaration(mainClass.getNode().extension(FunctionScope.class).getMethod("main"));
+		mainCall.setExpression(false);
 		entryPoint.extend(new VariableScope(globalScope.extension(VariableScope.class)));
 		
 		globalScope.add(entryPoint);
