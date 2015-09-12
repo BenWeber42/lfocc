@@ -117,6 +117,7 @@ public class FunctionCodeGenerator {
 		
 		String label = getLabel(funcDecl);
 		ScopeKind scope = getScope(funcDecl);
+		RegisterManager regs = codeGen.getRegisterManager();
 		String src = "";
 		
 		// TODO: take care of callee-saved registers ebx, esi & edi
@@ -132,13 +133,29 @@ public class FunctionCodeGenerator {
 		if (funcDecl.extension(ExposeLinker.class) != null)
 			src += ".global " + label + "\n";
 		src += label + ":\n";
+		
 		// allocate space for locals
 		src += "   subl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
 
+		// take care of callee-saved registers: ebx, esi & edi
+		regs.acquire(Register.ebx);
+		regs.acquire(Register.esi);
+		regs.acquire(Register.edi);
+		src += regs.push(Register.ebx);
+		src += regs.push(Register.esi);
+		src += regs.push(Register.edi);
+		
 		src += codeGen.dispatch(funcDecl.getChildren());
 		
-		src += "   movl $0, %eax\n";
+		src += regs.pop(Register.edi);
+		src += regs.pop(Register.esi);
+		src += regs.pop(Register.ebx);
+		regs.free(Register.ebx);
+		regs.free(Register.esi);
+		regs.free(Register.edi);
+
 		src += "   addl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
+		src += "   movl $0, %eax\n";
 		src += "   ret\n\n\n";
 		
 		return src;
@@ -197,6 +214,8 @@ public class FunctionCodeGenerator {
 		RegisterManager regs = codeGen.getRegisterManager();
 		
 		assert call.getDeclaration().extension(ScopeKind.class) == ScopeKind.GLOBAL;
+		
+		// TODO: 16 byte stack alignment?
 
 		// TODO: implement properly
 		// don't forget about MethodCall!
