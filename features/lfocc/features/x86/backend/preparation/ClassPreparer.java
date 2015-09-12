@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lfocc.features.base.ast.ScopeKind;
 import lfocc.features.classes.ast.ClassDeclaration;
 import lfocc.features.classes.ast.ClassType;
 import lfocc.features.functions.ast.FunctionDeclaration;
@@ -55,6 +56,26 @@ public class ClassPreparer extends ASTVisitor {
 			node.extend(new NameSpace(classDecl.getName() + "__"));
 	}
 	
+	public static class MethodOffset {
+		public final int offset;
+		
+		private MethodOffset(int offset) {
+			this.offset = offset;
+		}
+		
+		public static int getOffset(FunctionDeclaration func) {
+			assert func.extension(ScopeKind.class) == ScopeKind.CLASS_MEMBER;
+			MethodOffset offset = func.extension(MethodOffset.class);
+			assert offset != null;
+			return offset.offset;
+		}
+		
+		public static void setOffset(FunctionDeclaration func, int offset) {
+			assert func.extension(ScopeKind.class) == ScopeKind.CLASS_MEMBER;
+			func.extend(new MethodOffset(offset));
+		}
+	}
+	
 	public static class ClassTable {
 		// keep space for link to parent
 		private int offset = CodeGeneratorHelper.WORD_SIZE;
@@ -78,8 +99,10 @@ public class ClassPreparer extends ASTVisitor {
 
 					if (offsets.containsKey(func.getName())) {
 						jumpTable.set(offsets.get(func.getName())/CodeGeneratorHelper.WORD_SIZE - 1, func);
+						MethodOffset.setOffset(func, offsets.get(func.getName()));
 					} else {
 						offsets.put(func.getName(), offset);
+						MethodOffset.setOffset(func, offset);
 						offset += CodeGeneratorHelper.WORD_SIZE;
 						jumpTable.add(func);
 					}
