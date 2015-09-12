@@ -62,6 +62,26 @@ public class FunctionPreparer extends ASTVisitor {
 		}
 	}
 	
+	public static class LocalVariableOffset {
+		public final int offset;
+		
+		private LocalVariableOffset(int offset) {
+			this.offset = offset;
+		}
+		
+		public static void setOffset(VariableDeclaration var, int offset) {
+			assert var.extension(ScopeKind.class) == ScopeKind.LOCAL;
+			var.extend(new LocalVariableOffset(offset));
+		}
+		
+		public static int getOffset(VariableDeclaration var) {
+			assert var.extension(ScopeKind.class) == ScopeKind.LOCAL;
+			LocalVariableOffset offset = var.extension(LocalVariableOffset.class);
+			assert offset != null;
+			return offset.offset;
+		}
+	}
+	
 	public static class FunctionOffsets {
 		
 		/*
@@ -80,6 +100,7 @@ public class FunctionPreparer extends ASTVisitor {
 			int reverser = 0;
 			for (VariableDeclaration varDecl: funcDecl.getParameters()) {
 				offsets.put(varDecl.getName(), offset - reverser);
+				LocalVariableOffset.setOffset(varDecl, offset - reverser);
 				reverser += CodeGeneratorHelper.WORD_SIZE;
 			}
 			
@@ -100,6 +121,7 @@ public class FunctionPreparer extends ASTVisitor {
 				
 				offset += CodeGeneratorHelper.WORD_SIZE;
 				offsets.put(varDecl.getName(), offset);
+				LocalVariableOffset.setOffset(varDecl, offset);
 			}
 			
 			localSize = offset - localSize;
