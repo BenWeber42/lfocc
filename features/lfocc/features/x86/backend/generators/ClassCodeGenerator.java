@@ -102,4 +102,10 @@ public class ClassCodeGenerator {
 
 		return src;
 	}
+	
+	public static interface ThisOffsetProvider extends CodeGeneratorInterface {
+		public int getThisOffset();
+		public void setThisOffset(int offset);
+	}
+	
 }
