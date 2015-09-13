@@ -1,15 +1,12 @@
 package lfocc.features.x86.backend.generators;
 
 import lfocc.features.base.ast.ScopeKind;
-import lfocc.features.variables.ast.Attribute;
 import lfocc.features.variables.ast.Variable;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
 import lfocc.features.x86.backend.CodeGeneratorHelper.ReturnRegister;
-import lfocc.features.x86.backend.CodeGeneratorInterface;
 import lfocc.features.x86.backend.RegisterManager;
 import lfocc.features.x86.backend.RegisterManager.Register;
-import lfocc.framework.compiler.Backend.BackendFailure;
 
 public class VariableCodeGenerator {
 	
@@ -36,6 +33,10 @@ public class VariableCodeGenerator {
 		return src;
 	}
 	
+	public static String getLabel(Variable variable) {
+		return getLabel(variable.getDeclaration());
+	}
+	
 	public static String getLabel(VariableDeclaration varDecl) {
 		assert varDecl.extension(ScopeKind.class) == ScopeKind.GLOBAL;
 		return CodeGeneratorHelper.escape(GLOBAL_VARIABLE_ESCAPE + varDecl.getName());
@@ -46,20 +47,17 @@ public class VariableCodeGenerator {
 		assert variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.GLOBAL;
 		
 		Register reg = regs.acquire();
-		src += "   movl $" + 0 + ", %" + reg + "\n";
-		// TODO: implement properly
+		src += "   movl $" + getLabel(variable) + ", %" + reg + "\n";
 		ReturnRegister.setRegister(variable, reg);
 		return src;
 	}
-
 
 	public static String globalVariableAddress(Variable variable, RegisterManager regs) {
 		String src = "";
 		assert variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.GLOBAL;
 
 		Register reg = regs.acquire();
-		src += "   movl $" + 0 + ", %" + reg + "\n";
-		// TODO: implement properly
+		src += "   movl " + getLabel(variable) + ", %" + reg + "\n";
 		ReturnRegister.setRegister(variable, reg);
 		return src;
 	}
