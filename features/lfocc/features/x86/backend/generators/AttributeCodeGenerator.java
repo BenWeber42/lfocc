@@ -22,7 +22,7 @@ public class AttributeCodeGenerator {
 		Register reg = regs.acquire();
 		ReturnRegister.setRegister(variable, reg);
 
-		src += "   movl " + codeGen.getThisOffset() + "(%ebp), %" + reg + "\n";
+		src += "   movl -" + codeGen.getThisOffset() + "(%ebp), %" + reg + "\n";
 		src += "   movl " + AttributeOffset.getOffset(variable.getDeclaration()) + "(%" + reg + "), %" + reg + "\n";
 		
 		return src;
@@ -37,7 +37,7 @@ public class AttributeCodeGenerator {
 		Register reg = regs.acquire();
 		ReturnRegister.setRegister(variable, reg);
 
-		src += "   movl " + codeGen.getThisOffset() + "(%ebp), %" + reg + "\n";
+		src += "   movl -" + codeGen.getThisOffset() + "(%ebp), %" + reg + "\n";
 		src += "   leal " + AttributeOffset.getOffset(variable.getDeclaration()) + "(%" + reg + "), %" + reg + "\n";
 
 		return src;
