@@ -234,9 +234,6 @@ public class FunctionCodeGenerator {
 		
 		// TODO: 16 byte stack alignment?
 
-		// TODO: implement properly
-		// don't forget about MethodCall!
-
 		Register reg = regs.acquire();
 		ReturnRegister.setRegister(call, reg);
 		regs.free(reg);

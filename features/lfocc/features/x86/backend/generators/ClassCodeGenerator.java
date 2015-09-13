@@ -82,6 +82,7 @@ public class ClassCodeGenerator {
 	
 	public static String thisReference(ThisReference thisRef, ThisOffsetProvider codeGen) {
 		String src = "";
+		assert codeGen.getThisOffset() >= 0;
 
 		Register reg = codeGen.getRegisterManager().acquire();
 		ReturnRegister.setRegister(thisRef, reg);
