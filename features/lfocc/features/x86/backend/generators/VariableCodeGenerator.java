@@ -41,29 +41,21 @@ public class VariableCodeGenerator {
 		return CodeGeneratorHelper.escape(GLOBAL_VARIABLE_ESCAPE + varDecl.getName());
 	}
 
-	public static String variable(Variable attribute, RegisterManager regs) {
+	public static String globalVariable(Variable variable, RegisterManager regs) {
 		String src = "";
+		assert variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.GLOBAL;
 		
 		Register reg = regs.acquire();
 		src += "   movl $" + 0 + ", %" + reg + "\n";
 		// TODO: implement properly
-		ReturnRegister.setRegister(attribute, reg);
+		ReturnRegister.setRegister(variable, reg);
 		return src;
 	}
 
-	public static String attribute(Attribute attribute, CodeGeneratorInterface codeGen) throws BackendFailure {
-		String src = "";
-		
-		// TODO: implement properly
-		src += codeGen.dispatch(attribute.getExpr());
-		
-		Register reg = ReturnRegister.getRegister(attribute.getExpr());
-		ReturnRegister.setRegister(attribute, reg);
-		return src;
-	}
 
-	public static String getAddressOfVariable(Variable variable, RegisterManager regs) {
+	public static String globalVariableAddress(Variable variable, RegisterManager regs) {
 		String src = "";
+		assert variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.GLOBAL;
 
 		Register reg = regs.acquire();
 		src += "   movl $" + 0 + ", %" + reg + "\n";
@@ -72,14 +64,4 @@ public class VariableCodeGenerator {
 		return src;
 	}
 
-	public static String getAddressOfAttribute(Attribute attribute, CodeGeneratorInterface codeGen) throws BackendFailure {
-		String src = "";
-
-		// TODO: implement properly
-		src += codeGen.dispatch(attribute.getExpr());
-		
-		Register reg = ReturnRegister.getRegister(attribute.getExpr());
-		ReturnRegister.setRegister(attribute, reg);
-		return src;
-	}
 }

@@ -127,13 +127,19 @@ public class X86 extends Feature {
 			cg.addSource("lfocc.features.x86.backend.preparation",
 					new File("features/lfocc/features/x86/backend/preparation/ClassPreparer.java"));
 
-		if (cg.hasFeature("Variables") && variables.hasClassMembers())
-			cg.addSource("lfocc.features.x86.backend.preparation",
-					new File("features/lfocc/features/x86/backend/preparation/ClassVariablePreparer.java"));
-
-		if (cg.hasFeature("Variables"))
+		if (cg.hasFeature("Variables")) {
 			cg.addSource("lfocc.features.x86.backend.generators",
 					new File("features/lfocc/features/x86/backend/generators/VariableCodeGenerator.java"));
+			cg.addSource("lfocc.features.x86.backend.generators",
+					new File("features/lfocc/features/x86/backend/generators/LocalVariableCodeGenerator.java"));
+		}
+
+		if (cg.hasFeature("Variables") && variables.hasClassMembers()) {
+			cg.addSource("lfocc.features.x86.backend.preparation",
+					new File("features/lfocc/features/x86/backend/preparation/ClassVariablePreparer.java"));
+			cg.addSource("lfocc.features.x86.backend.generators",
+					new File("features/lfocc/features/x86/backend/generators/AttributeCodeGenerator.java"));
+		}
 
 		if (cg.hasFeature("Assignments"))
 			cg.addSource("lfocc.features.x86.backend.generators",
@@ -186,13 +192,16 @@ public class X86 extends Feature {
 			src += "import lfocc.features.classes.ast.ThisReference;\n";
 			src += "import lfocc.features.classes.ast.CastExpression;\n";
 		}
-		if (language.hasFeature("Variables") && variables.hasClassMembers())
-			src += "import lfocc.features.x86.backend.preparation.ClassVariablePreparer;\n";
 		if (language.hasFeature("Variables")) {
 			src += "import lfocc.features.x86.backend.generators.VariableCodeGenerator;\n";
+			src += "import lfocc.features.x86.backend.generators.LocalVariableCodeGenerator;\n";
 			src += "import lfocc.features.variables.ast.VariableDeclaration;\n";
 			src += "import lfocc.features.variables.ast.Variable;\n";
 			src += "import lfocc.features.variables.ast.Attribute;\n";
+		}
+		if (language.hasFeature("Variables") && variables.hasClassMembers()) {
+			src += "import lfocc.features.x86.backend.preparation.ClassVariablePreparer;\n";
+			src += "import lfocc.features.x86.backend.generators.AttributeCodeGenerator;\n";
 		}
 		if (language.hasFeature("Assignments")) {
 			src += "import lfocc.features.x86.backend.generators.AssignmentCodeGenerator;\n";
@@ -323,12 +332,6 @@ public class X86 extends Feature {
 		src += "         \n";
 		src += "         FunctionCall call = (FunctionCall) node;\n";
 		src += "         \n";
-		src += "         if (call.getDeclaration().extension(ScopeKind.class) == null) {\n";
-		src += "            System.err.format(\"Function '%s' has no ScopeKind extension!\\n\", call.getName());\n";
-		src += "            \n";
-		src += "            \n";
-		src += "         }\n";
-		src += "         \n";
 		src += "         assert call.getDeclaration().extension(ScopeKind.class) != null;\n";
 		src += "         \n";
 		if (language.hasFeature("Classes")) {
@@ -389,13 +392,25 @@ public class X86 extends Feature {
 			src += "         return VariableCodeGenerator.variableDeclaration((VariableDeclaration) node);\n";
 			src += "         \n";
 			src += "      } else if (node instanceof Variable) {\n";
+			src += "         Variable variable = (Variable) node;\n";
+			src += "         assert variable.getDeclaration().extension(ScopeKind.class) != null;\n";
 			src += "         \n";
-			src += "         return VariableCodeGenerator.variable((Variable) node, regs);\n";
-			src += "         \n";
-			src += "      } else if (node instanceof Attribute) {\n";
-			src += "         \n";
-			src += "         return VariableCodeGenerator.attribute((Attribute) node, this);\n";
-			src += "         \n";
+			src += "         if (variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.GLOBAL) {\n";
+			src += "            return VariableCodeGenerator.globalVariable(variable, regs);\n";
+			if (variables.hasClassMembers()) {
+				src += "         } else if (variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.CLASS_MEMBER) {\n";
+				src += "            return AttributeCodeGenerator.attribute(variable, this);\n";
+			}
+			src += "         } else {\n";
+			src += "            assert variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.LOCAL;\n";
+			src += "            return LocalVariableCodeGenerator.localVariable(variable, regs);\n";
+			src += "         }\n";
+			if (variables.hasClassMembers()) {
+				src += "      } else if (node instanceof Attribute) {\n";
+				src += "         \n";
+				src += "         return AttributeCodeGenerator.attribute((Attribute) node, this);\n";
+				src += "         \n";
+			}
 		}
 		if (language.hasFeature("Assignments")) {
 			src += "      } else if (node instanceof Assignment) {\n";
@@ -427,6 +442,7 @@ public class X86 extends Feature {
 		src += "      }\n";
 		src += "      \n";
 		src += "   }\n";
+		src += "   \n";
 		////////////////////////////////////////////////////////////////////////
 		// public String getAddress(Expression node)
 		////////////////////////////////////////////////////////////////////////
@@ -435,9 +451,25 @@ public class X86 extends Feature {
 		src += "      \n";
 		if (language.hasFeature("Variables")) {
 			src += "      if (node instanceof Variable) {\n";
-			src += "         return VariableCodeGenerator.getAddressOfVariable((Variable) node, regs);";
-			src += "      } else if (node instanceof Attribute) {\n";
-			src += "         return VariableCodeGenerator.getAddressOfAttribute((Attribute) node, this);";
+			src += "         Variable variable = (Variable) node;\n";
+			src += "         assert variable.getDeclaration().extension(ScopeKind.class) != null;\n";
+			src += "         \n";
+			src += "         if (variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.GLOBAL) {\n";
+			src += "            return VariableCodeGenerator.globalVariableAddress(variable, regs);\n";
+			if (variables.hasClassMembers()) {
+				src += "         } else if (variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.CLASS_MEMBER) {\n";
+				src += "            return AttributeCodeGenerator.attributeAddress(variable, this);\n";
+			}
+			src += "         } else {\n";
+			src += "            assert variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.LOCAL;\n";
+			src += "            return LocalVariableCodeGenerator.localVariableAddress(variable, regs);\n";
+			src += "         }\n";
+			if (variables.hasClassMembers()) {
+				src += "      } else if (node instanceof Attribute) {\n";
+				src += "         \n";
+				src += "         return AttributeCodeGenerator.attributeAddress((Attribute) node, this);\n";
+				src += "         \n";
+			}
 			src += "      } else {\n";
 			src += "         throw new BackendFailure(String.format(\"Internal Error: Can't take address of AST node '%s'!\",\n";
 			src += "                                    node.getClass().getSimpleName()));\n";
