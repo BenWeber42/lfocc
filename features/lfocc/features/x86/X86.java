@@ -98,6 +98,8 @@ public class X86 extends Feature {
 				new File("features/lfocc/features/x86/backend/CodeGeneratorHelper.java"));
 		cg.addSource("lfocc.features.x86.backend",
 				new File("features/lfocc/features/x86/backend/RegisterManager.java"));
+		cg.addSource("lfocc.features.x86.backend",
+				new File("features/lfocc/features/x86/backend/LabelManager.java"));
 		cg.addSource("lfocc.features.x86.backend", "CodeGenerator", generateCodeGenerator(cg));
 		
 		if (javaEntry)
@@ -164,6 +166,7 @@ public class X86 extends Feature {
 		src += "import lfocc.features.expressions.ast.Expression;\n";
 		src += "import lfocc.framework.compiler.Backend.BackendFailure;\n";
 		src += "import lfocc.features.x86.backend.RegisterManager;\n";
+		src += "import lfocc.features.x86.backend.LabelManager;\n";
 		src += "import lfocc.features.globalscope.ast.GlobalScope;\n";
 		if (javaEntry)
 			src += "import lfocc.features.x86.backend.preparation.JavaEntryAdder;\n";
@@ -233,6 +236,16 @@ public class X86 extends Feature {
 		} else {
 			src += "public class CodeGenerator implements CodeGeneratorInterface {\n";
 		}
+		src += "   \n";
+		src += "   private LabelManager labels = new LabelManager();\n";
+		src += "   \n";
+		////////////////////////////////////////////////////////////////////////
+		// public RegisterManager getRegisterManager()
+		////////////////////////////////////////////////////////////////////////
+		src += "   @Override\n";
+		src += "   public LabelManager getLabelManager() {\n";
+		src += "      return labels;\n";
+		src += "   }\n";
 		src += "   \n";
 		src += "   private RegisterManager regs = new RegisterManager();\n";
 		src += "   \n";

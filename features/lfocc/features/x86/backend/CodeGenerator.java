@@ -40,5 +40,10 @@ public class CodeGenerator implements CodeGeneratorInterface {
 	public RegisterManager getRegisterManager() {
 		return null;
 	}
+	
+	@Override
+	public LabelManager getLabelManager() {
+		return null;
+	}
 
 }

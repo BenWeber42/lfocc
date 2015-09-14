@@ -13,4 +13,5 @@ public interface CodeGeneratorInterface {
 	public String dispatch(List<? extends ASTNode> nodes) throws BackendFailure;
 	public String getAddress(Expression node) throws BackendFailure;
 	public RegisterManager getRegisterManager();
+	public LabelManager getLabelManager();
 }
