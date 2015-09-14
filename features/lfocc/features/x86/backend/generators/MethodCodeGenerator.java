@@ -30,17 +30,17 @@ public class MethodCodeGenerator {
 		// take care of caller-saved registers (eax, ecx, edx)
 		boolean eaxSaved = false;
 		if (!regs.isFree(Register.eax)) {
-			regs.push(Register.eax);
+			src += regs.push(Register.eax);
 			eaxSaved = true;
 		}
 		boolean ecxSaved = false;
 		if (!regs.isFree(Register.ecx)) {
-			regs.push(Register.ecx);
+			src += regs.push(Register.ecx);
 			ecxSaved = true;
 		}
 		boolean edxSaved = false;
 		if (!regs.isFree(Register.edx)) {
-			regs.push(Register.edx);
+			src += regs.push(Register.edx);
 			edxSaved = true;
 		}
 		
@@ -92,11 +92,11 @@ public class MethodCodeGenerator {
 
 		// pop caller-saved registers
 		if (edxSaved)
-			regs.pop(Register.edx);
+			src += regs.pop(Register.edx);
 		if (ecxSaved)
-			regs.pop(Register.ecx);
+			src += regs.pop(Register.ecx);
 		if (eaxSaved)
-			regs.pop(Register.eax);
+			src += regs.pop(Register.eax);
 		
 		regs.acquire(reg);
 		
