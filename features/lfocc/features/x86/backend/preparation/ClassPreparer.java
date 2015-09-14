@@ -138,6 +138,10 @@ public class ClassPreparer extends ASTVisitor {
 			offset += CodeGeneratorHelper.WORD_SIZE;
 		}
 		
+		public int getSize() {
+			return offset;
+		}
+		
 		/*
 		 * Classes may not have variables as class members.
 		 * Nevertheless, the InstanceTable is required for polymorphism,

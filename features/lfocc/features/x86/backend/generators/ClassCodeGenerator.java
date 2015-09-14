@@ -63,11 +63,58 @@ public class ClassCodeGenerator {
 		String src = "";
 		RegisterManager regs = codeGen.getRegisterManager();
 
-		// TODO: implement properly
-		
 		Register reg = regs.acquire();
-		src += "   movl $" + 0 + ", %" + reg + "\n";
 		ReturnRegister.setRegister(newOp, reg);
+		regs.free(reg);
+
+		ClassDeclaration clazz = newOp.getType().getNode();
+		String classTable = getLabel(clazz);
+		int size = clazz.extension(InstanceTable.class).getSize();
+		
+		// take care of caller-saved registers:
+		boolean eaxSaved = false;
+		if (!regs.isFree(Register.eax)) {
+			regs.push(Register.eax);
+			eaxSaved = true;
+		}
+		boolean ecxSaved = false;
+		if (!regs.isFree(Register.ecx)) {
+			regs.push(Register.ecx);
+			ecxSaved = true;
+		}
+		boolean edxSaved = false;
+		if (!regs.isFree(Register.edx)) {
+			regs.push(Register.edx);
+			edxSaved = true;
+		}
+
+		// make new call frame
+		src += "   push %ebp\n";
+		src += "   movl %esp, %ebp\n";
+		
+		// do call
+		src += "   pushl $" + size + "\n";
+		src += "   call malloc\n";
+		
+		// clean up stack
+		src += "   addl $4, %esp\n";
+		src += "   popl %ebp\n";
+		
+		if (reg != Register.eax)
+			src += "   movl %eax, %" + reg + "\n";
+		
+		// pop caller-saved registers
+		if (edxSaved)
+			regs.pop(Register.edx);
+		if (ecxSaved)
+			regs.pop(Register.ecx);
+		if (eaxSaved)
+			regs.pop(Register.eax);
+		
+		regs.acquire(reg);
+		
+		// initialize instance table (link to classtable)
+		src += "   movl $" + classTable + ", (%" + reg + ")\n";
 
 		return src;
 	}
