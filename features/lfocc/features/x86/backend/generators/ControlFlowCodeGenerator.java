@@ -6,7 +6,9 @@ import lfocc.features.controlflow.ast.DoWhileLoop;
 import lfocc.features.controlflow.ast.ForLoop;
 import lfocc.features.controlflow.ast.WhileLoop;
 import lfocc.features.x86.backend.CodeGeneratorInterface;
+import lfocc.features.x86.backend.LabelManager;
 import lfocc.features.x86.backend.RegisterManager;
+import lfocc.features.x86.backend.RegisterManager.Register;
 import lfocc.features.x86.backend.CodeGeneratorHelper.ReturnRegister;
 import lfocc.framework.compiler.Backend.BackendFailure;
 
@@ -32,13 +34,24 @@ public class ControlFlowCodeGenerator {
 	public static String whileLoop(WhileLoop loop, CodeGeneratorInterface codeGen) throws BackendFailure {
 		String src = "";
 		RegisterManager regs = codeGen.getRegisterManager();
-		
-		// TODO: implement
-		
+
+		LabelManager labels = codeGen.getLabelManager();
+		String topLabel = labels.generateLabel();
+		String bottomLabel = labels.generateLabel();
+
+		src += topLabel + ":\n";
+
 		src += codeGen.dispatch(loop.getCondition());
-		regs.free(ReturnRegister.getRegister(loop.getCondition()));
+		Register reg = ReturnRegister.getRegister(loop.getCondition());
+		src += "   cmpl %" + reg + ", $0\n";
+		src += "   je " + bottomLabel + "\n";
+		regs.free(reg);
 		
-		codeGen.dispatch(loop.getCode());
+		src += codeGen.dispatch(loop.getCode());
+
+		src += "   jmp " + topLabel + "\n";
+		src += bottomLabel + ":\n";
+
 		return src;
 	}
 
@@ -46,12 +59,26 @@ public class ControlFlowCodeGenerator {
 		String src = "";
 		RegisterManager regs = codeGen.getRegisterManager();
 
-		// TODO: implement
+		LabelManager labels = codeGen.getLabelManager();
+		String topLabel = labels.generateLabel();
+		String bottomLabel = labels.generateLabel();
+
+		src += codeGen.dispatch(loop.getInit());
 		
+		src += topLabel + ":\n";
+
 		src += codeGen.dispatch(loop.getCondition());
-		regs.free(ReturnRegister.getRegister(loop.getCondition()));
+		Register reg = ReturnRegister.getRegister(loop.getCondition());
+		src += "   cmpl %" + reg + ", $0\n";
+		src += "   je " + bottomLabel + "\n";
+		regs.free(reg);
 		
-		codeGen.dispatch(loop.getCode());
+		src += codeGen.dispatch(loop.getCode());
+		src += codeGen.dispatch(loop.getRepeat());
+
+		src += "   jmp " + topLabel + "\n";
+		src += bottomLabel + ":\n";
+
 		return src;
 	}
 
@@ -59,12 +86,18 @@ public class ControlFlowCodeGenerator {
 		String src = "";
 		RegisterManager regs = codeGen.getRegisterManager();
 
-		// TODO: implement
-		
+		LabelManager labels = codeGen.getLabelManager();
+		String topLabel = labels.generateLabel();
+
+		src += topLabel + ":\n";
+		src += codeGen.dispatch(loop.getCode());
+
 		src += codeGen.dispatch(loop.getCondition());
-		regs.free(ReturnRegister.getRegister(loop.getCondition()));
+		Register reg = ReturnRegister.getRegister(loop.getCondition());
+		src += "   cmpl %" + reg + ", $1\n";
+		src += "   je " + topLabel + "\n";
+		regs.free(reg);
 		
-		codeGen.dispatch(loop.getCode());
 		return src;
 	}
 }
