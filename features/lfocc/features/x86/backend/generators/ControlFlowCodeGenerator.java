@@ -17,17 +17,29 @@ public class ControlFlowCodeGenerator {
 	public static String conditionalSequence(ConditionalSequence conditionalSequence, CodeGeneratorInterface codeGen) throws BackendFailure {
 		String src = "";
 		RegisterManager regs = codeGen.getRegisterManager();
+
+		LabelManager labels = codeGen.getLabelManager();
+		String bottomLabel = labels.generateLabel();
 		
 		for (IfConditional ifCond: conditionalSequence.getConditionals()) {
+			String nextLabel = labels.generateLabel();
+
 			src += codeGen.dispatch(ifCond.getCondition());
-			regs.free(ReturnRegister.getRegister(ifCond.getCondition()));
+			Register reg = ReturnRegister.getRegister(ifCond.getCondition());
+			src += "   cmpl $0, %" + reg + "\n";
+			src += "   je " + nextLabel + "\n";
+			regs.free(reg);
+
 			src += codeGen.dispatch(ifCond.getCode());
+			src += "   jmp " + bottomLabel + "\n";
+
+			src += nextLabel + ":\n";
 		}
 
 		if (conditionalSequence.getElse() != null)
 			src += codeGen.dispatch(conditionalSequence.getElse().getCode());
 
-		// TODO: implement
+		src += bottomLabel + ":\n";
 		return src;
 	}
 
@@ -43,7 +55,7 @@ public class ControlFlowCodeGenerator {
 
 		src += codeGen.dispatch(loop.getCondition());
 		Register reg = ReturnRegister.getRegister(loop.getCondition());
-		src += "   cmpl %" + reg + ", $0\n";
+		src += "   cmpl $0, %" + reg + "\n";
 		src += "   je " + bottomLabel + "\n";
 		regs.free(reg);
 		
@@ -69,7 +81,7 @@ public class ControlFlowCodeGenerator {
 
 		src += codeGen.dispatch(loop.getCondition());
 		Register reg = ReturnRegister.getRegister(loop.getCondition());
-		src += "   cmpl %" + reg + ", $0\n";
+		src += "   cmpl $0, %" + reg + "\n";
 		src += "   je " + bottomLabel + "\n";
 		regs.free(reg);
 		
@@ -94,7 +106,7 @@ public class ControlFlowCodeGenerator {
 
 		src += codeGen.dispatch(loop.getCondition());
 		Register reg = ReturnRegister.getRegister(loop.getCondition());
-		src += "   cmpl %" + reg + ", $1\n";
+		src += "   cmpl $1, %" + reg + "\n";
 		src += "   je " + topLabel + "\n";
 		regs.free(reg);
 		
