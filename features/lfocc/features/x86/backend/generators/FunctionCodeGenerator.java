@@ -146,17 +146,27 @@ public class FunctionCodeGenerator {
 		
 		src += codeGen.dispatch(funcDecl.getChildren());
 		
-		// clean up stack
-		src += regs.pop(Register.edi);
-		src += regs.pop(Register.esi);
-		src += regs.pop(Register.ebx);
-		regs.free(Register.ebx);
-		regs.free(Register.esi);
-		regs.free(Register.edi);
+		if (funcDecl.getReturnType().getName().equals("void")) {
+			// void functions might have no return statement
+			// so in that case we'll clean up the stack at the end anyways
+			src += regs.pop(Register.edi);
+			src += regs.pop(Register.esi);
+			src += regs.pop(Register.ebx);
+			regs.free(Register.ebx);
+			regs.free(Register.esi);
+			regs.free(Register.edi);
 
-		src += "   addl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
-		src += "   movl $0, %eax\n";
-		src += "   ret\n\n\n";
+			src += "   addl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
+
+			// ugly hack to detect that we're in the entry point function
+			// so we'll return 0 for success just in case
+			if (funcDecl.extension(ExposeLinker.class) != null)
+				src += "   movl $0, %eax\n";
+
+			src += "   ret\n";
+		}
+
+		src += "\n\n";
 		
 		return src;
 	}
