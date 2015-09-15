@@ -2,13 +2,16 @@ package lfocc.features.x86.backend.generators;
 
 import lfocc.features.classes.ast.CastExpression;
 import lfocc.features.classes.ast.ClassDeclaration;
+import lfocc.features.classes.ast.ClassType;
 import lfocc.features.classes.ast.NewOperator;
 import lfocc.features.classes.ast.ThisReference;
 import lfocc.features.classes.ast.NullExpression;
 import lfocc.features.functions.ast.FunctionDeclaration;
+import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
 import lfocc.features.x86.backend.CodeGeneratorHelper.ReturnRegister;
 import lfocc.features.x86.backend.CodeGeneratorInterface;
+import lfocc.features.x86.backend.LabelManager;
 import lfocc.features.x86.backend.RegisterManager;
 import lfocc.features.x86.backend.RegisterManager.Register;
 import lfocc.features.x86.backend.preparation.ClassPreparer.ClassTable;
@@ -141,11 +144,59 @@ public class ClassCodeGenerator {
 	
 	public static String castExpression(CastExpression cast, CodeGeneratorInterface codeGen) throws BackendFailure {
 		String src = "";
-		src += codeGen.dispatch(cast.getExpr());
+		RegisterManager regs = codeGen.getRegisterManager();
+		LabelManager labels = codeGen.getLabelManager();
 
-		// TODO: implement properly
+		src += codeGen.dispatch(cast.getExpr());
+		Register reg = ReturnRegister.getRegister(cast.getExpr());
+		ReturnRegister.setRegister(cast, reg);
+
+		TypeSymbol expressionType = cast.getExpr().getType();
+		assert expressionType instanceof ClassType;
 		
-		ReturnRegister.setRegister(cast, ReturnRegister.getRegister(cast.getExpr()));
+		if (cast.getType().isParent((ClassType) expressionType)) {
+			// down casts don't require runtime checks
+			return src;
+		}
+		
+		boolean pushed = false;
+		Register castReg;
+		if (!regs.hasRegister()) {
+			src += regs.push(reg);
+			castReg = reg;
+			regs.acquire(reg);
+			pushed = true;
+		} else {
+			castReg = regs.acquire();
+			src += "   movl %" + reg + ", %" + castReg + "\n";
+		}
+		
+		String castClass = getLabel(cast.getType().getNode());
+		
+		String topLabel = labels.generateLabel();
+		String bottomLabel = labels.generateLabel();
+		String exitLabel = labels.generateLabel();
+
+		// do cast check
+		src += topLabel + ":\n";
+		src += "   movl (%" + castReg + "), %" + castReg + "\n";
+		src += "   cmpl " + castClass + ", %" + castReg + "\n";
+		src += "   je " + bottomLabel + "\n";
+		src += "   cmpl $0, %" + castReg + "\n";
+		src += "   je " + exitLabel +"\n";
+		src += "   jmp " + topLabel + "\n";
+		
+		src += exitLabel + ":\n";
+		src += "   push %ebp\n";
+		src += "   movl %esp, %ebp\n";
+		src += "   pushl $-1\n";
+		src += "   call exit\n";
+
+		src += bottomLabel + ":\n";
+		
+		regs.free(castReg);
+		if (pushed)
+			src += regs.pop(reg);
 
 		return src;
 	}
