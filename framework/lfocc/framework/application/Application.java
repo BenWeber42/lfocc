@@ -162,8 +162,8 @@ public class Application implements SemanticsGenerator, CompilerGenerator, Backe
 			Iterator<String> r = runtime.iterator();
 			while (r.hasNext()) {
 				String file = r.next();
-				String target = srcFolder.getPath() + "/lfocc/framework/compiler/" +
-						file.replace("framework/lfocc/framework/compiler/", "");
+				String target = srcFolder.getPath() + "/lfocc/framework/" +
+						file.replace("framework/lfocc/framework/", "");
 				String folder = (new File(target)).getParent();
 				FileSystem.createFolder(folder);
 				FileSystem.copy(file, target);
