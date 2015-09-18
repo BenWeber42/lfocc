@@ -154,7 +154,7 @@ public class ClassCodeGenerator {
 		TypeSymbol expressionType = cast.getExpr().getType();
 		assert expressionType instanceof ClassType;
 		
-		if (cast.getType().isParent((ClassType) expressionType)) {
+		if (((ClassType) expressionType).isParent(cast.getType())) {
 			// down casts don't require runtime checks
 			return src;
 		}
@@ -180,7 +180,7 @@ public class ClassCodeGenerator {
 		// do cast check
 		src += topLabel + ":\n";
 		src += "   movl (%" + castReg + "), %" + castReg + "\n";
-		src += "   cmpl " + castClass + ", %" + castReg + "\n";
+		src += "   cmpl $" + castClass + ", %" + castReg + "\n";
 		src += "   je " + bottomLabel + "\n";
 		src += "   cmpl $0, %" + castReg + "\n";
 		src += "   je " + exitLabel +"\n";

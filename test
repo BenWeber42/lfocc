@@ -15,7 +15,7 @@ if [ $# -eq 0 ]
 then
     echo "Doing all testcases."
     echo
-    testcases=$(find tests -name "*.$TEST_SUFFIX")
+    testcases=$(find tests -type f -name "*.$TEST_SUFFIX")
 
     # reset fails
     echo -n > fails
@@ -28,7 +28,7 @@ then
         testcases=$(cat fails)
     else
         echo "Couldn't find fails file! Doing all testcases."
-        testcases=$(find tests -name "*.$TEST_SUFFIX")
+        testcases=$(find tests -type f -name "*.$TEST_SUFFIX")
     fi
 
     # reset fails
