@@ -83,6 +83,7 @@ public class FunctionCodeGenerator {
 		src += "   popl %ebp\n";
 		src += "   ret\n";
 		src += "\n";
+		// FIXME: check return of scanf
 		src += getGlobalLabel("read", "") + ":\n";
 		src += "   subl $4, %esp\n";
 		src += "   movl %esp, %eax\n";
@@ -96,6 +97,7 @@ public class FunctionCodeGenerator {
 		src += "   popl %eax\n";
 		src += "   ret\n";
 		src += "\n";
+		// FIXME: check return of scanf
 		src += getGlobalLabel("readf", "") + ":\n";
 		src += "   subl $4, %esp\n";
 		src += "   movl %esp, %eax\n";

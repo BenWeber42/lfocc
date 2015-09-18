@@ -1,4 +1,12 @@
-#!/usr/bin/env sh
+#!/usr/bin/env sh 
+
+# configuration
+TEST_SUFFIX="lang"
+TEST_REFERENCE_COMPILATION_OUTPUT_SUFFIX="compile.out"
+TEST_COMPILED_SUFFIX="compiled"
+TEST_RUN_STDIN_SUFFIX="run.in"
+TEST_RUN_REFERENCE_STDOUT_SUFFIX="run.out"
+TEST_RUN_FAIL_SUFFIX="run.fail"
 
 testcases="none"
 single="no"
@@ -7,7 +15,7 @@ if [ $# -eq 0 ]
 then
     echo "Doing all testcases."
     echo
-    testcases=$(find tests -name "*.lang")
+    testcases=$(find tests -name "*.$TEST_SUFFIX")
 
     # reset fails
     echo -n > fails
@@ -20,7 +28,7 @@ then
         testcases=$(cat fails)
     else
         echo "Couldn't find fails file! Doing all testcases."
-        testcases=$(find tests -name "*.lang")
+        testcases=$(find tests -name "*.$TEST_SUFFIX")
     fi
 
     # reset fails
@@ -32,7 +40,7 @@ else
     echo
 fi
 
-testcases=$(echo "$testcases" | sed "s/\.lang$//" | sed "s/^\.\///")
+testcases=$(echo "$testcases" | sed "s/\.$TEST_SUFFIX$//" | sed "s/^\.\///")
 
 pass=0
 fail=0
@@ -42,48 +50,103 @@ total=0
 for testcase in $testcases
 do
 
-    language=$(echo $testcase | awk -F'/' '{ print $2 }')
+   language=$(echo $testcase | awk -F'/' '{ print $2 }')
 
-    echo -n "Testcase $testcase ... "
+   echo -n "Testcase $testcase ... "
 
-    ret=0
+   ret=0
 
-    if [ -e  $testcase.compile.out ]
-    then
-        if [ "FAIL" = "$(cat $testcase.compile.out)" ]
-        then
-            ret=255
-        fi
-    fi
+   if [ -e $testcase.$TEST_REFERENCE_COMPILATION_OUTPUT_SUFFIX ]
+   then
+      if [ "FAIL" = "$(cat $testcase.$TEST_REFERENCE_COMPILATION_OUTPUT_SUFFIX)" ]
+      then
+          ret=255
+      fi
+   fi
 
-    output=$(java -enableassertions -cp compilers/$language/bin lfocc.compilers.$language.Main $testcase.lang $testcase.test.out 2>&1)
+   output=$(java -enableassertions -cp compilers/$language/bin lfocc.compilers.$language.Main $testcase.$TEST_SUFFIX $testcase.$TEST_COMPILED_SUFFIX 2>&1)
 
-    if [ $? -ne $ret ]
-    then
-        echo "FAILURE!"
-        echo
-        echo "$output"
-        echo
-        fail=$((fail+1))
-        if [ $single = "no" ]
-        then
+   exit=$?
+
+   if [ $exit -ne $ret ]
+   then
+      echo "FAILURE (during compilation)!"
+      echo
+      echo "$output"
+      echo
+      fail=$((fail+1))
+      if [ $single = "no" ]
+      then
+          echo $testcase >> fails
+      fi
+   elif [ $exit -eq 0 ]
+   then
+
+      input=""
+
+      if [ -e $testcase.$TEST_RUN_STDIN_SUFFIX ]
+      then
+         input=$(cat $testcase.$TEST_RUN_STDIN_SUFFIX)
+      fi
+
+      output=$(echo "$input" | ./$testcase.$TEST_COMPILED_SUFFIX 2>&1)
+
+      exit=$?
+
+      if [ -e $testcase.$TEST_RUN_FAIL_SUFFIX -a $exit -eq 0 ]
+      then
+
+         echo "FAILURE (program ran, but should have crashed)!"
+         fail=$((fail+1))
+         if [ $single = "no" ]
+         then
             echo $testcase >> fails
-        fi
-    else
-        echo "OK!"
+         fi
 
-        if [ $single = "yes" ]
-        then
+      elif [ $exit -ne 0 ]
+      then
+
+         echo "FAILURE (program crashed)!"
+         if [ "$output" != "" ]
+         then
             echo
             echo "$output"
             echo
-        fi
+         fi
+         fail=$((fail+1))
+         if [ $single = "no" ]
+         then
+            echo $testcase >> fails
+         fi
+         
+      elif [ -e $testcase.$TEST_RUN_REFERENCE_STDOUT_SUFFIX ]
+      then
+         if [ "$output" != "$(cat $testcase.$TEST_RUN_REFERENCE_STDOUT_SUFFIX)" ]
+         then
 
-        pass=$((pass+1))
-    fi
+            echo "FAILURE (program gave wrong output)!"
+            fail=$((fail+1))
+            if [ $single = "no" ]
+            then
+               echo $testcase >> fails
+            fi
+
+         else
+            echo "OK!"
+            pass=$((pass+1))
+         fi
+      else
+         echo "OK!"
+         pass=$((pass+1))
+      fi
+
+   else
+      echo "OK!"
+      pass=$((pass+1))
+   fi
 
 
-    total=$((total+1))
+   total=$((total+1))
 done
 
 echo
