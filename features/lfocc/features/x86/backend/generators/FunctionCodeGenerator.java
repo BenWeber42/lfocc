@@ -31,6 +31,7 @@ public class FunctionCodeGenerator {
 		final String writef_fmt = CodeGeneratorHelper.escape("runtime_writef_fmt");
 		final String readf_fmt = CodeGeneratorHelper.escape("runtime_readf_fmt");
 		final String writeln_fmt = CodeGeneratorHelper.escape("runtime_writeln_fmt");
+		final String failLabel = CodeGeneratorHelper.escape("runtime_fail");
 
 		src += "/**\n";
 		src += " * Functions' Runtime:\n";
@@ -50,6 +51,13 @@ public class FunctionCodeGenerator {
 		src += "   .string \"\\n\\0\"\n";
 		src += "\n";
 		src += ".text\n";
+		src += "\n";
+		src += failLabel + ":\n";
+		src += "   pushl %ebp\n";
+		src += "   movl %esp, %ebp\n";
+		src += "   pushl $-1\n";
+		src += "   call exit\n";
+		src += "   \n";
 		src += "\n";
 		src += getGlobalLabel("write", "") + ":\n";
 		src += "   movl -4(%ebp), %eax\n";
@@ -83,7 +91,6 @@ public class FunctionCodeGenerator {
 		src += "   popl %ebp\n";
 		src += "   ret\n";
 		src += "\n";
-		// FIXME: check return of scanf
 		src += getGlobalLabel("read", "") + ":\n";
 		src += "   subl $4, %esp\n";
 		src += "   movl %esp, %eax\n";
@@ -92,12 +99,13 @@ public class FunctionCodeGenerator {
 		src += "   pushl %eax\n";
 		src += "   pushl $" + read_fmt + "\n";
 		src += "   call scanf\n";
+		src += "   cmpl $1, %eax\n";
+		src += "   jne " + failLabel + "\n";
 		src += "   addl $8, %esp\n";
 		src += "   popl %ebp\n";
 		src += "   popl %eax\n";
 		src += "   ret\n";
 		src += "\n";
-		// FIXME: check return of scanf
 		src += getGlobalLabel("readf", "") + ":\n";
 		src += "   subl $4, %esp\n";
 		src += "   movl %esp, %eax\n";
@@ -106,6 +114,8 @@ public class FunctionCodeGenerator {
 		src += "   pushl %eax\n";
 		src += "   pushl $" + readf_fmt + "\n";
 		src += "   call scanf\n";
+		src += "   cmpl $1, %eax\n";
+		src += "   jne " + failLabel + "\n";
 		src += "   addl $8, %esp\n";
 		src += "   popl %ebp\n";
 		src += "   popl %eax\n";
