@@ -146,7 +146,9 @@ public class FunctionCodeGenerator {
 		src += label + ":\n";
 		
 		// allocate space for locals
-		src += "   subl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
+		int localsSize = funcDecl.extension(FunctionOffsets.class).getSize();
+		if (localsSize != 0)
+			src += "   subl $" + localsSize + ", %esp\n";
 
 		// take care of callee-saved registers: ebx, esi & edi
 		regs.acquire(Register.ebx);
@@ -168,7 +170,8 @@ public class FunctionCodeGenerator {
 			regs.free(Register.esi);
 			regs.free(Register.edi);
 
-			src += "   addl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
+			if (localsSize != 0)
+				src += "   addl $" + localsSize + ", %esp\n";
 
 			// ugly hack to detect that we're in the entry point function
 			// so we'll return 0 for success just in case
@@ -242,7 +245,9 @@ public class FunctionCodeGenerator {
 		regs.free(Register.esi);
 		regs.free(Register.edi);
 
-		src += "   addl $" + funcDecl.extension(FunctionOffsets.class).getSize() + ", %esp\n";
+		int localsSize = funcDecl.extension(FunctionOffsets.class).getSize();
+		if (localsSize != 0)
+			src += "   addl $" + localsSize + ", %esp\n";
 		src += "   ret\n\n\n";
 		
 		return src;
@@ -279,7 +284,6 @@ public class FunctionCodeGenerator {
 		
 		// make new call frame
 		src += "   push %ebp\n";
-		src += "   movl %esp, %ebp\n";
 		
 		// evaluate arguments
 		String argsSrc = "";
@@ -290,12 +294,16 @@ public class FunctionCodeGenerator {
 			argsSrc = _src + argsSrc;
 		}
 		src += argsSrc;
+
+		int argumentsSize = call.getArguments().size()*CodeGeneratorHelper.WORD_SIZE;
+		src += "   leal " + argumentsSize + "(%esp), %ebp\n";
 		
 		// do call
 		src += "   call " + getLabel(call) + "\n";
 		
 		// clean up stack
-		src += "   addl $" + call.getArguments().size()*CodeGeneratorHelper.WORD_SIZE + ", %esp\n";
+		if (argumentsSize != 0)
+			src += "   addl $" + argumentsSize + ", %esp\n";
 		
 		// save return value
 		if (!call.getDeclaration().getReturnType().getName().equals("void") && reg != Register.eax)
