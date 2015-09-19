@@ -19,15 +19,35 @@ import lfocc.framework.compiler.ast.ASTVisitor;
 public class FunctionPreparer extends ASTVisitor {
 	
 	private FunctionDeclaration decl = null;
+	private int offset = -1;
 
 	@Override
 	public void visit(ASTNode node) throws VisitorFailure {
-		if (node instanceof FunctionDeclaration)
+		if (node instanceof FunctionDeclaration) {
 			functionDeclaration((FunctionDeclaration) node);
-		else if (node instanceof ReturnStatement)
+		} else if (node instanceof ReturnStatement) {
 			returnStatement((ReturnStatement) node);
-		else
+		} else if (decl != null && node.extension(VariableScope.class) != null) {
+			localScope(node);
+		} else {
 			super.visit(node);
+		}
+	}
+	
+	private void localScope(ASTNode node) throws VisitorFailure {
+			VariableScope scope = node.extension(VariableScope.class);
+			assert scope != null && decl != null && offset != -1;
+
+			int oldOffset = offset;
+			
+			for (VariableDeclaration var: scope.getLocalIterable()) {
+				offset += CodeGeneratorHelper.WORD_SIZE;
+				LocalVariableOffset.setOffset(var, offset);
+			}
+			int size = offset - oldOffset;
+			ScopeSize.setScopeSize(node, size);
+			super.visit(node);
+			offset = oldOffset;
 	}
 	
 	private void returnStatement(ReturnStatement ret) {
@@ -36,10 +56,14 @@ public class FunctionPreparer extends ASTVisitor {
 	}
 	
 	private void functionDeclaration(FunctionDeclaration funcDecl) throws VisitorFailure {
-		funcDecl.extend(new FunctionOffsets(funcDecl));
+		FunctionOffsets offsets = new FunctionOffsets(funcDecl);
+		funcDecl.extend(offsets);
 		
 		decl = funcDecl;
+		// 3*WORD_SIZE to push callee-saved registers ebx, edi, esi
+		offset = offsets.offset + 3*CodeGeneratorHelper.WORD_SIZE;
 		super.visit(funcDecl);
+		offset = -1;
 		decl = null;
 	}
 	
@@ -79,6 +103,38 @@ public class FunctionPreparer extends ASTVisitor {
 			LocalVariableOffset offset = var.extension(LocalVariableOffset.class);
 			assert offset != null;
 			return offset.offset;
+		}
+	}
+	
+	public static class ScopeSize {
+		private final int size;
+		
+		private ScopeSize(int size) {
+			this.size = size;
+		}
+		
+		public static void setScopeSize(ASTNode node, int size) {
+			assert node.extension(VariableScope.class) != null;
+			node.extend(new ScopeSize(size));
+		}
+		
+		public static String enterScope(ASTNode node) {
+			ScopeSize size = node.extension(ScopeSize.class);
+			
+			if (size == null)
+				return "";
+			
+			return "   subl $" + size.size + ", %esp\n";
+		}
+		
+		public static String leaveScope(ASTNode node) {
+			ScopeSize size = node.extension(ScopeSize.class);
+			
+			if (size == null)
+				return "";
+			
+			return "   subl $" + size.size + ", %esp\n";
+			
 		}
 	}
 	

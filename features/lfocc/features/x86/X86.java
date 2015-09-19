@@ -216,6 +216,7 @@ public class X86 extends Feature {
 			src += "import lfocc.features.controlflow.ast.WhileLoop;\n";
 			src += "import lfocc.features.controlflow.ast.ForLoop;\n";
 			src += "import lfocc.features.controlflow.ast.DoWhileLoop;\n";
+			src += "import lfocc.features.x86.backend.preparation.FunctionPreparer.ScopeSize;\n";
 		}
 		src += "\n";
 		src += "\n";
@@ -433,21 +434,37 @@ public class X86 extends Feature {
 		}
 		if (language.hasFeature("ControlFlow")) {
 			src += "      } else if (node instanceof ConditionalSequence) {\n";
+			src += "         String src = \"\";\n";
+			src += "         src += ScopeSize.enterScope(node);\n";
 			src += "         \n";
-			src += "         return ControlFlowCodeGenerator.conditionalSequence((ConditionalSequence) node, this);\n";
+			src += "         src += ControlFlowCodeGenerator.conditionalSequence((ConditionalSequence) node, this);\n";
 			src += "         \n";
+			src += "         src += ScopeSize.leaveScope(node);\n";
+			src += "         return src;\n";
 			src += "      } else if (node instanceof WhileLoop) {\n";
+			src += "         String src = \"\";\n";
+			src += "         src += ScopeSize.enterScope(node);\n";
 			src += "         \n";
-			src += "         return ControlFlowCodeGenerator.whileLoop((WhileLoop) node, this);\n";
+			src += "         src += ControlFlowCodeGenerator.whileLoop((WhileLoop) node, this);\n";
 			src += "         \n";
+			src += "         src += ScopeSize.leaveScope(node);\n";
+			src += "         return src;\n";
 			src += "      } else if (node instanceof ForLoop) {\n";
+			src += "         String src = \"\";\n";
+			src += "         src += ScopeSize.enterScope(node);\n";
 			src += "         \n";
-			src += "         return ControlFlowCodeGenerator.forLoop((ForLoop) node, this);\n";
+			src += "         src += ControlFlowCodeGenerator.forLoop((ForLoop) node, this);\n";
 			src += "         \n";
+			src += "         src += ScopeSize.leaveScope(node);\n";
+			src += "         return src;\n";
 			src += "      } else if (node instanceof DoWhileLoop) {\n";
+			src += "         String src = \"\";\n";
+			src += "         src += ScopeSize.enterScope(node);\n";
 			src += "         \n";
-			src += "         return ControlFlowCodeGenerator.doWhileLoop((DoWhileLoop) node, this);\n";
+			src += "         src += ControlFlowCodeGenerator.doWhileLoop((DoWhileLoop) node, this);\n";
 			src += "         \n";
+			src += "         src += ScopeSize.leaveScope(node);\n";
+			src += "         return src;\n";
 		}
 		src += "      } else {\n";
 		src += "         throw new BackendFailure(String.format(\"Internal Error: Unknown AST node '%s'!\",\n";
