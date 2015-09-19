@@ -46,7 +46,6 @@ public class MethodCodeGenerator {
 		
 		// make new call frame
 		src += "   push %ebp\n";
-		src += "   movl %esp, %ebp\n";
 		
 		// evaluate arguments
 		String argsSrc = "";
@@ -71,6 +70,10 @@ public class MethodCodeGenerator {
 		}
 		
 		assert !regs.isFree(address);
+		src += "   pushl %" + address + "\n";
+
+		int argumentsSize = (1 + call.getArguments().size())*CodeGeneratorHelper.WORD_SIZE;
+		src += "   leal " + argumentsSize + "(%esp), %ebp\n";
 		
 		// address now contains the reference to the instance table
 		src += "   movl (%" + address + "), %" + address + "\n";
@@ -82,7 +85,7 @@ public class MethodCodeGenerator {
 		regs.free(address);
 
 		// clean up stack
-		src += "   addl $" + call.getArguments().size()*CodeGeneratorHelper.WORD_SIZE + ", %esp\n";
+		src += "   addl $" + argumentsSize + ", %esp\n";
 		
 		// save return value
 		if (!call.getDeclaration().getReturnType().getName().equals("void") && reg != Register.eax)
