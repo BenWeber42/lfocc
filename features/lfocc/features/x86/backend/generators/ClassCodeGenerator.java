@@ -158,6 +158,12 @@ public class ClassCodeGenerator {
 			// down casts don't require runtime checks
 			return src;
 		}
+
+		String bottomLabel = labels.generateLabel();
+		
+		// null can be cast to any class type
+		src += "   cmpl $0, %" + reg + "\n";
+		src += "   je " + bottomLabel + "\n";
 		
 		boolean pushed = false;
 		Register castReg;
@@ -174,7 +180,6 @@ public class ClassCodeGenerator {
 		String castClass = getLabel(cast.getType().getNode());
 		
 		String topLabel = labels.generateLabel();
-		String bottomLabel = labels.generateLabel();
 		String exitLabel = labels.generateLabel();
 
 		// do cast check
