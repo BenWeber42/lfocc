@@ -6,15 +6,15 @@ import lfocc.features.functions.ast.FunctionCall;
 import lfocc.features.functions.ast.MethodCall;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
 import lfocc.features.x86.backend.CodeGeneratorHelper.ReturnRegister;
+import lfocc.features.x86.backend.CodeGeneratorInterface;
 import lfocc.features.x86.backend.RegisterManager;
 import lfocc.features.x86.backend.RegisterManager.Register;
-import lfocc.features.x86.backend.generators.ClassCodeGenerator.ThisOffsetProvider;
 import lfocc.features.x86.backend.preparation.ClassPreparer.MethodOffset;
 import lfocc.framework.compiler.Backend.BackendFailure;
 
 public class MethodCodeGenerator {
 
-	public static String functionCall(FunctionCall call, ThisOffsetProvider codeGen) throws BackendFailure {
+	public static String functionCall(FunctionCall call, CodeGeneratorInterface codeGen) throws BackendFailure {
 
 		String src = "";
 		RegisterManager regs = codeGen.getRegisterManager();
@@ -44,9 +44,6 @@ public class MethodCodeGenerator {
 			edxSaved = true;
 		}
 		
-		// make new call frame
-		src += "   push %ebp\n";
-		
 		// evaluate arguments
 		String argsSrc = "";
 		for (Expression arg: call.getArguments()) {
@@ -64,16 +61,13 @@ public class MethodCodeGenerator {
 			src += codeGen.dispatch(method.getExpr());
 			address = ReturnRegister.getRegister(method.getExpr());
 		} else {
-			assert codeGen.getThisOffset() >= 0;
 			address = regs.acquire();
-			src += "   movl -" + codeGen.getThisOffset() + "(%ebp), %" + address + "\n";
+			src += "   movl " + 2*CodeGeneratorHelper.WORD_SIZE + "(%ebp), %" + address + "\n";
 		}
 		
 		assert !regs.isFree(address);
 		src += "   pushl %" + address + "\n";
 
-		int argumentsSize = (1 + call.getArguments().size())*CodeGeneratorHelper.WORD_SIZE;
-		src += "   leal " + argumentsSize + "(%esp), %ebp\n";
 		
 		// address now contains the reference to the instance table
 		src += "   movl (%" + address + "), %" + address + "\n";
@@ -85,14 +79,13 @@ public class MethodCodeGenerator {
 		regs.free(address);
 
 		// clean up stack
+		int argumentsSize = (1 + call.getArguments().size())*CodeGeneratorHelper.WORD_SIZE;
 		src += "   addl $" + argumentsSize + ", %esp\n";
 		
 		// save return value
 		if (!call.getDeclaration().getReturnType().getName().equals("void") && reg != Register.eax)
 			src += "   movl %eax, %" + reg + "\n";
 		
-		src += "   popl %ebp\n";
-
 		// pop caller-saved registers
 		if (edxSaved)
 			src += regs.pop(Register.edx);

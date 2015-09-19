@@ -187,7 +187,6 @@ public class X86 extends Feature {
 		if (language.hasFeature("Classes")) {
 			src += "import lfocc.features.x86.backend.preparation.ClassPreparer;\n";
 			src += "import lfocc.features.x86.backend.generators.ClassCodeGenerator;\n";
-			src += "import lfocc.features.x86.backend.generators.ClassCodeGenerator.ThisOffsetProvider;\n";
 			src += "import lfocc.features.x86.backend.generators.MethodCodeGenerator;\n";
 			src += "import lfocc.features.classes.ast.ClassDeclaration;\n";
 			src += "import lfocc.features.classes.ast.NewOperator;\n";
@@ -220,23 +219,7 @@ public class X86 extends Feature {
 		}
 		src += "\n";
 		src += "\n";
-		if (language.hasFeature("Classes")) {
-			src += "public class CodeGenerator implements ThisOffsetProvider {\n";
-			src += "   \n";
-			src += "   private int thisOffset = -1;\n";
-			src += "   \n";
-			src += "   @Override\n";
-			src += "   public int getThisOffset() {\n";
-			src += "      return thisOffset;\n";
-			src += "   }\n";
-			src += "   \n";
-			src += "   @Override\n";
-			src += "   public void setThisOffset(int offset) {\n";
-			src += "      thisOffset = offset;\n";
-			src += "   }\n";
-		} else {
-			src += "public class CodeGenerator implements CodeGeneratorInterface {\n";
-		}
+		src += "public class CodeGenerator implements CodeGeneratorInterface {\n";
 		src += "   \n";
 		src += "   private LabelManager labels = new LabelManager();\n";
 		src += "   \n";
@@ -324,19 +307,7 @@ public class X86 extends Feature {
 		src += "         \n";
 		src += "      } else if (node instanceof FunctionDeclaration) {\n";
 		src += "         \n";
-		if (language.hasFeature("Classes")) {
-			src += "         FunctionDeclaration func = (FunctionDeclaration) node;\n";
-			src += "         \n";
-			src += "         if (func.extension(ScopeKind.class) == ScopeKind.CLASS_MEMBER)\n";
-			src += "            setThisOffset(func.extension(FunctionOffsets.class).offset(\"this\"));\n";
-			src += "         \n";
-			src += "         String src = FunctionCodeGenerator.functionDeclaration(func, this);\n";
-			src += "         \n";
-			src += "         setThisOffset(-1);\n";
-			src += "         return src;\n";
-		} else {
-			src += "         return FunctionCodeGenerator.functionDeclaration((FunctionDeclaration) node, this);\n";
-		}
+		src += "         return FunctionCodeGenerator.functionDeclaration((FunctionDeclaration) node, this);\n";
 		src += "         \n";
 		src += "      } else if (node instanceof ReturnStatement) {\n";
 		src += "         \n";

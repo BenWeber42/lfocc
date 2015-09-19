@@ -1,7 +1,7 @@
 package lfocc.features.x86.backend.preparation;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import lfocc.features.base.ast.ScopeKind;
 import lfocc.features.functions.ast.FunctionDeclaration;
@@ -13,8 +13,8 @@ import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
 
 /**
- * Generates the offsets of the locals for each function
- * and sets the function declaration for each return statement
+ * Generates the offsets of the locals for each function (also in nested local scopes).
+ * Sets the function declaration for each return statement.
  */
 public class FunctionPreparer extends ASTVisitor {
 	
@@ -41,10 +41,10 @@ public class FunctionPreparer extends ASTVisitor {
 			int oldOffset = offset;
 			
 			for (VariableDeclaration var: scope.getLocalIterable()) {
-				offset += CodeGeneratorHelper.WORD_SIZE;
+				offset -= CodeGeneratorHelper.WORD_SIZE;
 				LocalVariableOffset.setOffset(var, offset);
 			}
-			int size = offset - oldOffset;
+			int size = oldOffset - offset;
 			ScopeSize.setScopeSize(node, size);
 			super.visit(node);
 			offset = oldOffset;
@@ -61,7 +61,7 @@ public class FunctionPreparer extends ASTVisitor {
 		
 		decl = funcDecl;
 		// 3*WORD_SIZE to push callee-saved registers ebx, edi, esi
-		offset = offsets.offset + 3*CodeGeneratorHelper.WORD_SIZE;
+		offset = offsets.getSize() - 3*CodeGeneratorHelper.WORD_SIZE;
 		super.visit(funcDecl);
 		offset = -1;
 		decl = null;
@@ -86,6 +86,10 @@ public class FunctionPreparer extends ASTVisitor {
 		}
 	}
 	
+	/**
+	 * Determines the offset in bytes relative to %ebp for local variables
+	 * (function parameters & function locals)
+	 */
 	public static class LocalVariableOffset {
 		public final int offset;
 		
@@ -133,7 +137,7 @@ public class FunctionPreparer extends ASTVisitor {
 			if (size == null)
 				return "";
 			
-			return "   subl $" + size.size + ", %esp\n";
+			return "   addl $" + size.size + ", %esp\n";
 			
 		}
 	}
@@ -146,49 +150,39 @@ public class FunctionPreparer extends ASTVisitor {
 
 		/** size of locals in bytes */
 		private int localSize = 0;
-		private int offset;
-		private Map<String, Integer> offsets = new HashMap<String, Integer>();
-		
+
 		public FunctionOffsets(FunctionDeclaration funcDecl) {
 			
-			offset = funcDecl.getParameters().size()*CodeGeneratorHelper.WORD_SIZE;
+			Set<String> offsets = new HashSet<String>();
 
-			int reverser = 0;
-			for (VariableDeclaration varDecl: funcDecl.getParameters()) {
-				offsets.put(varDecl.getName(), offset - reverser);
-				LocalVariableOffset.setOffset(varDecl, offset - reverser);
-				reverser += CodeGeneratorHelper.WORD_SIZE;
-			}
-			
+			// skip %ebp on stack and return address on stack
+			int parameterOffset = CodeGeneratorHelper.WORD_SIZE;
+
 			// GCC pushes the this pointer last
 			if (funcDecl.extension(ScopeKind.class) == ScopeKind.CLASS_MEMBER) {
-				offset += CodeGeneratorHelper.WORD_SIZE;
-				offsets.put("this", offset);
+				parameterOffset += CodeGeneratorHelper.WORD_SIZE;
+				offsets.add("this");
 			}
 
-			// at this offset there will be the return address on the stack
-			offset += CodeGeneratorHelper.WORD_SIZE;
-			localSize = offset;
+			for (VariableDeclaration varDecl: funcDecl.getParameters()) {
+				parameterOffset += CodeGeneratorHelper.WORD_SIZE;
+				LocalVariableOffset.setOffset(varDecl, parameterOffset);
+				offsets.add(varDecl.getName());
+			}
+
+			int localOffset = 0;
 			
-			for (VariableDeclaration varDecl: funcDecl.extension(VariableScope.class).getLocalIterable()) {
+			for (VariableDeclaration varDecl:funcDecl.extension(VariableScope.class).getLocalIterable()) {
 				
-				if (offsets.containsKey(varDecl.getName()))
+				if (offsets.contains(varDecl.getName()))
 					continue; // must be a parameter
 				
-				offset += CodeGeneratorHelper.WORD_SIZE;
-				offsets.put(varDecl.getName(), offset);
-				LocalVariableOffset.setOffset(varDecl, offset);
+				localOffset -= CodeGeneratorHelper.WORD_SIZE;
+				LocalVariableOffset.setOffset(varDecl, localOffset);
+				offsets.add(varDecl.getName());
 			}
 			
-			localSize = offset - localSize;
-		}
-		
-		/**
-		 * Relative to the first local variable (non-parameter)
-		 */
-		public int offset(String name) {
-			assert offsets.containsKey(name);
-			return offsets.get(name);
+			localSize = -localOffset;
 		}
 		
 		/**

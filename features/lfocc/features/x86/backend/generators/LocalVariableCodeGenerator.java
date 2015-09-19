@@ -17,7 +17,7 @@ public class LocalVariableCodeGenerator {
 		ReturnRegister.setRegister(variable, reg);
 		
 		int offset = LocalVariableOffset.getOffset(variable.getDeclaration());
-		src += "   movl -" + offset + "(%ebp), %" + reg + "\n";
+		src += "   movl " + offset + "(%ebp), %" + reg + "\n";
 
 		return src;
 	}
@@ -30,7 +30,7 @@ public class LocalVariableCodeGenerator {
 		ReturnRegister.setRegister(variable, reg);
 
 		int offset = LocalVariableOffset.getOffset(variable.getDeclaration());
-		src += "   leal -" + offset + "(%ebp), %" + reg + "\n";
+		src += "   leal " + offset + "(%ebp), %" + reg + "\n";
 
 		return src;
 	}

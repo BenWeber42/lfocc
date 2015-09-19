@@ -130,14 +130,13 @@ public class ClassCodeGenerator {
 		return src;
 	}
 	
-	public static String thisReference(ThisReference thisRef, ThisOffsetProvider codeGen) {
+	public static String thisReference(ThisReference thisRef, CodeGeneratorInterface codeGen) {
 		String src = "";
-		assert codeGen.getThisOffset() >= 0;
 
 		Register reg = codeGen.getRegisterManager().acquire();
 		ReturnRegister.setRegister(thisRef, reg);
 
-		src += "   movl -" + codeGen.getThisOffset() + "(%ebp), %" + reg + "\n";
+		src += "   movl " + 2*CodeGeneratorHelper.WORD_SIZE + "(%ebp), %" + reg + "\n";
 
 		return src;
 	}
@@ -192,8 +191,6 @@ public class ClassCodeGenerator {
 		src += "   jmp " + topLabel + "\n";
 		
 		src += exitLabel + ":\n";
-		src += "   push %ebp\n";
-		src += "   movl %esp, %ebp\n";
 		src += "   pushl $-1\n";
 		src += "   call exit\n";
 
@@ -205,10 +202,4 @@ public class ClassCodeGenerator {
 
 		return src;
 	}
-	
-	public static interface ThisOffsetProvider extends CodeGeneratorInterface {
-		public int getThisOffset();
-		public void setThisOffset(int offset);
-	}
-	
 }

@@ -7,7 +7,7 @@ import lfocc.features.functions.ast.FunctionCall;
 import lfocc.features.functions.ast.FunctionDeclaration;
 import lfocc.features.functions.ast.ReturnStatement;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
-import lfocc.features.x86.backend.CodeGeneratorHelper.ExposeLinker;
+import lfocc.features.x86.backend.CodeGeneratorHelper.EntryPoint;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NoNameEscape;
 import lfocc.features.x86.backend.CodeGeneratorHelper.ReturnRegister;
 import lfocc.features.x86.backend.CodeGeneratorInterface;
@@ -53,16 +53,14 @@ public class FunctionCodeGenerator {
 		src += ".text\n";
 		src += "\n";
 		src += failLabel + ":\n";
-		src += "   pushl %ebp\n";
-		src += "   movl %esp, %ebp\n";
 		src += "   pushl $-1\n";
 		src += "   call exit\n";
 		src += "   \n";
 		src += "\n";
 		src += getGlobalLabel("write", "") + ":\n";
-		src += "   movl -4(%ebp), %eax\n";
 		src += "   pushl %ebp\n";
 		src += "   movl %esp, %ebp\n";
+		src += "   movl 8(%ebp), %eax\n";
 		src += "   pushl %eax\n";
 		src += "   pushl $" + write_fmt + "\n";
 		src += "   call printf\n";
@@ -71,9 +69,9 @@ public class FunctionCodeGenerator {
 		src += "   ret\n";
 		src += "\n";
 		src += getGlobalLabel("writef", "") + ":\n";
-		src += "   flds -4(%ebp)\n";
 		src += "   pushl %ebp\n";
 		src += "   movl %esp, %ebp\n";
+		src += "   flds 8(%ebp)\n";
 		src += "   subl $8, %esp\n";
 		src += "   fstpl (%esp)\n";
 		src += "   pushl $" + writef_fmt + "\n";
@@ -92,33 +90,31 @@ public class FunctionCodeGenerator {
 		src += "   ret\n";
 		src += "\n";
 		src += getGlobalLabel("read", "") + ":\n";
-		src += "   subl $4, %esp\n";
-		src += "   movl %esp, %eax\n";
 		src += "   pushl %ebp\n";
 		src += "   movl %esp, %ebp\n";
-		src += "   pushl %eax\n";
+		src += "   subl $4, %esp\n";
+		src += "   pushl %esp\n";
 		src += "   pushl $" + read_fmt + "\n";
 		src += "   call scanf\n";
 		src += "   cmpl $1, %eax\n";
 		src += "   jne " + failLabel + "\n";
 		src += "   addl $8, %esp\n";
-		src += "   popl %ebp\n";
 		src += "   popl %eax\n";
+		src += "   popl %ebp\n";
 		src += "   ret\n";
 		src += "\n";
 		src += getGlobalLabel("readf", "") + ":\n";
-		src += "   subl $4, %esp\n";
-		src += "   movl %esp, %eax\n";
 		src += "   pushl %ebp\n";
 		src += "   movl %esp, %ebp\n";
-		src += "   pushl %eax\n";
+		src += "   subl $4, %esp\n";
+		src += "   pushl %esp\n";
 		src += "   pushl $" + readf_fmt + "\n";
 		src += "   call scanf\n";
 		src += "   cmpl $1, %eax\n";
 		src += "   jne " + failLabel + "\n";
 		src += "   addl $8, %esp\n";
-		src += "   popl %ebp\n";
 		src += "   popl %eax\n";
+		src += "   popl %ebp\n";
 		src += "   ret\n";
 		src += "\n";
 		src += "\n";
@@ -132,6 +128,7 @@ public class FunctionCodeGenerator {
 		ScopeKind scope = getScope(funcDecl);
 		RegisterManager regs = codeGen.getRegisterManager();
 		String src = "";
+		boolean entryPoint = funcDecl.extension(EntryPoint.class) != null;
 		
 		src += "/**\n";
 		if (scope == ScopeKind.GLOBAL)
@@ -141,9 +138,13 @@ public class FunctionCodeGenerator {
 		src += " */\n";
 
 		src += ".text\n";
-		if (funcDecl.extension(ExposeLinker.class) != null)
+		if (entryPoint)
 			src += ".global " + label + "\n";
 		src += label + ":\n";
+		
+		// set up stack
+		src += "   pushl %ebp\n";
+		src += "   movl %esp, %ebp\n";
 		
 		// allocate space for locals
 		int localsSize = funcDecl.extension(FunctionOffsets.class).getSize();
@@ -173,11 +174,10 @@ public class FunctionCodeGenerator {
 			if (localsSize != 0)
 				src += "   addl $" + localsSize + ", %esp\n";
 
-			// ugly hack to detect that we're in the entry point function
-			// so we'll return 0 for success just in case
-			if (funcDecl.extension(ExposeLinker.class) != null)
+			if (entryPoint)
 				src += "   movl $0, %eax\n";
 
+			src += "   popl %ebp\n";
 			src += "   ret\n";
 		}
 
@@ -248,6 +248,7 @@ public class FunctionCodeGenerator {
 		int localsSize = funcDecl.extension(FunctionOffsets.class).getSize();
 		if (localsSize != 0)
 			src += "   addl $" + localsSize + ", %esp\n";
+		src += "   popl %ebp\n";
 		src += "   ret\n\n\n";
 		
 		return src;
@@ -282,9 +283,6 @@ public class FunctionCodeGenerator {
 			edxSaved = true;
 		}
 		
-		// make new call frame
-		src += "   push %ebp\n";
-		
 		// evaluate arguments
 		String argsSrc = "";
 		for (Expression arg: call.getArguments()) {
@@ -295,13 +293,12 @@ public class FunctionCodeGenerator {
 		}
 		src += argsSrc;
 
-		int argumentsSize = call.getArguments().size()*CodeGeneratorHelper.WORD_SIZE;
-		src += "   leal " + argumentsSize + "(%esp), %ebp\n";
 		
 		// do call
 		src += "   call " + getLabel(call) + "\n";
 		
 		// clean up stack
+		int argumentsSize = call.getArguments().size()*CodeGeneratorHelper.WORD_SIZE;
 		if (argumentsSize != 0)
 			src += "   addl $" + argumentsSize + ", %esp\n";
 		
@@ -309,8 +306,6 @@ public class FunctionCodeGenerator {
 		if (!call.getDeclaration().getReturnType().getName().equals("void") && reg != Register.eax)
 			src += "   movl %eax, %" + reg + "\n";
 		
-		src += "   popl %ebp\n";
-
 		// pop caller-saved registers
 		if (edxSaved)
 			src += regs.pop(Register.edx);

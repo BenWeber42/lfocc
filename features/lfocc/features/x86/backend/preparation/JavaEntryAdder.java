@@ -17,7 +17,7 @@ import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.types.semantics.TypeDB;
 import lfocc.features.variables.ast.VariableDeclaration;
 import lfocc.features.variables.ast.VariableScope;
-import lfocc.features.x86.backend.CodeGeneratorHelper.ExposeLinker;
+import lfocc.features.x86.backend.CodeGeneratorHelper.EntryPoint;
 import lfocc.features.x86.backend.CodeGeneratorHelper.NoNameEscape;
 import lfocc.framework.compiler.ast.ASTNode;
 
@@ -45,7 +45,7 @@ public class JavaEntryAdder {
 
 		entryPoint.extend(ScopeKind.GLOBAL);
 		entryPoint.extend(new NoNameEscape());
-		entryPoint.extend(new ExposeLinker());
+		entryPoint.extend(new EntryPoint());
 	}
 
 	public static void addJavaEntry(GlobalScope globalScope) {
