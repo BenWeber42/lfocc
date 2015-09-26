@@ -1,6 +1,7 @@
 compilers
 bin
 tests/Javali/cd/
+tests/SampleLanguage/cd/
 fails
 tests/.*\.test\.out$
 tests/.*\.test\.out.s$

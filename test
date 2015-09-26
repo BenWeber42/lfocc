@@ -93,14 +93,20 @@ do
 
       exit=$?
 
-      if [ -e $testcase.$TEST_RUN_FAIL_SUFFIX -a $exit -eq 0 ]
+      if [ -e $testcase.$TEST_RUN_FAIL_SUFFIX ]
       then
 
-         echo "FAILURE (program ran, but should have crashed)!"
-         fail=$((fail+1))
-         if [ $single = "no" ]
+         if [ $exit -eq 0 ];
          then
-            echo $testcase >> fails
+            echo "FAILURE (program ran, but should have crashed)!"
+            fail=$((fail+1))
+            if [ $single = "no" ]
+            then
+               echo $testcase >> fails
+            fi
+         else
+            echo "OK!"
+            pass=$((pass+1))
          fi
 
       elif [ $exit -ne 0 ]
