@@ -47,7 +47,7 @@ public class VariableCodeGenerator {
 		assert variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.GLOBAL;
 		
 		Register reg = regs.acquire();
-		src += "   movl $" + getLabel(variable) + ", %" + reg + "\n";
+		src += "   movl " + getLabel(variable) + ", %" + reg + "\n";
 		ReturnRegister.setRegister(variable, reg);
 		return src;
 	}
@@ -57,7 +57,7 @@ public class VariableCodeGenerator {
 		assert variable.getDeclaration().extension(ScopeKind.class) == ScopeKind.GLOBAL;
 
 		Register reg = regs.acquire();
-		src += "   movl " + getLabel(variable) + ", %" + reg + "\n";
+		src += "   movl $" + getLabel(variable) + ", %" + reg + "\n";
 		ReturnRegister.setRegister(variable, reg);
 		return src;
 	}
