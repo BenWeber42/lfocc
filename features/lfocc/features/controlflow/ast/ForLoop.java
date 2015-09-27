@@ -17,6 +17,7 @@ public class ForLoop extends ExtendableNode implements Conditional {
 	public ForLoop(List<ASTNode> init, Expression condition,
 			List<ASTNode> repeat, List<ASTNode> code) {
 		
+		assert code != null;
 		this.init = init;
 		this.condition = condition;
 		this.repeat = repeat;
@@ -59,10 +60,19 @@ public class ForLoop extends ExtendableNode implements Conditional {
 
 	@Override
 	public List<ASTNode> getChildren() {
-		ArrayList<ASTNode> children = new ArrayList<ASTNode>(init);
-		children.add(condition);
+		ArrayList<ASTNode> children = new ArrayList<ASTNode>();
+
+		if (init != null)
+			children.addAll(init);
+
+		if (condition != null)
+			children.add(condition);
+
 		children.addAll(code);
-		children.addAll(repeat);
+
+		if (repeat != null)
+			children.addAll(repeat);
+
 		return children;
 	}
 

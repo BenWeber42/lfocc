@@ -73,23 +73,31 @@ public class ControlFlowCodeGenerator {
 
 		LabelManager labels = codeGen.getLabelManager();
 		String topLabel = labels.generateLabel();
-		String bottomLabel = labels.generateLabel();
+		String bottomLabel = "/* invalid label! */";
 
-		src += codeGen.dispatch(loop.getInit());
+		if (loop.getInit() != null)
+			src += codeGen.dispatch(loop.getInit());
 		
 		src += topLabel + ":\n";
 
-		src += codeGen.dispatch(loop.getCondition());
-		Register reg = ReturnRegister.getRegister(loop.getCondition());
-		src += "   cmpl $0, %" + reg + "\n";
-		src += "   je " + bottomLabel + "\n";
-		regs.free(reg);
+		if (loop.getCondition() != null) {
+			bottomLabel = labels.generateLabel();
+			src += codeGen.dispatch(loop.getCondition());
+			Register reg = ReturnRegister.getRegister(loop.getCondition());
+			src += "   cmpl $0, %" + reg + "\n";
+			src += "   je " + bottomLabel + "\n";
+			regs.free(reg);
+		}
 		
 		src += codeGen.dispatch(loop.getCode());
-		src += codeGen.dispatch(loop.getRepeat());
+
+		if (loop.getRepeat() != null)
+			src += codeGen.dispatch(loop.getRepeat());
 
 		src += "   jmp " + topLabel + "\n";
-		src += bottomLabel + ":\n";
+
+		if (loop.getCondition() != null)
+			src += bottomLabel + ":\n";
 
 		return src;
 	}

@@ -1,6 +1,7 @@
 package lfocc.features.controlflow.semantics;
 
 import lfocc.features.controlflow.ast.Conditional;
+import lfocc.features.controlflow.ast.ForLoop;
 import lfocc.features.expressions.ast.BooleanType;
 import lfocc.framework.compiler.ast.ASTNode;
 import lfocc.framework.compiler.ast.ASTVisitor;
@@ -18,6 +19,11 @@ public class ControlFlowChecker extends ASTVisitor {
 	}
 
 	private void conditional(Conditional cond) throws ControlFlowFailure {
+
+		if (cond instanceof ForLoop && cond.getCondition() == null) {
+			return; // for loop is allowed to have an empty condition
+		}
+
 		assert cond.getCondition() != null;
 		assert cond.getCondition().getType() != null;
 		
