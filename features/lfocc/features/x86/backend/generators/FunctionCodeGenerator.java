@@ -248,8 +248,10 @@ public class FunctionCodeGenerator {
 		int localsSize = funcDecl.extension(FunctionOffsets.class).getSize();
 		if (localsSize != 0)
 			src += "   addl $" + localsSize + ", %esp\n";
+		if (funcDecl.extension(EntryPoint.class) != null)
+			src += "   movl $0, %eax\n";
 		src += "   popl %ebp\n";
-		src += "   ret\n\n\n";
+		src += "   ret\n";
 		
 		return src;
 	}
