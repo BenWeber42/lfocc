@@ -1,0 +1,94 @@
+class A { int n; }
+class B extends A { int o; }
+
+int a, b, c;
+
+float x, y, z;
+
+boolean i, j, k;
+
+A a1, a2, a3;
+B b1, b2, b3;
+
+void printi(int m) {
+   write(m);
+   writeln();
+}
+
+void printf(float m) {
+   writef(m);
+   writeln();
+}
+
+void printb(boolean m) {
+   if (m) {
+      write(1);
+   } else {
+      write(0);
+   }
+   writeln();
+}
+
+A initA(int n) {
+   A instance = new A();
+   instance.n = n;
+   return instance;
+}
+
+B initB(int n, int o) {
+   B instance = new B();
+   instance.n = n;
+   instance.o = o;
+   return instance;
+}
+
+void main() {
+   a = 5;
+   b = 6;
+   c = b + 6;
+
+   printi(a);
+   printi(b);
+   printi(c);
+
+   x = 5.75;
+   y = 4.25;
+   z = x + y;
+
+   printf(x);
+   printf(y);
+   printf(z);
+
+   i = true;
+   j = false;
+   k = i || j;
+
+   printb(i);
+   printb(j);
+   printb(k);
+
+   a1 = initA(3);
+   a2 = initA(4);
+   a3 = initA(5);
+
+   printi(a1.n);
+   printi(a2.n);
+   printi(a3.n);
+
+   a1 = initB(3, 6);
+   a2 = initB(4, 7);
+   a3 = initB(5, 8);
+
+   printi(a1.n);
+   printi(a2.n);
+   printi(a3.n);
+
+   b1 = cast<B> a1;
+   b2 = cast<B> a2;
+   b3 = cast<B> a3;
+
+   printi(b1.o);
+   printi(b2.o);
+   printi(b3.o);
+
+}

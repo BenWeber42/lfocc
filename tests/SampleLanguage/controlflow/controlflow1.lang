@@ -1,0 +1,55 @@
+void print(int i) {
+   write(i);
+   writeln();
+}
+
+void main() {
+   for (int i = 0; i < 5; i = i + 1) {
+      print(i);
+   }
+
+   int i = 0;
+
+   while (i < 5) {
+      print(i);
+      i = i + 1;
+   }
+
+   do {
+      print(i);
+   } while(false)
+
+   i = 0;
+
+   do {
+      print(i);
+      i = i + 1;
+   } while (i < 5)
+
+   boolean b = true;
+
+   if (b) {
+      print(i);
+   }
+
+   if (false) {
+      print(i);
+   } else {
+      print(i + 1);
+   }
+
+   if (false) {
+      print(i);
+   } else if (b) {
+      print(i + 2);
+   }
+
+   if (false) {
+      print(i);
+   } else if (false) {
+      print(i + 1);
+   } else {
+      print(i + 3);
+   }
+
+}

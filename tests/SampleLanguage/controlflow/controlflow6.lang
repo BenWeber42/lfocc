@@ -1,0 +1,11 @@
+void main() {
+   int i = 0;
+   for (;;) {
+      write(i);
+      writeln();
+      i = i + 1;
+      if (!(i < 5)) {
+         return;
+      }
+   }
+}

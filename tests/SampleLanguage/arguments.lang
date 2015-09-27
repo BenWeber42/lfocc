@@ -1,0 +1,119 @@
+void printi(int i) {
+   write(i);
+   writeln();
+}
+
+void printf(float f) {
+   writef(f);
+   writeln();
+}
+
+void printb(boolean i) {
+   if (i) {
+      write(1);
+   } else {
+      write(0);
+   }
+   writeln();
+}
+
+void printA(A a) {
+   if (a != null) {
+      write(1);
+   } else if (a == null) {
+      write(0);
+   } else {
+      write(-1);
+   }
+   writeln();
+}
+
+class A {
+   void _print(
+            int i1, float f1, boolean b1, A a1,
+            int i2, float f2, boolean b2, A a2,
+            int i3, float f3, boolean b3, A a3,
+            int i4, float f4, boolean b4, A a4,
+            int i5, float f5, boolean b5, A a5
+            )
+   {
+      printi(i1);
+      printf(f1);
+      printb(b1);
+      printA(a1);
+
+      printi(i2);
+      printf(f2);
+      printb(b2);
+      printA(a2);
+
+      printi(i3);
+      printf(f3);
+      printb(b3);
+      printA(a3);
+
+      printi(i4);
+      printf(f4);
+      printb(b4);
+      printA(a4);
+
+      printi(i5);
+      printf(f5);
+      printb(b5);
+      printA(a5);
+      printA(this);
+   }
+
+}
+
+void print(
+            int i1, float f1, boolean b1, A a1,
+            int i2, float f2, boolean b2, A a2,
+            int i3, float f3, boolean b3, A a3,
+            int i4, float f4, boolean b4, A a4,
+            int i5, float f5, boolean b5, A a5
+            )
+{
+   printi(i1);
+   printf(f1);
+   printb(b1);
+   printA(a1);
+
+   printi(i2);
+   printf(f2);
+   printb(b2);
+   printA(a2);
+
+   printi(i3);
+   printf(f3);
+   printb(b3);
+   printA(a3);
+
+   printi(i4);
+   printf(f4);
+   printb(b4);
+   printA(a4);
+
+   printi(i5);
+   printf(f5);
+   printb(b5);
+   printA(a5);
+}
+
+void main() {
+   print(
+      1, 1.0, true, null,
+      2, 2.0, false, new A(),
+      4, 4.0, true, null,
+      100, 100.0, false, new A(),
+      -1, -1.0, true, null
+   );
+
+   new A()._print(
+      1, 1.0, true, null,
+      2, 2.0, false, new A(),
+      4, 4.0, true, null,
+      100, 100.0, false, new A(),
+      -1, -1.0, true, null
+   );
+}
