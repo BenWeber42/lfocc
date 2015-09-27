@@ -290,7 +290,12 @@ public class ExpressionCodeGenerator {
 			}
 			break;
 		case NOT:
-			src += "   notl %" + reg + "\n";
+			String bottomLabel = codeGen.getLabelManager().generateLabel();
+			src += "   cmpl $0, %" + reg + "\n";
+			src += "   movl $1, %" + reg + "\n";
+			src += "   je " + bottomLabel + "\n";
+			src += "   movl $0, %" + reg + "\n";
+			src += bottomLabel + ":\n";
 			break;
 		case PLUS:
 			// ignore
