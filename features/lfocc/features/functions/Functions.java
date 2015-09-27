@@ -108,12 +108,22 @@ public class Functions extends MultiExtendable {
 		if (services.hasFeature("Expressions")) {
 			extender = (ExtenderService) 
 					services.getService("Expressions", "ExpressionExtender");
+
 			extender.addSyntaxRule(
 					"functionCall" +
 					"   {\n" +
 					"      $$ = $functionCall;\n" +
 					"   }\n"
 					);
+
+			if (classMembers)
+				extender.addSyntaxRule(
+						"'this'\n" +
+						"   {\n" +
+						"      $$ = new ThisReference();\n" +
+						"   }\n"
+						);
+			
 		}
 
 		if (classMembers) {
@@ -186,6 +196,11 @@ public class Functions extends MultiExtendable {
 			// Languages without if, while statements aren't that interesting
 			// that's why it's ok to leave it for now
 		}
+		
+		if (cg.hasFeature("Expressions") && classMembers) {
+			cg.getParserGenerator().addToken("'this'", "/this/");
+		}
+		
 		cg.getParserGenerator().addImport("lfocc.features.functions.ast.*");
 	}
 	

@@ -79,13 +79,6 @@ public class Classes extends SingleExtendable {
 				    "   }\n"
 					);
 			
-			extender.addSyntaxRule(
-					"'this'\n" +
-					"   {\n" +
-					"      $$ = new ThisReference();\n" +
-					"   }\n"
-					);
-			
 		}
 		
 		if (services.hasFeature("Types")) {
@@ -117,7 +110,6 @@ public class Classes extends SingleExtendable {
 			// expressions will register '<' and '>'
 			cg.getParserGenerator().addToken("'cast'", "/cast/");
 			cg.getParserGenerator().addToken("'null'", "/null/");
-			cg.getParserGenerator().addToken("'this'", "/this/");
 		}
 
 		cg.getParserGenerator().addGrammarSource(getName(), generateGrammar());
