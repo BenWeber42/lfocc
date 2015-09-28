@@ -1,6 +1,7 @@
 compilers
 bin
 tests/Javali/cd/
+tests/Java/cd/
 tests/Cpp/cd/
 fails
 tests/.*\.compiled$
