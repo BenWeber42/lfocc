@@ -1,9 +1,10 @@
 
 int global(int x, int y) {
-
+    return 1;
 }
 
 class Class {
-    // not ok, return type missmatch
-    int global(int x, int y) {}
+    // not ok, can't override or shadow global function
+    int global(int x, int y) { return 1; }
 }
+void main() {}

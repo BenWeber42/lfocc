@@ -1,13 +1,9 @@
-
-int global(int x, float y) {
-
-}
-
 class Class {
-    int global(int x, float y) {}
+    int global(int x, float y) { return 1; }
 }
 
 class SubClass extends Class {
     // OK
-    int global(int x, float y) {}
+    int global(int x, float y) { return 1; }
 }
+void main() {}

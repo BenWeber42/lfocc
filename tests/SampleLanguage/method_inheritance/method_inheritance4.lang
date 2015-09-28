@@ -1,9 +1,10 @@
 
 int global(int x, float y) {
-
+    return 1;
 }
 
 class Class {
-    // not ok, parameter number mismatch
-    int global(int x, float y, float z) {}
+    // not ok, can't override or shadow global function
+    int global(int x, float y, float z) { return 1; }
 }
+void main() {}
