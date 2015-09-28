@@ -1,2 +1,4 @@
 /* this will be caught by the parser, because int is a lexem with higher priority than identifier! */
 class Abc extends int {}
+
+void main() {}

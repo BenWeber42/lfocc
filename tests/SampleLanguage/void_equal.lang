@@ -7,3 +7,5 @@ class test {
 		if (m1() != m2()) {}
 	}
 }
+
+void main() {}

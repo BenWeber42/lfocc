@@ -37,3 +37,5 @@ void TestFunction(int param1, TestClass param2, float param3) {
     }
 
 }
+
+void main() {}
