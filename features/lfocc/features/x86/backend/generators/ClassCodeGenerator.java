@@ -6,6 +6,7 @@ import lfocc.features.classes.ast.ClassType;
 import lfocc.features.classes.ast.NewOperator;
 import lfocc.features.classes.ast.ThisReference;
 import lfocc.features.classes.ast.NullExpression;
+import lfocc.features.classes.ast.NullType;
 import lfocc.features.functions.ast.FunctionDeclaration;
 import lfocc.features.types.ast.TypeSymbol;
 import lfocc.features.x86.backend.CodeGeneratorHelper;
@@ -151,6 +152,11 @@ public class ClassCodeGenerator {
 		ReturnRegister.setRegister(cast, reg);
 
 		TypeSymbol expressionType = cast.getExpr().getType();
+		
+		if (expressionType instanceof NullType)
+			// null can be cast to anything
+			return src;
+
 		assert expressionType instanceof ClassType;
 		
 		if (((ClassType) expressionType).isParent(cast.getType())) {
