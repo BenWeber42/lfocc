@@ -34,3 +34,4 @@ class Derived extends Class {
 class Class {
     int var4;
 }
+void main() {}

@@ -9,3 +9,4 @@ class Class {
         int var2;
     }
 }
+void main() {}

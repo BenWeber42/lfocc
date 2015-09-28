@@ -5,3 +5,4 @@ class Class {
     // var1 already declared!
     int var1;
 }
+void main() {}

@@ -7,3 +7,4 @@ class Class {
         int var1;
     }
 }
+void main() {}

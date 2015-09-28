@@ -12,3 +12,4 @@ class Class {
         }
     }
 }
+void main() {}
