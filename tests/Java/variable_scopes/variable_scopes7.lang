@@ -1,0 +1,21 @@
+class Derived extends Class {
+    // not ok
+    int var4;
+
+    void method() {
+
+        if (true) {
+            int var3;
+        }
+
+        if (false) {
+            int var5;
+        }
+    }
+    }
+}
+
+class Class {
+    int var4;
+}
+class Main { void main() {} }

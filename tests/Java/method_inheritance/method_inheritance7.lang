@@ -1,0 +1,9 @@
+class Class {
+    int global(int x, float y) { return 1; }
+}
+
+class SubClass extends Class {
+    // not ok, parameter type mismatch
+    int global(boolean x, float y) { return 1; }
+}
+class Main { void main() {} }

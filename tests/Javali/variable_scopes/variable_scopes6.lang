@@ -1,0 +1,17 @@
+class Class {
+    
+    int var2;
+
+    void method() {
+
+        if (true) {
+            int var3;
+        }
+
+        if (false) {
+            // ok, different scope
+            int var3;
+        }
+    }
+}
+class Main { void main() {} }

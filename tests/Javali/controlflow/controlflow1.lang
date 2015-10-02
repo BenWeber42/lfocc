@@ -1,0 +1,28 @@
+class Main {
+   void print(int i) {
+      write(i);
+      writeln();
+   }
+
+   void main() {
+
+      int i = 0;
+
+      while (i < 5) {
+         print(i);
+         i = i + 1;
+      }
+
+      boolean b = true;
+
+      if (b) {
+         print(i);
+      }
+
+      if (false) {
+         print(i);
+      } else {
+         print(i + 1);
+      }
+   }
+}

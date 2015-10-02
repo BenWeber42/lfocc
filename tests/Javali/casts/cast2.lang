@@ -1,0 +1,19 @@
+class A {}
+class B extends A {}
+class C extends B {}
+
+class Main {
+   void main() {
+      A a, a1 = new B(), a2 = new A(), a3 = null;
+      B b, b1 = new B(), b2 = null;
+
+      b = cast<B> a1;
+      b = cast<B> a3;
+
+      b = cast<B> cast<A> new B();
+      b = cast<B> cast<A> null;
+      C c = cast<C> cast<B> cast<A> cast<B> cast<C> new C();
+      c = cast<C> cast<B> cast<A> cast<B> cast<C> null;
+
+   }
+}

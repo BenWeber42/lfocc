@@ -1,0 +1,11 @@
+class test {
+	void m1() {}
+	void m2() {}
+
+	void test() {
+		if (m1() == m2()) {}
+		if (m1() != m2()) {}
+	}
+}
+
+class Main { void main() {} }

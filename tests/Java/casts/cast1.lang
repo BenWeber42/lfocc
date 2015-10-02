@@ -1,0 +1,12 @@
+class A {}
+class B extends A {}
+
+class Main {
+   void main() {
+
+      A a = new B();
+
+      // invalid cast!
+      B c = cast<B> 1;
+   }
+}

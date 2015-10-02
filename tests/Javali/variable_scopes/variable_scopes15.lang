@@ -1,0 +1,11 @@
+class Class {
+    
+    int var2;
+
+    void method(int var3) {
+
+        // ok
+        int var4;
+    }
+}
+class Main { void main() {} }

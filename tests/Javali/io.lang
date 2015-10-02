@@ -1,0 +1,52 @@
+class Main {
+   void printi(int i) {
+      write(i);
+      writeln();
+   }
+
+   void printf(float f) {
+      writef(f);
+      writeln();
+   }
+
+   void printb(boolean i) {
+      if (i) {
+         write(1);
+      } else {
+         write(0);
+      }
+      writeln();
+   }
+
+   boolean readb() {
+      if (read() == 0) {
+         return false;
+      } else {
+         return true;
+      }
+   }
+
+   void main() {
+      int i;
+      i = read();
+      
+      while (i > 0) {
+         printi(read());
+         i = i - 1;
+      }
+
+      i = read(); 
+      
+      while (i > 0) {
+         printf(readf());
+         i = i - 1;
+      }
+
+      i = read(); 
+      
+      while (i > 0) {
+         printb(readb());
+         i = i - 1;
+      }
+   }
+}

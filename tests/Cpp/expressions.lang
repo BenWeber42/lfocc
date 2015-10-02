@@ -35,6 +35,6 @@ void main() {
    printb(f < 4.0 && f <= 4.0 && 4.0 > f && 4.0 >= f && f == 3.625 && f != 4.0);
 
    // all possible expressions for booleans
-   printb(b || true && !b && b == false);
+   printb(b || true && !b && b == false && b != true);
 
 }

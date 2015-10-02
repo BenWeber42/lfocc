@@ -1,0 +1,9 @@
+class Main {
+
+   // return types doesn't exist!
+   iiiint function() {
+
+   }
+
+   void main() {}
+}

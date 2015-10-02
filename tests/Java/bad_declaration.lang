@@ -1,0 +1,11 @@
+
+class test {
+    void test() {
+        // used variable before declaration
+        write(i);
+
+        int i;
+    }
+}
+
+class Main { void main() {} }

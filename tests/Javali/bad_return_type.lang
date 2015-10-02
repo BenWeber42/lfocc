@@ -1,0 +1,7 @@
+class Main {
+   int func() {
+       return 0.0;
+   }
+
+   void main() {}
+}

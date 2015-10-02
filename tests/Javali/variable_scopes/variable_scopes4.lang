@@ -1,0 +1,13 @@
+class Class {
+    
+    int var2;
+
+    void method() {
+
+        if (true) {
+            // var2 already declared!
+            int var2;
+        }
+    }
+}
+class Main { void main() {} }

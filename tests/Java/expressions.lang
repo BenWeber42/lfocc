@@ -1,0 +1,42 @@
+class Main {
+   void printi(int i) {
+      write(i);
+      writeln();
+   }
+
+   void printf(float f) {
+      writef(f);
+      writeln();
+   }
+
+   void printb(boolean i) {
+      if (i) {
+         write(1);
+      } else {
+         write(0);
+      }
+      writeln();
+   }
+
+   void main() {
+      int i;
+      float f;
+      boolean b;
+
+      i = 3;
+      f = 3.625;
+      b = false;
+
+      // all possible expressions for ints:
+      printi(((-6)*(+i + 3)/-6) % 5 - 2);
+      printb(i < 4 && i <= 4 && 4 > i && 4 >= i && i == 3 && i != 4);
+
+      // all possible expressions for floats
+      printf((-6.0)*(+f + 3.0)/-6.0 - 2.0);
+      printb(f < 4.0 && f <= 4.0 && 4.0 > f && 4.0 >= f && f == 3.625 && f != 4.0);
+
+      // all possible expressions for booleans
+      printb(b || true && !b && b == false && b != true);
+
+   }
+}

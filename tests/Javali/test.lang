@@ -1,0 +1,42 @@
+   /* comment */   
+   
+/*
+multi line comment
+*/
+
+/********* *******/
+
+
+// single line comment
+//
+class TestClass {
+    int attrib1, attrib2;
+    float attrib3;
+    boolean attrib4;
+}
+
+class AnotherClass {
+	int x, y, z;
+}
+
+class Main {
+
+   void TestFunction(int param1, TestClass param2, float param3) {
+
+       int local1, local2;
+       boolean local3, local4;
+
+       if (true) {
+           float local5, local6;
+           local1 = 5;
+           local2 = 3;
+       } else {
+           local2 = 4;
+           float local5, local6;
+           local2 = 5;
+       }
+
+   }
+
+   void main() {}
+}
