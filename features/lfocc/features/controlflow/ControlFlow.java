@@ -173,7 +173,10 @@ public class ControlFlow extends Feature {
 			src += "   }\n";
 		}
 		if (elseConditional) {
-			src += "   | '{' codeBlock '}'\n";
+			if (elseIfConditional)
+				src += "   | '{' codeBlock '}'\n";
+			else
+				src += "   '{' codeBlock '}'\n";
 			src += "   {\n";
 			src += "      ConditionalSequence cond = new ConditionalSequence();\n";
 			src += "      cond.setElse(new ElseConditional($codeBlock));\n";
