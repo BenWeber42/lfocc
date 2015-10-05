@@ -1,0 +1,8 @@
+ void test() {
+     // used variable before declaration
+     write(i);
+
+     int i;
+ }
+
+void main() {}

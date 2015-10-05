@@ -1,0 +1,7 @@
+int var1;
+
+void method() {
+  // var1 already declared!
+  int var1;
+}
+void main() {}

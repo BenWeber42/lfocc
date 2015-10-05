@@ -1,0 +1,8 @@
+void main() {
+   int this = 1;
+   write(this);
+   writeln();
+}
+
+// ok
+void m1(int this) {}

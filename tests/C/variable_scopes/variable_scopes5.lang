@@ -1,0 +1,12 @@
+int var1;
+
+int var2;
+
+void method() {
+
+  if (true) {
+      // var1 already declared!
+      int var1;
+  }
+}
+void main() {}

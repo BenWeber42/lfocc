@@ -1,0 +1,12 @@
+void print(int x, int y, int z) {
+   write(x);
+   writeln();
+   write(y);
+   writeln();
+   write(z);
+   writeln();
+}
+
+void main() {
+   print(1, 2, 3);
+}

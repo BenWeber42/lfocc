@@ -1,0 +1,60 @@
+class A {}
+
+void printi(int i) {
+   write(i);
+   writeln();
+}
+
+void printf(float f) {
+   writef(f);
+   writeln();
+}
+
+void printb(boolean i) {
+   if (i) {
+      write(1);
+   } else {
+      write(0);
+   }
+   writeln();
+}
+
+void printA(A a) {
+   if (a != null) {
+      write(1);
+   } else if (a == null) {
+      write(0);
+   } else {
+      write(-1);
+   }
+   writeln();
+}
+
+void main() {
+   int i1 = 5, i2, i3 = 6;
+
+   printi(i1);
+   printi(i3);
+
+   float f1 = 1.0, f2, f3 = -123.25;
+
+   printf(f1);
+   printf(f3);
+
+   boolean b1 = true, b2, b3 = false;
+
+   printb(b1);
+   printb(b3);
+
+   A a1 = new A(), a2 = null, a3, a4 = new A();
+
+   printA(a1);
+   printA(a2);
+   printA(a4);
+
+   A _b1 = new A(), _b2 = null, _b3, _b4 = new A();
+
+   printA(_b1);
+   printA(_b2);
+   printA(_b4);
+}

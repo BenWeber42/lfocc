@@ -1,0 +1,10 @@
+int var1;
+
+    
+int var2;
+
+// not ok
+void method(int var2) {
+
+}
+void main() {}

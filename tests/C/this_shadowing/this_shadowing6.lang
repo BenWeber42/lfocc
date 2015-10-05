@@ -1,0 +1,7 @@
+int this;
+
+void main() {
+   this = 1;
+   write(this);
+   writeln();
+}

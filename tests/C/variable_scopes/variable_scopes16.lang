@@ -1,0 +1,8 @@
+int var1;
+
+class Class {
+   // not ok
+   int var1;
+}
+
+void main() {}

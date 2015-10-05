@@ -1,0 +1,7 @@
+// illegal, global variables can't be declared with an assignment
+int a = 5, b, c = 6;
+
+void main() {
+   write(a);
+   writeln();
+}

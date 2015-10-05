@@ -1,0 +1,19 @@
+int var1;
+
+// not ok
+int var4;
+
+void method() {
+
+  if (true) {
+      int var3;
+  }
+
+  if (false) {
+      int var5;
+  }
+}
+}
+
+int var4;
+void main() {}

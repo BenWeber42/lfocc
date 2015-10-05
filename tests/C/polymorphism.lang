@@ -1,0 +1,21 @@
+class A {}
+
+void main() {
+   Object o = new A();
+   A a1 = new A(), a2 = null;
+
+   o = a1;
+   o = a2;
+   o = cast<Object> a1;
+   o = cast<Object> a2;
+   o = cast<Object> null;
+   o = cast<Object> new Object();
+   o = cast<Object> new A();
+   o = cast<Object> cast<A> cast<Object> a1;
+   o = cast<Object> cast<A> cast<Object> a2;
+   o = cast<Object> cast<A> cast<Object> null;
+   o = cast<Object> cast<A> cast<Object> new A();
+
+   write(0);
+   writeln();
+}

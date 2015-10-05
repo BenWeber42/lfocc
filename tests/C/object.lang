@@ -1,0 +1,3 @@
+void main() {
+   Object o1 = new Object(), o2 = null;
+}

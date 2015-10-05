@@ -1,0 +1,34 @@
+int var1;
+
+
+// not ok
+int var1;
+
+void method() {
+
+  if (true) {
+      int var3;
+  }
+
+  if (false) {
+      // ok, different scope
+      int var3;
+  }
+
+  if (true) {
+      if (true) {
+          if (true) {
+              // ok
+              int var3;
+          } else if (true) {
+              // ok
+              int var3;
+          } else {
+          }
+      }
+  }
+}
+
+int var4;
+
+void main() {}

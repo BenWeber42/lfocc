@@ -1,0 +1,5 @@
+void test() {
+    int i = (1 + 2).attribute;
+}
+
+void main () {}

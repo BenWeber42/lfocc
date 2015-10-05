@@ -1,0 +1,12 @@
+int var1;
+
+class Class {
+   // ok
+   int var2;
+}
+
+class Class2 {
+   // ok
+   int var2;
+}
+void main() {}
