@@ -19,10 +19,9 @@ class Derived extends Class {
                 if (true) {
                     // ok
                     int var3;
-                } else if (true) {
+                } else {
                     // ok
                     int var3;
-                } else {
                 }
             }
         }
