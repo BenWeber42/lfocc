@@ -230,6 +230,11 @@ public class Functions extends MultiExtendable {
 			while (it.hasNext())
 				src += "   | " + it.next() + "\n";
 
+		} else {
+			src += "   # empty\n";
+			src += "   {\n";
+			src += "      $$ = new ArrayList<VariableDeclaration>();\n";
+			src += "   }\n";
 		}
 		src += "   ;\n";
 		src += "\n";
@@ -257,6 +262,11 @@ public class Functions extends MultiExtendable {
 			while (it.hasNext())
 				src += "   | " + it.next() + "\n";
 
+		} else {
+			src += "   # empty\n";
+			src += "   {\n";
+			src += "      $$ = new ArrayList<VariableDeclaration>();\n";
+			src += "   }\n";
 		}
 
 		src += "   ;\n";
