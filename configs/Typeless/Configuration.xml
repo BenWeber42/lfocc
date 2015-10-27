@@ -11,6 +11,5 @@
 	<feature name="Functions" config="Functions.xml" />
 	<feature name="Variables" config="Variables.xml" />
 	<feature name="Assignments" />
-	<feature name="X86" /> <!-- backend -->
 
 </LanguageConfiguration>
