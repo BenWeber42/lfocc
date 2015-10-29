@@ -75,7 +75,7 @@ public class Variables extends Feature {
 		if (globals) {
 			ExtenderService extender = (ExtenderService) services.getService("GlobalScope", "Extender");
 			extender.addSyntaxRule(
-					"nonAssignableVariableDeclaration\n" +
+					"nonAssignableVariableDeclaration ';'\n" +
 					"   {\n" +
 					"      $$ = $nonAssignableVariableDeclaration;\n" +
 					"   }\n"
@@ -141,7 +141,7 @@ public class Variables extends Feature {
 		if (classMembers) {
 			ExtenderService extender = (ExtenderService) services.getService("Classes", "Extender");
 			extender.addSyntaxRule(
-					"nonAssignableVariableDeclaration" +
+					"nonAssignableVariableDeclaration ';'" +
 					"   {\n" +
 					"      $$ = $nonAssignableVariableDeclaration;\n" +
 					"   }\n"
@@ -237,9 +237,9 @@ public class Variables extends Feature {
 		src += "\n";
 		src += "nonAssignableVariableDeclaration (List<VariableDeclaration>) ::= \n";
 		if (framework.hasFeature("Types")) {
-			src += "   type vars = nonAssignableVariableDeclarations ';'\n";
+			src += "   type vars = nonAssignableVariableDeclarations\n";
 		} else {
-			src += "   vars = nonAssignableVariableDeclarations ';'\n";
+			src += "   vars = nonAssignableVariableDeclarations\n";
 		}
 		src += "   {\n";
 		if (framework.hasFeature("Types")) {
