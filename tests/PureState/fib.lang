@@ -1,0 +1,36 @@
+int ref, n, f1, f2, temp, ret;
+
+void fib() {
+
+   if (n <= 0) {
+      ret = -1;
+   } else if (n <= 1) {
+      ret = 0;
+   } else if (n == 2) {
+      ret = 1;
+   }
+
+   n = n - 2;
+
+   f1 = 1; f2 = 0;
+
+   for (; n > 0; n = n - 1) {
+      temp = f1;
+      f1 = f1 + f2;
+      f2 = temp;
+   }
+
+   ret = f1;
+}
+
+void main() {
+   n = read();
+   ref = read();
+   fib();
+   
+   if (ret != ref) {
+      // this will crash the program
+      // denoting failure to compute the correct value
+      ret = 1/0;
+   }
+}
